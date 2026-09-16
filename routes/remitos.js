@@ -29,15 +29,22 @@ router.get('/', async (req, res, next) => {
 router.get('/:id', async (req, res, next) => {
     try {
         const remito = await db.one(`
-            SELECT r.*, c.razon_social as cliente_nombre FROM remitos r
+            SELECT r.*, c.razon_social as cliente_nombre, c.cuit as cliente_cuit,
+                   c.condicion_iva as cliente_condicion_iva, c.direccion as cliente_direccion,
+                   c.localidad as cliente_localidad, c.telefono as cliente_telefono, c.email as cliente_email
+            FROM remitos r
             JOIN clientes c ON c.id = r.cliente_id WHERE r.id = $1
         `, [req.params.id]);
         if (!remito) return res.status(404).json({ error: 'Remito no encontrado.' });
 
         const items = await db.all(`
-            SELECT ri.*, p.nombre as producto_nombre, p.unidad_medida
-            FROM remito_items ri JOIN productos p ON p.id = ri.producto_id
+            SELECT ri.*, p.nombre as producto_nombre, p.codigo as producto_codigo, p.unidad_medida,
+                   l.numero_lote, l.fecha_vencimiento
+            FROM remito_items ri
+            JOIN productos p ON p.id = ri.producto_id
+            LEFT JOIN lotes l ON l.id = ri.lote_id
             WHERE ri.remito_id = $1
+            ORDER BY ri.id ASC
         `, [req.params.id]);
 
         res.json({ ...remito, items });
@@ -49,17 +56,19 @@ router.get('/:id', async (req, res, next) => {
  */
 router.post('/', async (req, res, next) => {
     try {
-        const { cliente_id, fecha, direccion_entrega, transportista, observaciones, items } = req.body;
+        const { cliente_id, fecha, direccion_entrega, transportista, observaciones, items, permitir_sin_stock } = req.body;
 
         if (!cliente_id) return res.status(400).json({ error: 'cliente_id es requerido.' });
         if (!items || !items.length) return res.status(400).json({ error: 'Debe incluir al menos un ítem.' });
 
-        // Validar stock disponible antes de confirmar
+        // Validar stock disponible a menos que se permita emitir sin stock previo
         for (const item of items) {
             const producto = await db.one('SELECT * FROM productos WHERE id = $1', [item.producto_id]);
             if (!producto) return res.status(400).json({ error: `Producto ${item.producto_id} no existe.` });
-            if (Number(producto.stock_actual) < Number(item.cantidad)) {
-                return res.status(400).json({ error: `Stock insuficiente de "${producto.nombre}". Disponible: ${producto.stock_actual} ${producto.unidad_medida}` });
+            if (!permitir_sin_stock && Number(producto.stock_actual) < Number(item.cantidad)) {
+                return res.status(400).json({
+                    error: `Stock insuficiente de "${producto.nombre}". Disponible: ${producto.stock_actual} ${producto.unidad_medida}. Podés tildar "Permitir emitir sin stock" si la mercadería ya ingresó físicamente.`
+                });
             }
         }
 
@@ -105,6 +114,15 @@ router.post('/', async (req, res, next) => {
                 `, [item.producto_id, loteDeReferencia, item.cantidad, remitoId, req.usuario.id]);
             }
 
+            // Actualizar cuenta corriente del cliente si el remito tiene monto
+            if (Number(total) > 0) {
+                await tx.run('UPDATE clientes SET saldo_cuenta = saldo_cuenta + $1 WHERE id = $2', [total, cliente_id]);
+                await tx.run(`
+                    INSERT INTO movimientos_cuenta (entidad_tipo, entidad_id, tipo, monto, medio_pago, referencia_tipo, referencia_id, observaciones, usuario_id)
+                    VALUES ('cliente', $1, 'cargo', $2, 'cuenta_corriente', 'remito', $3, $4, $5)
+                `, [cliente_id, total, remitoId, `Emisión de remito ${numero}`, req.usuario.id]);
+            }
+
             return remitoId;
         });
 
@@ -134,6 +152,16 @@ router.put('/:id/estado', async (req, res, next) => {
                         VALUES ($1, $2, 'ajuste_positivo', $3, 'Anulación de remito', 'remito', $4, $5)
                     `, [item.producto_id, item.lote_id, item.cantidad, req.params.id, req.usuario.id]);
                 }
+
+                // Revertir saldo en cuenta corriente del cliente si correspondía
+                if (Number(remito.total) > 0) {
+                    await tx.run('UPDATE clientes SET saldo_cuenta = saldo_cuenta - $1 WHERE id = $2', [remito.total, remito.cliente_id]);
+                    await tx.run(`
+                        INSERT INTO movimientos_cuenta (entidad_tipo, entidad_id, tipo, monto, medio_pago, referencia_tipo, referencia_id, observaciones, usuario_id)
+                        VALUES ('cliente', $1, 'ajuste', $2, 'ajuste', 'remito_anulado', $3, $4, $5)
+                    `, [remito.cliente_id, remito.total, remito.id, `Anulación de remito ${remito.numero}`, req.usuario.id]);
+                }
+
                 await tx.run('UPDATE remitos SET estado = $1 WHERE id = $2', [estado, req.params.id]);
             });
         } else {

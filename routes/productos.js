@@ -25,7 +25,7 @@ router.post('/categorias', async (req, res, next) => {
 
 router.get('/', async (req, res, next) => {
     try {
-        const { q, activo, bajo_stock } = req.query;
+        const { q, activo, bajo_stock, categoria_id } = req.query;
         let sql = `
             SELECT p.*, c.nombre as categoria_nombre
             FROM productos p
@@ -37,6 +37,10 @@ router.get('/', async (req, res, next) => {
         if (q) {
             params.push(`%${q}%`, `%${q}%`);
             sql += ` AND (p.nombre ILIKE $${params.length - 1} OR p.codigo ILIKE $${params.length})`;
+        }
+        if (categoria_id) {
+            params.push(Number(categoria_id));
+            sql += ` AND p.categoria_id = $${params.length}`;
         }
         if (activo !== undefined) {
             params.push(activo === '1');
@@ -66,13 +70,21 @@ router.get('/:id', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
     try {
-        const { codigo, nombre, categoria_id, unidad_medida, precio_compra, precio_venta, stock_minimo } = req.body;
+        const {
+            codigo, nombre, descripcion, imagen, categoria_id, unidad_medida,
+            precio_compra, precio_venta, precio_5kg, precio_10kg, precio_25kg, precio_30kg, stock_minimo
+        } = req.body;
         if (!nombre) return res.status(400).json({ error: 'nombre es requerido.' });
 
         const { row } = await db.run(`
-            INSERT INTO productos (codigo, nombre, categoria_id, unidad_medida, precio_compra, precio_venta, stock_minimo, stock_actual)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, 0) RETURNING id
-        `, [codigo || null, nombre, categoria_id || null, unidad_medida || 'kg', precio_compra || 0, precio_venta || 0, stock_minimo || 0]);
+            INSERT INTO productos (
+                codigo, nombre, descripcion, imagen, categoria_id, unidad_medida,
+                precio_compra, precio_venta, precio_5kg, precio_10kg, precio_25kg, precio_30kg, stock_minimo, stock_actual
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, 0) RETURNING id
+        `, [
+            codigo || null, nombre, descripcion || null, imagen || null, categoria_id || null, unidad_medida || 'kg',
+            precio_compra || 0, precio_venta || 0, precio_5kg || 0, precio_10kg || 0, precio_25kg || 0, precio_30kg || 0, stock_minimo || 0
+        ]);
 
         res.status(201).json(await db.one('SELECT * FROM productos WHERE id = $1', [row.id]));
     } catch (err) { next(err); }
@@ -85,9 +97,16 @@ router.put('/:id', async (req, res, next) => {
 
         const p = { ...existente, ...req.body };
         await db.run(`
-            UPDATE productos SET codigo=$1, nombre=$2, categoria_id=$3, unidad_medida=$4, precio_compra=$5, precio_venta=$6, stock_minimo=$7, activo=$8
-            WHERE id = $9
-        `, [p.codigo, p.nombre, p.categoria_id, p.unidad_medida, p.precio_compra, p.precio_venta, p.stock_minimo, p.activo, req.params.id]);
+            UPDATE productos SET
+                codigo=$1, nombre=$2, descripcion=$3, imagen=$4, categoria_id=$5, unidad_medida=$6,
+                precio_compra=$7, precio_venta=$8, precio_5kg=$9, precio_10kg=$10, precio_25kg=$11, precio_30kg=$12,
+                stock_minimo=$13, activo=$14
+            WHERE id = $15
+        `, [
+            p.codigo, p.nombre, p.descripcion, p.imagen, p.categoria_id, p.unidad_medida,
+            p.precio_compra, p.precio_venta, p.precio_5kg, p.precio_10kg, p.precio_25kg, p.precio_30kg,
+            p.stock_minimo, p.activo, req.params.id
+        ]);
 
         res.json(await db.one('SELECT * FROM productos WHERE id = $1', [req.params.id]));
     } catch (err) { next(err); }

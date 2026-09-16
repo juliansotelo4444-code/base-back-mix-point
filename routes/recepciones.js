@@ -85,6 +85,15 @@ router.post('/', async (req, res, next) => {
                 `, [item.producto_id, lote.id, item.cantidad, recepcionId, req.usuario.id]);
             }
 
+            // Actualizar cuenta corriente del proveedor si la recepción tiene monto
+            if (Number(total) > 0) {
+                await tx.run('UPDATE proveedores SET saldo_cuenta = saldo_cuenta + $1 WHERE id = $2', [total, proveedor_id]);
+                await tx.run(`
+                    INSERT INTO movimientos_cuenta (entidad_tipo, entidad_id, tipo, monto, medio_pago, referencia_tipo, referencia_id, observaciones, usuario_id)
+                    VALUES ('proveedor', $1, 'cargo', $2, 'cuenta_corriente', 'recepcion', $3, $4, $5)
+                `, [proveedor_id, total, recepcionId, `Recepción de mercadería ${numero}`, req.usuario.id]);
+            }
+
             return recepcionId;
         });
 
@@ -108,6 +117,16 @@ router.post('/:id/anular', async (req, res, next) => {
                     VALUES ($1, $2, 'ajuste_negativo', $3, 'Anulación de recepción', 'recepcion', $4, $5)
                 `, [item.producto_id, item.lote_id, item.cantidad, req.params.id, req.usuario.id]);
             }
+
+            // Revertir saldo en cuenta corriente del proveedor si correspondía
+            if (Number(recepcion.total) > 0) {
+                await tx.run('UPDATE proveedores SET saldo_cuenta = saldo_cuenta - $1 WHERE id = $2', [recepcion.total, recepcion.proveedor_id]);
+                await tx.run(`
+                    INSERT INTO movimientos_cuenta (entidad_tipo, entidad_id, tipo, monto, medio_pago, referencia_tipo, referencia_id, observaciones, usuario_id)
+                    VALUES ('proveedor', $1, 'ajuste', $2, 'ajuste', 'recepcion_anulada', $3, $4, $5)
+                `, [recepcion.proveedor_id, recepcion.total, recepcion.id, `Anulación de recepción ${recepcion.numero}`, req.usuario.id]);
+            }
+
             await tx.run("UPDATE recepciones SET estado = 'anulada' WHERE id = $1", [req.params.id]);
         });
 

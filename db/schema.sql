@@ -62,15 +62,29 @@ CREATE TABLE IF NOT EXISTS productos (
     id                  SERIAL PRIMARY KEY,
     codigo              TEXT UNIQUE,
     nombre              TEXT NOT NULL,
+    descripcion         TEXT,
+    imagen              TEXT,
     categoria_id        INTEGER REFERENCES categorias_producto(id),
     unidad_medida       TEXT NOT NULL DEFAULT 'kg' CHECK (unidad_medida IN ('kg','g','unidad','bolsa','caja')),
     precio_compra       NUMERIC NOT NULL DEFAULT 0,
     precio_venta        NUMERIC NOT NULL DEFAULT 0,
+    precio_5kg          NUMERIC NOT NULL DEFAULT 0,
+    precio_10kg         NUMERIC NOT NULL DEFAULT 0,
+    precio_25kg         NUMERIC NOT NULL DEFAULT 0,
+    precio_30kg         NUMERIC NOT NULL DEFAULT 0,
     stock_minimo        NUMERIC NOT NULL DEFAULT 0,
     stock_actual        NUMERIC NOT NULL DEFAULT 0,
     activo              BOOLEAN NOT NULL DEFAULT TRUE,
     created_at          TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+-- Migraciones idempotentes para tablas existentes
+ALTER TABLE productos ADD COLUMN IF NOT EXISTS descripcion TEXT;
+ALTER TABLE productos ADD COLUMN IF NOT EXISTS imagen TEXT;
+ALTER TABLE productos ADD COLUMN IF NOT EXISTS precio_5kg NUMERIC NOT NULL DEFAULT 0;
+ALTER TABLE productos ADD COLUMN IF NOT EXISTS precio_10kg NUMERIC NOT NULL DEFAULT 0;
+ALTER TABLE productos ADD COLUMN IF NOT EXISTS precio_25kg NUMERIC NOT NULL DEFAULT 0;
+ALTER TABLE productos ADD COLUMN IF NOT EXISTS precio_30kg NUMERIC NOT NULL DEFAULT 0;
 
 CREATE TABLE IF NOT EXISTS recepciones (
     id                      SERIAL PRIMARY KEY,
@@ -198,12 +212,26 @@ CREATE TABLE IF NOT EXISTS movimientos_cuenta (
 -- ---------------------------------------------------------
 -- ÍNDICES
 -- ---------------------------------------------------------
+CREATE INDEX IF NOT EXISTS idx_productos_nombre ON productos(LOWER(nombre));
+CREATE INDEX IF NOT EXISTS idx_productos_categoria ON productos(categoria_id);
+CREATE INDEX IF NOT EXISTS idx_productos_activo ON productos(activo);
 CREATE INDEX IF NOT EXISTS idx_lotes_producto ON lotes(producto_id);
 CREATE INDEX IF NOT EXISTS idx_lotes_vencimiento ON lotes(fecha_vencimiento);
+CREATE INDEX IF NOT EXISTS idx_lotes_fefo ON lotes(producto_id, cantidad_actual, fecha_vencimiento);
 CREATE INDEX IF NOT EXISTS idx_mov_stock_producto ON movimientos_stock(producto_id);
+CREATE INDEX IF NOT EXISTS idx_mov_stock_fecha ON movimientos_stock(fecha DESC);
+CREATE INDEX IF NOT EXISTS idx_remitos_numero ON remitos(numero);
 CREATE INDEX IF NOT EXISTS idx_remitos_cliente ON remitos(cliente_id);
-CREATE INDEX IF NOT EXISTS idx_remitos_fecha ON remitos(fecha);
+CREATE INDEX IF NOT EXISTS idx_remitos_fecha ON remitos(fecha DESC);
+CREATE INDEX IF NOT EXISTS idx_remito_items_remito ON remito_items(remito_id);
+CREATE INDEX IF NOT EXISTS idx_remito_items_producto ON remito_items(producto_id);
+CREATE INDEX IF NOT EXISTS idx_recepciones_numero ON recepciones(numero);
 CREATE INDEX IF NOT EXISTS idx_recepciones_proveedor ON recepciones(proveedor_id);
-CREATE INDEX IF NOT EXISTS idx_gastos_fecha ON gastos(fecha);
+CREATE INDEX IF NOT EXISTS idx_recepciones_fecha ON recepciones(fecha DESC);
+CREATE INDEX IF NOT EXISTS idx_recepcion_items_recepcion ON recepcion_items(recepcion_id);
+CREATE INDEX IF NOT EXISTS idx_recepcion_items_producto ON recepcion_items(producto_id);
+CREATE INDEX IF NOT EXISTS idx_gastos_fecha ON gastos(fecha DESC);
 CREATE INDEX IF NOT EXISTS idx_gastos_categoria ON gastos(categoria_id);
-CREATE INDEX IF NOT EXISTS idx_mov_cuenta_entidad ON movimientos_cuenta(entidad_tipo, entidad_id);
+CREATE INDEX IF NOT EXISTS idx_mov_cuenta_entidad ON movimientos_cuenta(entidad_tipo, entidad_id, fecha DESC);
+CREATE INDEX IF NOT EXISTS idx_clientes_nombre ON clientes(LOWER(razon_social));
+CREATE INDEX IF NOT EXISTS idx_proveedores_nombre ON proveedores(LOWER(razon_social));

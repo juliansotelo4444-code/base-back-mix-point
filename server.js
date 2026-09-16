@@ -31,6 +31,7 @@ app.use('/api/remitos', require('./routes/remitos'));
 app.use('/api/gastos', require('./routes/gastos'));
 app.use('/api/cuenta-corriente', require('./routes/cuentaCorriente'));
 app.use('/api/dashboard', require('./routes/dashboard'));
+app.use('/api/integraciones', require('./routes/integraciones'));
 
 app.use((err, req, res, next) => {
     console.error(err);

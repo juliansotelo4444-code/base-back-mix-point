@@ -10,8 +10,13 @@ if (!process.env.DATABASE_URL) {
 // Para una base local (desarrollo) no hace falta: se puede desactivar con PGSSL=false en .env
 const useSSL = process.env.PGSSL !== 'false';
 
+let connectionString = process.env.DATABASE_URL;
+if (connectionString && connectionString.includes('sslmode=require') && !connectionString.includes('uselibpqcompat')) {
+    connectionString = connectionString.replace('sslmode=require', 'uselibpqcompat=true&sslmode=require');
+}
+
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
+    connectionString,
     ssl: useSSL ? { rejectUnauthorized: false } : false,
 });
 
