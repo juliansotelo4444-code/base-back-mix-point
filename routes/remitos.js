@@ -4,6 +4,16 @@ const { requireAuth } = require('../middleware/auth');
 const { generarNumero } = require('../utils/numerador');
 const AlertasService = require('../services/alertasService');
 
+// Retorna la fecha de hoy 'YYYY-MM-DD' en la zona horaria de Argentina (America/Argentina/Buenos_Aires)
+function getFechaHoyBuenosAires() {
+    return new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'America/Argentina/Buenos_Aires',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    }).format(new Date());
+}
+
 const router = express.Router();
 router.use(requireAuth);
 
@@ -98,13 +108,15 @@ router.post('/', async (req, res, next) => {
         const remitoId = await db.transaction(async (tx) => {
             const numero = await generarNumero('remitos', 'REM', tx);
 
+            const fechaEmision = (fecha && String(fecha).trim()) ? String(fecha).slice(0, 10) : getFechaHoyBuenosAires();
+
             const { row } = await tx.run(`
                 INSERT INTO remitos (
                     numero, cliente_id, fecha, direccion_entrega, transportista,
                     observaciones, total, estado, stock_descontado, descuento_porcentaje, usuario_id
                 ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id
             `, [
-                numero, cliente_id, fecha || new Date().toISOString().slice(0, 10),
+                numero, cliente_id, fechaEmision,
                 direccion_entrega || null, transportista || null, observaciones || null,
                 total, estadoFinal, debeDescontar, descPorc, req.usuario.id
             ]);

@@ -1,6 +1,9 @@
-const { Pool } = require('pg');
+const { Pool, types } = require('pg');
 const fs = require('fs');
 const path = require('path');
+
+// Evitar desfase de zona horaria: que pg devuelva campos DATE (OID 1082) como string 'YYYY-MM-DD' puro
+types.setTypeParser(1082, (val) => val);
 
 if (!process.env.DATABASE_URL) {
     throw new Error('Falta la variable de entorno DATABASE_URL. Definila en .env (ver .env.example).');

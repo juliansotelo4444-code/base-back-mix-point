@@ -1,0 +1,4355 @@
+{
+  "empresa": "Mix Point Mayorista",
+  "linea_whatsapp": "1167873243",
+  "alias_pago": "mixpoint2026",
+  "deposito": "San Isidro 2135 Ituzaingó, Buenos Aires",
+  "total_productos": 225,
+  "total_paginas_revista": 21,
+  "categorias": [
+    {
+      "nombre": "Frutos Secos",
+      "cantidad_productos": 20,
+      "primera_pagina": 3
+    },
+    {
+      "nombre": "Mixes",
+      "cantidad_productos": 8,
+      "primera_pagina": 5
+    },
+    {
+      "nombre": "Cereales",
+      "cantidad_productos": 16,
+      "primera_pagina": 6
+    },
+    {
+      "nombre": "Repostería",
+      "cantidad_productos": 11,
+      "primera_pagina": 7
+    },
+    {
+      "nombre": "Snacks",
+      "cantidad_productos": 8,
+      "primera_pagina": 8
+    },
+    {
+      "nombre": "Legumbres",
+      "cantidad_productos": 13,
+      "primera_pagina": 9
+    },
+    {
+      "nombre": "Condimentos",
+      "cantidad_productos": 21,
+      "primera_pagina": 10
+    },
+    {
+      "nombre": "Azúcares",
+      "cantidad_productos": 4,
+      "primera_pagina": 12
+    },
+    {
+      "nombre": "Harinas",
+      "cantidad_productos": 17,
+      "primera_pagina": 13
+    },
+    {
+      "nombre": "Semillas",
+      "cantidad_productos": 10,
+      "primera_pagina": 14
+    },
+    {
+      "nombre": "Suplementos",
+      "cantidad_productos": 10,
+      "primera_pagina": 15
+    },
+    {
+      "nombre": "Aceites",
+      "cantidad_productos": 14,
+      "primera_pagina": 16
+    },
+    {
+      "nombre": "Otros",
+      "cantidad_productos": 3,
+      "primera_pagina": 17
+    },
+    {
+      "nombre": "Chocolates sin TACC",
+      "cantidad_productos": 10,
+      "primera_pagina": 18
+    },
+    {
+      "nombre": "Herboristería",
+      "cantidad_productos": 60,
+      "primera_pagina": 19
+    }
+  ],
+  "productos": [
+    {
+      "id": 1,
+      "codigo": "MP-001",
+      "nombre": "Nueces Mariposa Chandler Extra light 2026",
+      "descripcion": "",
+      "categoria": "Frutos Secos",
+      "pagina": 3,
+      "precio_venta": 14900.0,
+      "precio_5kg": 14900.0,
+      "precio_10kg": 13900.0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 14900.0,
+        "x5kg": 14900.0,
+        "x10kg": 13900.0
+      },
+      "imagen": "/catalogo/productos/nueces_mariposa_chandler_extra_light_2026_19.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 2,
+      "codigo": "MP-002",
+      "nombre": "Nuez Con Cascara",
+      "descripcion": "",
+      "categoria": "Frutos Secos",
+      "pagina": 3,
+      "precio_venta": 8280.0,
+      "precio_5kg": 7560.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 8280.0,
+        "x5kg": 7560.0
+      },
+      "imagen": "/catalogo/productos/nuez_con_cascara_25.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 3,
+      "codigo": "MP-003",
+      "nombre": "Castañas De Caju W4",
+      "descripcion": "",
+      "categoria": "Frutos Secos",
+      "pagina": 3,
+      "precio_venta": 16500.0,
+      "precio_5kg": 16500.0,
+      "precio_10kg": 15000.0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 16500.0,
+        "x5kg": 16500.0,
+        "x10kg": 15000.0
+      },
+      "imagen": "/catalogo/productos/castanas_de_caju_w4_31.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 4,
+      "codigo": "MP-004",
+      "nombre": "Pasas De Uva Jumbo",
+      "descripcion": "",
+      "categoria": "Frutos Secos",
+      "pagina": 3,
+      "precio_venta": 8640.0,
+      "precio_5kg": 7680.0,
+      "precio_10kg": 6960.0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 8640.0,
+        "x5kg": 7680.0,
+        "x10kg": 6960.0
+      },
+      "imagen": "/catalogo/productos/pasas_de_uva_jumbo_37.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 5,
+      "codigo": "MP-005",
+      "nombre": "Ciruela sin carozo D'agen",
+      "descripcion": "",
+      "categoria": "Frutos Secos",
+      "pagina": 3,
+      "precio_venta": 9600.0,
+      "precio_5kg": 8160.0,
+      "precio_10kg": 8040.0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 9600.0,
+        "x5kg": 8160.0,
+        "x10kg": 8040.0
+      },
+      "imagen": "/catalogo/productos/ciruela_sin_carozo_dagen_43.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 6,
+      "codigo": "MP-006",
+      "nombre": "Bananáa Chips Desecada",
+      "descripcion": "",
+      "categoria": "Frutos Secos",
+      "pagina": 3,
+      "precio_venta": 13800.0,
+      "precio_5kg": 12240.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 13800.0,
+        "x5kg": 12240.0
+      },
+      "imagen": "/catalogo/productos/banana_chips_desecada_47.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 7,
+      "codigo": "MP-007",
+      "nombre": "Nueces Mariposa light",
+      "descripcion": "",
+      "categoria": "Frutos Secos",
+      "pagina": 3,
+      "precio_venta": 14900.0,
+      "precio_5kg": 14900.0,
+      "precio_10kg": 13900.0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 14900.0,
+        "x5kg": 14900.0,
+        "x10kg": 13900.0
+      },
+      "imagen": "/catalogo/productos/nueces_mariposa_light_21.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 8,
+      "codigo": "MP-008",
+      "nombre": "Almendras Guara Nacionales",
+      "descripcion": "",
+      "categoria": "Frutos Secos",
+      "pagina": 3,
+      "precio_venta": 18900.0,
+      "precio_5kg": 18900.0,
+      "precio_10kg": 17900.0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 18900.0,
+        "x5kg": 18900.0,
+        "x10kg": 17900.0
+      },
+      "imagen": "/catalogo/productos/almendras_guara_nacionales_27.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 9,
+      "codigo": "MP-009",
+      "nombre": "Avellanas",
+      "descripcion": "",
+      "categoria": "Frutos Secos",
+      "pagina": 3,
+      "precio_venta": 31900.0,
+      "precio_5kg": 31900.0,
+      "precio_10kg": 28800.0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 31900.0,
+        "x5kg": 31900.0,
+        "x10kg": 28800.0
+      },
+      "imagen": "/catalogo/productos/avellanas_33.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 10,
+      "codigo": "MP-010",
+      "nombre": "Pasas De Uva Flame",
+      "descripcion": "",
+      "categoria": "Frutos Secos",
+      "pagina": 3,
+      "precio_venta": 4800.0,
+      "precio_5kg": 4500.0,
+      "precio_10kg": 4300.0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 4800.0,
+        "x5kg": 4500.0,
+        "x10kg": 4300.0
+      },
+      "imagen": "/catalogo/productos/pasas_de_uva_flame_39.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 11,
+      "codigo": "MP-011",
+      "nombre": "Ciruelas presidente",
+      "descripcion": "",
+      "categoria": "Frutos Secos",
+      "pagina": 3,
+      "precio_venta": 16000.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 16000.0
+      },
+      "imagen": "/catalogo/productos/ciruela_sin_carozo_dagen_43.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 12,
+      "codigo": "MP-012",
+      "nombre": "Datiles",
+      "descripcion": "",
+      "categoria": "Frutos Secos",
+      "pagina": 3,
+      "precio_venta": 9360.0,
+      "precio_5kg": 8640.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 9360.0,
+        "x5kg": 8640.0
+      },
+      "imagen": "/catalogo/productos/datiles_49.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 13,
+      "codigo": "MP-013",
+      "nombre": "Nuez Cuarto Extra Light",
+      "descripcion": "",
+      "categoria": "Frutos Secos",
+      "pagina": 3,
+      "precio_venta": 19200.0,
+      "precio_5kg": 16800.0,
+      "precio_10kg": 16800.0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 19200.0,
+        "x5kg": 16800.0,
+        "x10kg": 16800.0
+      },
+      "imagen": "/catalogo/productos/nuez_cuarto_extra_light_23.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 14,
+      "codigo": "MP-014",
+      "nombre": "Almendras Non Pareil Chilenas",
+      "descripcion": "",
+      "categoria": "Frutos Secos",
+      "pagina": 3,
+      "precio_venta": 26400.0,
+      "precio_5kg": 24000.0,
+      "precio_10kg": 22200.0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 26400.0,
+        "x5kg": 24000.0,
+        "x10kg": 22200.0
+      },
+      "imagen": "/catalogo/productos/almendras_non_pareil_chilenas_29.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 15,
+      "codigo": "MP-015",
+      "nombre": "Pistacho",
+      "descripcion": "",
+      "categoria": "Frutos Secos",
+      "pagina": 3,
+      "precio_venta": 44400.0,
+      "precio_5kg": 42000.0,
+      "precio_10kg": 38400.0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 44400.0,
+        "x5kg": 42000.0,
+        "x10kg": 38400.0
+      },
+      "imagen": "/catalogo/productos/pistacho_35.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 16,
+      "codigo": "MP-016",
+      "nombre": "Pasas De Uva Rubias",
+      "descripcion": "",
+      "categoria": "Frutos Secos",
+      "pagina": 3,
+      "precio_venta": 8280.0,
+      "precio_5kg": 7475.0,
+      "precio_10kg": 3720.0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 8280.0,
+        "x5kg": 7475.0,
+        "x10kg": 3720.0
+      },
+      "imagen": "/catalogo/productos/pasas_de_uva_rubias_41.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 17,
+      "codigo": "MP-017",
+      "nombre": "Arandanos",
+      "descripcion": "",
+      "categoria": "Frutos Secos",
+      "pagina": 3,
+      "precio_venta": 16800.0,
+      "precio_5kg": 16200.0,
+      "precio_10kg": 15480.0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 16800.0,
+        "x5kg": 16200.0,
+        "x10kg": 15480.0
+      },
+      "imagen": "/catalogo/productos/arandanos_45.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 18,
+      "codigo": "MP-018",
+      "nombre": "Higos Negros",
+      "descripcion": "",
+      "categoria": "Frutos Secos",
+      "pagina": 3,
+      "precio_venta": 15000.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 15000.0
+      },
+      "imagen": "/catalogo/productos/higos_negros_51.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 19,
+      "codigo": "MP-019",
+      "nombre": "Pasta De Mani Entrenuts",
+      "descripcion": "",
+      "categoria": "Frutos Secos",
+      "pagina": 4,
+      "precio_venta": 3000.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 3000.0
+      },
+      "imagen": "/catalogo/productos/pasta_de_mani_entrenuts_53.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 20,
+      "codigo": "MP-020",
+      "nombre": "Castañas de Pará",
+      "descripcion": "",
+      "categoria": "Frutos Secos",
+      "pagina": 4,
+      "precio_venta": 36500.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 36500.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 21,
+      "codigo": "MP-021",
+      "nombre": "Mix Patagonia",
+      "descripcion": "Arandanos, almendras, caju, nuez",
+      "categoria": "Mixes",
+      "pagina": 5,
+      "precio_venta": 19800.0,
+      "precio_5kg": 19200.0,
+      "precio_10kg": 18240.0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 19800.0,
+        "x5kg": 19200.0,
+        "x10kg": 18240.0
+      },
+      "imagen": "/catalogo/productos/mix_patagonia_65.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 22,
+      "codigo": "MP-022",
+      "nombre": "Mix Premium",
+      "descripcion": "Nuez, castañas, almendras, avellanas",
+      "categoria": "Mixes",
+      "pagina": 5,
+      "precio_venta": 17900.0,
+      "precio_5kg": 17000.0,
+      "precio_10kg": 16500.0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 17900.0,
+        "x5kg": 17000.0,
+        "x10kg": 16500.0
+      },
+      "imagen": "/catalogo/productos/mix_premium_71.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 23,
+      "codigo": "MP-023",
+      "nombre": "Mix Economico",
+      "descripcion": "Pasas, maní, nuez, almendras, caju",
+      "categoria": "Mixes",
+      "pagina": 5,
+      "precio_venta": 6900.0,
+      "precio_5kg": 6900.0,
+      "precio_10kg": 6700.0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 6900.0,
+        "x5kg": 6900.0,
+        "x10kg": 6700.0
+      },
+      "imagen": "/catalogo/productos/mix_economico_77.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 24,
+      "codigo": "MP-024",
+      "nombre": "Mix Frutas Sin Mani",
+      "descripcion": "Almendra, nuez, pasas, castaña",
+      "categoria": "Mixes",
+      "pagina": 5,
+      "precio_venta": 15600.0,
+      "precio_5kg": 15000.0,
+      "precio_10kg": 14800.0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 15600.0,
+        "x5kg": 15000.0,
+        "x10kg": 14800.0
+      },
+      "imagen": "/catalogo/productos/mix_frutas_sin_mani_67.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 25,
+      "codigo": "MP-025",
+      "nombre": "Mix Bananáa",
+      "descripcion": "Bananáa, nuez, almendras, pasas, maní",
+      "categoria": "Mixes",
+      "pagina": 5,
+      "precio_venta": 8160.0,
+      "precio_5kg": 7800.0,
+      "precio_10kg": 7440.0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 8160.0,
+        "x5kg": 7800.0,
+        "x10kg": 7440.0
+      },
+      "imagen": "/catalogo/productos/mix_banana_73.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 26,
+      "codigo": "MP-026",
+      "nombre": "Mix Cervecero",
+      "descripcion": "Maiz frito, maní salado, girasol, semilla zapallo, maní chino",
+      "categoria": "Mixes",
+      "pagina": 5,
+      "precio_venta": 7440.0,
+      "precio_5kg": 6840.0,
+      "precio_10kg": 6600.0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 7440.0,
+        "x5kg": 6840.0,
+        "x10kg": 6600.0
+      },
+      "imagen": "/catalogo/productos/mix_cervecero_79.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 27,
+      "codigo": "MP-027",
+      "nombre": "Mix Sin Pasas",
+      "descripcion": "Nuez, maní, almendra, castaña",
+      "categoria": "Mixes",
+      "pagina": 5,
+      "precio_venta": 13900.0,
+      "precio_5kg": 13900.0,
+      "precio_10kg": 13400.0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 13900.0,
+        "x5kg": 13900.0,
+        "x10kg": 13400.0
+      },
+      "imagen": "/catalogo/productos/mix_sin_pasas_69.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 28,
+      "codigo": "MP-028",
+      "nombre": "Mix Tropical",
+      "descripcion": "Bananáa, pasas, papaya, ananáá cubos, nuez",
+      "categoria": "Mixes",
+      "pagina": 5,
+      "precio_venta": 15480.0,
+      "precio_5kg": 15000.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 15480.0,
+        "x5kg": 15000.0
+      },
+      "imagen": "/catalogo/productos/mix_tropical_75.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 29,
+      "codigo": "MP-029",
+      "nombre": "Almohaditas Frutilla",
+      "descripcion": "",
+      "categoria": "Cereales",
+      "pagina": 6,
+      "precio_venta": 7800.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 7800.0
+      },
+      "imagen": "/catalogo/productos/almohaditas_frutilla_86.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 30,
+      "codigo": "MP-030",
+      "nombre": "Almohaditas Chocolate",
+      "descripcion": "",
+      "categoria": "Cereales",
+      "pagina": 6,
+      "precio_venta": 8400.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 8400.0
+      },
+      "imagen": "/catalogo/productos/almohaditas_frutilla_86.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 31,
+      "codigo": "MP-031",
+      "nombre": "Bolita Chocolate",
+      "descripcion": "",
+      "categoria": "Cereales",
+      "pagina": 6,
+      "precio_venta": 6600.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 6600.0
+      },
+      "imagen": "/catalogo/productos/bolita_chocolate_92.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 32,
+      "codigo": "MP-032",
+      "nombre": "Copos Sin Azucar",
+      "descripcion": "",
+      "categoria": "Cereales",
+      "pagina": 6,
+      "precio_venta": 4800.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 4800.0
+      },
+      "imagen": "/catalogo/productos/copos_sin_azucar_96.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 33,
+      "codigo": "MP-033",
+      "nombre": "Sal Marina Fina",
+      "descripcion": "Por 500gr",
+      "categoria": "Cereales",
+      "pagina": 6,
+      "precio_venta": 1050.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 1050.0
+      },
+      "imagen": "/catalogo/productos/sal_marina_fina_102.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 34,
+      "codigo": "MP-034",
+      "nombre": "Tomates Secos",
+      "descripcion": "",
+      "categoria": "Cereales",
+      "pagina": 6,
+      "precio_venta": 17135.0,
+      "precio_5kg": 10560.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 17135.0,
+        "x5kg": 10560.0
+      },
+      "imagen": "/catalogo/productos/tomates_secos_108.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 35,
+      "codigo": "MP-035",
+      "nombre": "Almohaditas Avellanas",
+      "descripcion": "",
+      "categoria": "Cereales",
+      "pagina": 6,
+      "precio_venta": 7800.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 7800.0
+      },
+      "imagen": "/catalogo/productos/almohaditas_frutilla_86.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 36,
+      "codigo": "MP-036",
+      "nombre": "Quinoa Pop Inflada",
+      "descripcion": "",
+      "categoria": "Cereales",
+      "pagina": 6,
+      "precio_venta": 5900.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 5900.0
+      },
+      "imagen": "/catalogo/productos/quinoa_pop_inflada_88.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 37,
+      "codigo": "MP-037",
+      "nombre": "Fibra De Salvado",
+      "descripcion": "",
+      "categoria": "Cereales",
+      "pagina": 6,
+      "precio_venta": 4800.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 4800.0
+      },
+      "imagen": "/catalogo/productos/fibra_de_salvado_94.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 38,
+      "codigo": "MP-038",
+      "nombre": "Granola",
+      "descripcion": "",
+      "categoria": "Cereales",
+      "pagina": 6,
+      "precio_venta": 4800.0,
+      "precio_5kg": 0,
+      "precio_10kg": 3800.0,
+      "precio_25kg": 0,
+      "precio_30kg": 33350.0,
+      "escalas": {
+        "x1kg": 4800.0,
+        "x10kg": 3800.0,
+        "x30kg": 33350.0
+      },
+      "imagen": "/catalogo/productos/fibra_de_salvado_94.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 39,
+      "codigo": "MP-039",
+      "nombre": "Bicarbonato",
+      "descripcion": "",
+      "categoria": "Cereales",
+      "pagina": 6,
+      "precio_venta": 3795.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 3795.0
+      },
+      "imagen": "/catalogo/productos/bicarbonato_98.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 40,
+      "codigo": "MP-040",
+      "nombre": "Almohaditas Limon",
+      "descripcion": "",
+      "categoria": "Cereales",
+      "pagina": 6,
+      "precio_venta": 7800.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 7800.0
+      },
+      "imagen": "/catalogo/productos/almohaditas_frutilla_86.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 41,
+      "codigo": "MP-041",
+      "nombre": "Arito Frutal",
+      "descripcion": "",
+      "categoria": "Cereales",
+      "pagina": 6,
+      "precio_venta": 6000.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 6000.0
+      },
+      "imagen": "/catalogo/productos/arito_frutal_90.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 42,
+      "codigo": "MP-042",
+      "nombre": "Copos Con Azucar",
+      "descripcion": "",
+      "categoria": "Cereales",
+      "pagina": 6,
+      "precio_venta": 5400.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 5400.0
+      },
+      "imagen": "/catalogo/productos/copos_sin_azucar_96.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 43,
+      "codigo": "MP-043",
+      "nombre": "Sal De Himalaya",
+      "descripcion": "",
+      "categoria": "Cereales",
+      "pagina": 6,
+      "precio_venta": 3000.0,
+      "precio_5kg": 2520.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 3000.0,
+        "x5kg": 2520.0
+      },
+      "imagen": "/catalogo/productos/sal_de_himalaya_100.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 44,
+      "codigo": "MP-044",
+      "nombre": "Gelatina Sin Sabor Mayana",
+      "descripcion": "",
+      "categoria": "Cereales",
+      "pagina": 6,
+      "precio_venta": 22000.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 22000.0
+      },
+      "imagen": "/catalogo/productos/gelatina_sin_sabor_mayana_106.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 45,
+      "codigo": "MP-045",
+      "nombre": "Chips Chocolate Negro",
+      "descripcion": "",
+      "categoria": "Repostería",
+      "pagina": 7,
+      "precio_venta": 11520.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 11520.0
+      },
+      "imagen": "/catalogo/productos/chips_chocolate_negro_115.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 46,
+      "codigo": "MP-046",
+      "nombre": "Mani Con Chocolate",
+      "descripcion": "",
+      "categoria": "Repostería",
+      "pagina": 7,
+      "precio_venta": 13200.0,
+      "precio_5kg": 12240.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 13200.0,
+        "x5kg": 12240.0
+      },
+      "imagen": "/catalogo/productos/mani_con_chocolate_119.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 47,
+      "codigo": "MP-047",
+      "nombre": "Rocklets Aguila",
+      "descripcion": "",
+      "categoria": "Repostería",
+      "pagina": 7,
+      "precio_venta": 15840.0,
+      "precio_5kg": 14400.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 15840.0,
+        "x5kg": 14400.0
+      },
+      "imagen": "/catalogo/productos/rocklets_aguila_125.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 48,
+      "codigo": "MP-048",
+      "nombre": "Chips Chocolate Blanco",
+      "descripcion": "",
+      "categoria": "Repostería",
+      "pagina": 7,
+      "precio_venta": 11520.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 11520.0
+      },
+      "imagen": "/catalogo/productos/chips_chocolate_negro_115.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 49,
+      "codigo": "MP-049",
+      "nombre": "Almendras Con Chocolate",
+      "descripcion": "",
+      "categoria": "Repostería",
+      "pagina": 7,
+      "precio_venta": 30000.0,
+      "precio_5kg": 27600.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 30000.0,
+        "x5kg": 27600.0
+      },
+      "imagen": "/catalogo/productos/almendras_con_chocolate_121.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 50,
+      "codigo": "MP-050",
+      "nombre": "Coco Rallado",
+      "descripcion": "",
+      "categoria": "Repostería",
+      "pagina": 7,
+      "precio_venta": 9360.0,
+      "precio_5kg": 8640.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 9360.0,
+        "x5kg": 8640.0
+      },
+      "imagen": "/catalogo/productos/coco_rallado_127.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 51,
+      "codigo": "MP-051",
+      "nombre": "Cacao alcalino",
+      "descripcion": "",
+      "categoria": "Repostería",
+      "pagina": 7,
+      "precio_venta": 15000.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 15000.0
+      },
+      "imagen": "/catalogo/productos/cacao_alcalino_117.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 52,
+      "codigo": "MP-052",
+      "nombre": "Cacao Amargo Puro",
+      "descripcion": "",
+      "categoria": "Repostería",
+      "pagina": 7,
+      "precio_venta": 10320.0,
+      "precio_5kg": 9120.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 10320.0,
+        "x5kg": 9120.0
+      },
+      "imagen": "/catalogo/productos/cacao_alcalino_117.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 53,
+      "codigo": "MP-053",
+      "nombre": "Pasas Con Chocolate",
+      "descripcion": "",
+      "categoria": "Repostería",
+      "pagina": 7,
+      "precio_venta": 21120.0,
+      "precio_5kg": 19920.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 21120.0,
+        "x5kg": 19920.0
+      },
+      "imagen": "/catalogo/productos/pasas_con_chocolate_123.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 54,
+      "codigo": "MP-054",
+      "nombre": "Polvo Para Hornear",
+      "descripcion": "",
+      "categoria": "Repostería",
+      "pagina": 7,
+      "precio_venta": 7500.0,
+      "precio_5kg": 7200.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 7500.0,
+        "x5kg": 7200.0
+      },
+      "imagen": "/catalogo/productos/polvo_para_hornear_129.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 55,
+      "codigo": "MP-055",
+      "nombre": "Agar Agar gelatina vegetal sin tacc",
+      "descripcion": "12 sobres por 10gr",
+      "categoria": "Repostería",
+      "pagina": 7,
+      "precio_venta": 23800.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 23800.0
+      },
+      "imagen": "/catalogo/productos/polvo_para_hornear_129.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 56,
+      "codigo": "MP-056",
+      "nombre": "Mani Salado Pelado",
+      "descripcion": "",
+      "categoria": "Snacks",
+      "pagina": 8,
+      "precio_venta": 3000.0,
+      "precio_5kg": 3000.0,
+      "precio_10kg": 2760.0,
+      "precio_25kg": 2500.0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 3000.0,
+        "x5kg": 3000.0,
+        "x10kg": 2760.0,
+        "x25kg": 2500.0
+      },
+      "imagen": "/catalogo/productos/mani_salado_pelado_138.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 57,
+      "codigo": "MP-057",
+      "nombre": "Mani De Vaina",
+      "descripcion": "",
+      "categoria": "Snacks",
+      "pagina": 8,
+      "precio_venta": 5400.0,
+      "precio_5kg": 4500.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 5400.0,
+        "x5kg": 4500.0
+      },
+      "imagen": "/catalogo/productos/mani_de_vaina_142.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 58,
+      "codigo": "MP-058",
+      "nombre": "Palito Salado",
+      "descripcion": "",
+      "categoria": "Snacks",
+      "pagina": 8,
+      "precio_venta": 4800.0,
+      "precio_5kg": 3600.0,
+      "precio_10kg": 3360.0,
+      "precio_25kg": 3000.0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 4800.0,
+        "x5kg": 3600.0,
+        "x10kg": 3360.0,
+        "x25kg": 3000.0
+      },
+      "imagen": "/catalogo/productos/palito_salado_148.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 59,
+      "codigo": "MP-059",
+      "nombre": "Mani Tostado Sin Sal",
+      "descripcion": "",
+      "categoria": "Snacks",
+      "pagina": 8,
+      "precio_venta": 3000.0,
+      "precio_5kg": 3000.0,
+      "precio_10kg": 2760.0,
+      "precio_25kg": 2500.0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 3000.0,
+        "x5kg": 3000.0,
+        "x10kg": 2760.0,
+        "x25kg": 2500.0
+      },
+      "imagen": "/catalogo/productos/mani_salado_pelado_138.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 60,
+      "codigo": "MP-060",
+      "nombre": "Maiz Frito Salado",
+      "descripcion": "",
+      "categoria": "Snacks",
+      "pagina": 8,
+      "precio_venta": 11880.0,
+      "precio_5kg": 10800.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 11880.0,
+        "x5kg": 10800.0
+      },
+      "imagen": "/catalogo/productos/maiz_frito_salado_144.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 61,
+      "codigo": "MP-061",
+      "nombre": "Tutuca",
+      "descripcion": "",
+      "categoria": "Snacks",
+      "pagina": 8,
+      "precio_venta": 4320.0,
+      "precio_5kg": 3800.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 4320.0,
+        "x5kg": 3800.0
+      },
+      "imagen": "/catalogo/productos/tutuca_150.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 62,
+      "codigo": "MP-062",
+      "nombre": "Mani Saborizado / Mani Chino",
+      "descripcion": "",
+      "categoria": "Snacks",
+      "pagina": 8,
+      "precio_venta": 5400.0,
+      "precio_5kg": 4560.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 5400.0,
+        "x5kg": 4560.0
+      },
+      "imagen": "/catalogo/productos/mani_saborizado_mani_chino_140.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 63,
+      "codigo": "MP-063",
+      "nombre": "Garrapiñadas",
+      "descripcion": "",
+      "categoria": "Snacks",
+      "pagina": 8,
+      "precio_venta": 5400.0,
+      "precio_5kg": 3960.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 5400.0,
+        "x5kg": 3960.0
+      },
+      "imagen": "/catalogo/productos/garrapinadas_146.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 64,
+      "codigo": "MP-064",
+      "nombre": "Lenteja",
+      "descripcion": "",
+      "categoria": "Legumbres",
+      "pagina": 9,
+      "precio_venta": 3000.0,
+      "precio_5kg": 2640.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 3000.0,
+        "x5kg": 2640.0
+      },
+      "imagen": "/catalogo/productos/lenteja_157.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 65,
+      "codigo": "MP-065",
+      "nombre": "Arroz Integral",
+      "descripcion": "",
+      "categoria": "Legumbres",
+      "pagina": 9,
+      "precio_venta": 2400.0,
+      "precio_5kg": 1944.0,
+      "precio_10kg": 0,
+      "precio_25kg": 1415.0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 2400.0,
+        "x5kg": 1944.0,
+        "x25kg": 1415.0
+      },
+      "imagen": "/catalogo/productos/arroz_integral_163.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 66,
+      "codigo": "MP-066",
+      "nombre": "Poroto Alubia",
+      "descripcion": "",
+      "categoria": "Legumbres",
+      "pagina": 9,
+      "precio_venta": 4080.0,
+      "precio_5kg": 3648.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 4080.0,
+        "x5kg": 3648.0
+      },
+      "imagen": "/catalogo/productos/poroto_alubia_169.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 67,
+      "codigo": "MP-067",
+      "nombre": "Poroto Aduki",
+      "descripcion": "",
+      "categoria": "Legumbres",
+      "pagina": 9,
+      "precio_venta": 3480.0,
+      "precio_5kg": 3096.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 3480.0,
+        "x5kg": 3096.0
+      },
+      "imagen": "/catalogo/productos/poroto_aduki_175.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 68,
+      "codigo": "MP-068",
+      "nombre": "Pisingallo",
+      "descripcion": "",
+      "categoria": "Legumbres",
+      "pagina": 9,
+      "precio_venta": 1680.0,
+      "precio_5kg": 1392.0,
+      "precio_10kg": 0,
+      "precio_25kg": 1150.0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 1680.0,
+        "x5kg": 1392.0,
+        "x25kg": 1150.0
+      },
+      "imagen": "/catalogo/productos/pisingallo_181.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 69,
+      "codigo": "MP-069",
+      "nombre": "Lentejon",
+      "descripcion": "",
+      "categoria": "Legumbres",
+      "pagina": 9,
+      "precio_venta": 3480.0,
+      "precio_5kg": 2880.0,
+      "precio_10kg": 0,
+      "precio_25kg": 2250.0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 3480.0,
+        "x5kg": 2880.0,
+        "x25kg": 2250.0
+      },
+      "imagen": "/catalogo/productos/lentejon_159.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 70,
+      "codigo": "MP-070",
+      "nombre": "Avena Instantanea",
+      "descripcion": "",
+      "categoria": "Legumbres",
+      "pagina": 9,
+      "precio_venta": 2400.0,
+      "precio_5kg": 2100.0,
+      "precio_10kg": 0,
+      "precio_25kg": 1500.0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 2400.0,
+        "x5kg": 2100.0,
+        "x25kg": 1500.0
+      },
+      "imagen": "/catalogo/productos/avena_instantanea_165.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 71,
+      "codigo": "MP-071",
+      "nombre": "Poroto Soja",
+      "descripcion": "",
+      "categoria": "Legumbres",
+      "pagina": 9,
+      "precio_venta": 1560.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 1560.0
+      },
+      "imagen": "/catalogo/productos/poroto_soja_171.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 72,
+      "codigo": "MP-072",
+      "nombre": "Poroto Negro",
+      "descripcion": "",
+      "categoria": "Legumbres",
+      "pagina": 9,
+      "precio_venta": 3000.0,
+      "precio_5kg": 2352.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 3000.0,
+        "x5kg": 2352.0
+      },
+      "imagen": "/catalogo/productos/poroto_negro_177.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 73,
+      "codigo": "MP-073",
+      "nombre": "Arroz Yamaní",
+      "descripcion": "",
+      "categoria": "Legumbres",
+      "pagina": 9,
+      "precio_venta": 2640.0,
+      "precio_5kg": 2064.0,
+      "precio_10kg": 0,
+      "precio_25kg": 1650.0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 2640.0,
+        "x5kg": 2064.0,
+        "x25kg": 1650.0
+      },
+      "imagen": "/catalogo/productos/arroz_yamani_161.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 74,
+      "codigo": "MP-074",
+      "nombre": "Garbanzo",
+      "descripcion": "",
+      "categoria": "Legumbres",
+      "pagina": 9,
+      "precio_venta": 2640.0,
+      "precio_5kg": 2160.0,
+      "precio_10kg": 0,
+      "precio_25kg": 1415.0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 2640.0,
+        "x5kg": 2160.0,
+        "x25kg": 1415.0
+      },
+      "imagen": "/catalogo/productos/garbanzo_167.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 75,
+      "codigo": "MP-075",
+      "nombre": "Poroto Colorado",
+      "descripcion": "",
+      "categoria": "Legumbres",
+      "pagina": 9,
+      "precio_venta": 3120.0,
+      "precio_5kg": 2688.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 3120.0,
+        "x5kg": 2688.0
+      },
+      "imagen": "/catalogo/productos/poroto_colorado_173.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 76,
+      "codigo": "MP-076",
+      "nombre": "Poroto Pallares Grande",
+      "descripcion": "",
+      "categoria": "Legumbres",
+      "pagina": 9,
+      "precio_venta": 6720.0,
+      "precio_5kg": 6480.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 6720.0,
+        "x5kg": 6480.0
+      },
+      "imagen": "/catalogo/productos/poroto_pallares_grande_179.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 77,
+      "codigo": "MP-077",
+      "nombre": "Oregano",
+      "descripcion": "",
+      "categoria": "Condimentos",
+      "pagina": 10,
+      "precio_venta": 7020.0,
+      "precio_5kg": 6600.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 7020.0,
+        "x5kg": 6600.0
+      },
+      "imagen": "/catalogo/productos/oregano_188.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 78,
+      "codigo": "MP-078",
+      "nombre": "Pimenton",
+      "descripcion": "",
+      "categoria": "Condimentos",
+      "pagina": 10,
+      "precio_venta": 4200.0,
+      "precio_5kg": 3840.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 4200.0,
+        "x5kg": 3840.0
+      },
+      "imagen": "/catalogo/productos/pimenton_194.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 79,
+      "codigo": "MP-079",
+      "nombre": "Pimienta Blanca Molida",
+      "descripcion": "",
+      "categoria": "Condimentos",
+      "pagina": 10,
+      "precio_venta": 16680.0,
+      "precio_5kg": 16080.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 16680.0,
+        "x5kg": 16080.0
+      },
+      "imagen": "/catalogo/productos/pimienta_blanca_molida_200.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 80,
+      "codigo": "MP-080",
+      "nombre": "Jengibre En Polvo",
+      "descripcion": "",
+      "categoria": "Condimentos",
+      "pagina": 10,
+      "precio_venta": 9480.0,
+      "precio_5kg": 8880.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 9480.0,
+        "x5kg": 8880.0
+      },
+      "imagen": "/catalogo/productos/jengibre_en_polvo_206.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 81,
+      "codigo": "MP-081",
+      "nombre": "Comino",
+      "descripcion": "",
+      "categoria": "Condimentos",
+      "pagina": 10,
+      "precio_venta": 3480.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 3480.0
+      },
+      "imagen": "/catalogo/productos/comino_212.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 82,
+      "codigo": "MP-082",
+      "nombre": "Paprika",
+      "descripcion": "",
+      "categoria": "Condimentos",
+      "pagina": 10,
+      "precio_venta": 10080.0,
+      "precio_5kg": 7600.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 10080.0,
+        "x5kg": 7600.0
+      },
+      "imagen": "/catalogo/productos/paprika_218.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 83,
+      "codigo": "MP-083",
+      "nombre": "Provenzal",
+      "descripcion": "",
+      "categoria": "Condimentos",
+      "pagina": 10,
+      "precio_venta": 4500.0,
+      "precio_5kg": 4200.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 4500.0,
+        "x5kg": 4200.0
+      },
+      "imagen": "/catalogo/productos/provenzal_190.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 84,
+      "codigo": "MP-084",
+      "nombre": "Pimenton Ahumado",
+      "descripcion": "",
+      "categoria": "Condimentos",
+      "pagina": 10,
+      "precio_venta": 9750.0,
+      "precio_5kg": 9000.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 9750.0,
+        "x5kg": 9000.0
+      },
+      "imagen": "/catalogo/productos/pimenton_ahumado_196.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 85,
+      "codigo": "MP-085",
+      "nombre": "Ajo En Polvo",
+      "descripcion": "",
+      "categoria": "Condimentos",
+      "pagina": 10,
+      "precio_venta": 8160.0,
+      "precio_5kg": 7440.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 8160.0,
+        "x5kg": 7440.0
+      },
+      "imagen": "/catalogo/productos/ajo_en_polvo_202.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 86,
+      "codigo": "MP-086",
+      "nombre": "Chimichurri",
+      "descripcion": "",
+      "categoria": "Condimentos",
+      "pagina": 10,
+      "precio_venta": 5280.0,
+      "precio_5kg": 4776.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 5280.0,
+        "x5kg": 4776.0
+      },
+      "imagen": "/catalogo/productos/chimichurri_208.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 87,
+      "codigo": "MP-087",
+      "nombre": "Curcuma",
+      "descripcion": "",
+      "categoria": "Condimentos",
+      "pagina": 10,
+      "precio_venta": 3480.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 3480.0
+      },
+      "imagen": "/catalogo/productos/curcuma_214.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 88,
+      "codigo": "MP-088",
+      "nombre": "Canela En Polvo",
+      "descripcion": "",
+      "categoria": "Condimentos",
+      "pagina": 10,
+      "precio_venta": 11760.0,
+      "precio_5kg": 11040.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 11760.0,
+        "x5kg": 11040.0
+      },
+      "imagen": "/catalogo/productos/canela_en_polvo_220.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 89,
+      "codigo": "MP-089",
+      "nombre": "Adobo Para Pizza",
+      "descripcion": "",
+      "categoria": "Condimentos",
+      "pagina": 10,
+      "precio_venta": 4200.0,
+      "precio_5kg": 3840.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 4200.0,
+        "x5kg": 3840.0
+      },
+      "imagen": "/catalogo/productos/adobo_para_pizza_192.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 90,
+      "codigo": "MP-090",
+      "nombre": "Pimienta Negra Molida",
+      "descripcion": "",
+      "categoria": "Condimentos",
+      "pagina": 10,
+      "precio_venta": 13440.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 13440.0
+      },
+      "imagen": "/catalogo/productos/pimienta_negra_molida_198.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 91,
+      "codigo": "MP-091",
+      "nombre": "Aji Puro",
+      "descripcion": "",
+      "categoria": "Condimentos",
+      "pagina": 10,
+      "precio_venta": 7680.0,
+      "precio_5kg": 7200.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 7680.0,
+        "x5kg": 7200.0
+      },
+      "imagen": "/catalogo/productos/aji_puro_204.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 92,
+      "codigo": "MP-092",
+      "nombre": "Nuez Moscada Molida",
+      "descripcion": "",
+      "categoria": "Condimentos",
+      "pagina": 10,
+      "precio_venta": 12960.0,
+      "precio_5kg": 12000.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 12960.0,
+        "x5kg": 12000.0
+      },
+      "imagen": "/catalogo/productos/nuez_moscada_molida_210.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 93,
+      "codigo": "MP-093",
+      "nombre": "Anis En Grano",
+      "descripcion": "",
+      "categoria": "Condimentos",
+      "pagina": 10,
+      "precio_venta": 17880.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 17880.0
+      },
+      "imagen": "/catalogo/productos/anis_en_grano_216.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 94,
+      "codigo": "MP-094",
+      "nombre": "Curry",
+      "descripcion": "",
+      "categoria": "Condimentos",
+      "pagina": 10,
+      "precio_venta": 7440.0,
+      "precio_5kg": 7080.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 7440.0,
+        "x5kg": 7080.0
+      },
+      "imagen": "/catalogo/productos/curry_222.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 95,
+      "codigo": "MP-095",
+      "nombre": "Ajo Triturado",
+      "descripcion": "",
+      "categoria": "Condimentos",
+      "pagina": 11,
+      "precio_venta": 13920.0,
+      "precio_5kg": 12240.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 13920.0,
+        "x5kg": 12240.0
+      },
+      "imagen": "/catalogo/productos/ajo_triturado_224.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 96,
+      "codigo": "MP-096",
+      "nombre": "Pimienta negra en granos",
+      "descripcion": "",
+      "categoria": "Condimentos",
+      "pagina": 11,
+      "precio_venta": 26500.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 26500.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 97,
+      "codigo": "MP-097",
+      "nombre": "Goma xantica 40cc Procal",
+      "descripcion": "",
+      "categoria": "Condimentos",
+      "pagina": 11,
+      "precio_venta": 3620.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 3620.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 98,
+      "codigo": "MP-098",
+      "nombre": "Azucar Impalpable",
+      "descripcion": "",
+      "categoria": "Azúcares",
+      "pagina": 12,
+      "precio_venta": 2880.0,
+      "precio_5kg": 2400.0,
+      "precio_10kg": 2160.0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 2880.0,
+        "x5kg": 2400.0,
+        "x10kg": 2160.0
+      },
+      "imagen": "/catalogo/productos/azucar_impalpable_236.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 99,
+      "codigo": "MP-099",
+      "nombre": "Azucar Mascabo",
+      "descripcion": "",
+      "categoria": "Azúcares",
+      "pagina": 12,
+      "precio_venta": 4800.0,
+      "precio_5kg": 4440.0,
+      "precio_10kg": 4080.0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 4800.0,
+        "x5kg": 4440.0,
+        "x10kg": 4080.0
+      },
+      "imagen": "/catalogo/productos/azucar_mascabo_242.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 100,
+      "codigo": "MP-100",
+      "nombre": "Azucar Negra",
+      "descripcion": "",
+      "categoria": "Azúcares",
+      "pagina": 12,
+      "precio_venta": 2880.0,
+      "precio_5kg": 2400.0,
+      "precio_10kg": 2160.0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 2880.0,
+        "x5kg": 2400.0,
+        "x10kg": 2160.0
+      },
+      "imagen": "/catalogo/productos/azucar_negra_238.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 101,
+      "codigo": "MP-101",
+      "nombre": "Azucar Rubia",
+      "descripcion": "",
+      "categoria": "Azúcares",
+      "pagina": 12,
+      "precio_venta": 2880.0,
+      "precio_5kg": 2400.0,
+      "precio_10kg": 2160.0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 2880.0,
+        "x5kg": 2400.0,
+        "x10kg": 2160.0
+      },
+      "imagen": "/catalogo/productos/azucar_rubia_240.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 102,
+      "codigo": "MP-102",
+      "nombre": "Harina Integral",
+      "descripcion": "",
+      "categoria": "Harinas",
+      "pagina": 13,
+      "precio_venta": 1680.0,
+      "precio_5kg": 1152.0,
+      "precio_10kg": 936.0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 1680.0,
+        "x5kg": 1152.0,
+        "x10kg": 936.0
+      },
+      "imagen": "/catalogo/productos/harina_integral_249.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 103,
+      "codigo": "MP-103",
+      "nombre": "Harina De Arroz",
+      "descripcion": "",
+      "categoria": "Harinas",
+      "pagina": 13,
+      "precio_venta": 1800.0,
+      "precio_5kg": 1656.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 1800.0,
+        "x5kg": 1656.0
+      },
+      "imagen": "/catalogo/productos/harina_de_arroz_255.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 104,
+      "codigo": "MP-104",
+      "nombre": "Harina De Centeno",
+      "descripcion": "",
+      "categoria": "Harinas",
+      "pagina": 13,
+      "precio_venta": 1920.0,
+      "precio_5kg": 1416.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 1920.0,
+        "x5kg": 1416.0
+      },
+      "imagen": "/catalogo/productos/harina_de_centeno_261.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 105,
+      "codigo": "MP-105",
+      "nombre": "Harina De Avena",
+      "descripcion": "",
+      "categoria": "Harinas",
+      "pagina": 13,
+      "precio_venta": 2400.0,
+      "precio_5kg": 2064.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 2400.0,
+        "x5kg": 2064.0
+      },
+      "imagen": "/catalogo/productos/harina_de_avena_267.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 106,
+      "codigo": "MP-106",
+      "nombre": "Semola",
+      "descripcion": "",
+      "categoria": "Harinas",
+      "pagina": 13,
+      "precio_venta": 1800.0,
+      "precio_5kg": 1680.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 1800.0,
+        "x5kg": 1680.0
+      },
+      "imagen": "/catalogo/productos/semola_273.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 107,
+      "codigo": "MP-107",
+      "nombre": "Harina de Mandioca",
+      "descripcion": "",
+      "categoria": "Harinas",
+      "pagina": 13,
+      "precio_venta": 3600.0,
+      "precio_5kg": 2400.0,
+      "precio_10kg": 0,
+      "precio_25kg": 1725.0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 3600.0,
+        "x5kg": 2400.0,
+        "x25kg": 1725.0
+      },
+      "imagen": "/catalogo/productos/harina_de_mandioca_279.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 108,
+      "codigo": "MP-108",
+      "nombre": "Harina Paraguaya",
+      "descripcion": "",
+      "categoria": "Harinas",
+      "pagina": 13,
+      "precio_venta": 1800.0,
+      "precio_5kg": 1440.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 1800.0,
+        "x5kg": 1440.0
+      },
+      "imagen": "/catalogo/productos/harina_paraguaya_251.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 109,
+      "codigo": "MP-109",
+      "nombre": "Harina Glutinada",
+      "descripcion": "",
+      "categoria": "Harinas",
+      "pagina": 13,
+      "precio_venta": 900.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 900.0
+      },
+      "imagen": "/catalogo/productos/harina_glutinada_257.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 110,
+      "codigo": "MP-110",
+      "nombre": "Harina De Almendras",
+      "descripcion": "",
+      "categoria": "Harinas",
+      "pagina": 13,
+      "precio_venta": 5040.0,
+      "precio_5kg": 4800.0,
+      "precio_10kg": 4320.0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 5040.0,
+        "x5kg": 4800.0,
+        "x10kg": 4320.0
+      },
+      "imagen": "/catalogo/productos/harina_de_almendras_263.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 111,
+      "codigo": "MP-111",
+      "nombre": "Soja Texturizada",
+      "descripcion": "",
+      "categoria": "Harinas",
+      "pagina": 13,
+      "precio_venta": 2640.0,
+      "precio_5kg": 2040.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 2640.0,
+        "x5kg": 2040.0
+      },
+      "imagen": "/catalogo/productos/soja_texturizada_269.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 112,
+      "codigo": "MP-112",
+      "nombre": "Semolin",
+      "descripcion": "",
+      "categoria": "Harinas",
+      "pagina": 13,
+      "precio_venta": 1800.0,
+      "precio_5kg": 1296.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 1800.0,
+        "x5kg": 1296.0
+      },
+      "imagen": "/catalogo/productos/semolin_275.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 113,
+      "codigo": "MP-113",
+      "nombre": "Cascarilla",
+      "descripcion": "",
+      "categoria": "Harinas",
+      "pagina": 13,
+      "precio_venta": 5880.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 5880.0
+      },
+      "imagen": "/catalogo/productos/cascarilla_281.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 114,
+      "codigo": "MP-114",
+      "nombre": "Harina De Soja",
+      "descripcion": "",
+      "categoria": "Harinas",
+      "pagina": 13,
+      "precio_venta": 1188.0,
+      "precio_5kg": 1056.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 1188.0,
+        "x5kg": 1056.0
+      },
+      "imagen": "/catalogo/productos/harina_de_soja_253.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 115,
+      "codigo": "MP-115",
+      "nombre": "Harina De Garbanzo",
+      "descripcion": "",
+      "categoria": "Harinas",
+      "pagina": 13,
+      "precio_venta": 1680.0,
+      "precio_5kg": 1300.0,
+      "precio_10kg": 1100.0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 1680.0,
+        "x5kg": 1300.0,
+        "x10kg": 1100.0
+      },
+      "imagen": "/catalogo/productos/harina_de_garbanzo_259.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 116,
+      "codigo": "MP-116",
+      "nombre": "Harina De Coco",
+      "descripcion": "",
+      "categoria": "Harinas",
+      "pagina": 13,
+      "precio_venta": 4920.0,
+      "precio_5kg": 4680.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 4920.0,
+        "x5kg": 4680.0
+      },
+      "imagen": "/catalogo/productos/harina_de_coco_265.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 117,
+      "codigo": "MP-117",
+      "nombre": "Salvado De Trigo Fino/Grueso",
+      "descripcion": "",
+      "categoria": "Harinas",
+      "pagina": 13,
+      "precio_venta": 1820.0,
+      "precio_5kg": 1800.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 1820.0,
+        "x5kg": 1800.0
+      },
+      "imagen": "/catalogo/productos/salvado_de_trigo_finogrueso_271.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 118,
+      "codigo": "MP-118",
+      "nombre": "Maizena",
+      "descripcion": "",
+      "categoria": "Harinas",
+      "pagina": 13,
+      "precio_venta": 3000.0,
+      "precio_5kg": 2136.0,
+      "precio_10kg": 0,
+      "precio_25kg": 1495.0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 3000.0,
+        "x5kg": 2136.0,
+        "x25kg": 1495.0
+      },
+      "imagen": "/catalogo/productos/maizena_277.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 119,
+      "codigo": "MP-119",
+      "nombre": "Semilla Amapola",
+      "descripcion": "",
+      "categoria": "Semillas",
+      "pagina": 14,
+      "precio_venta": 17400.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 17400.0
+      },
+      "imagen": "/catalogo/productos/semilla_amapola_288.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 120,
+      "codigo": "MP-120",
+      "nombre": "Semilla De Sesamo Integral",
+      "descripcion": "",
+      "categoria": "Semillas",
+      "pagina": 14,
+      "precio_venta": 4320.0,
+      "precio_5kg": 3960.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 4320.0,
+        "x5kg": 3960.0
+      },
+      "imagen": "/catalogo/productos/semilla_de_sesamo_integral_294.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 121,
+      "codigo": "MP-121",
+      "nombre": "Semilla De Quinoa",
+      "descripcion": "",
+      "categoria": "Semillas",
+      "pagina": 14,
+      "precio_venta": 11040.0,
+      "precio_5kg": 10080.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 11040.0,
+        "x5kg": 10080.0
+      },
+      "imagen": "/catalogo/productos/semilla_de_quinoa_300.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 122,
+      "codigo": "MP-122",
+      "nombre": "Mix De Semillas",
+      "descripcion": "Girasol, lino, sesamo integral, chía",
+      "categoria": "Semillas",
+      "pagina": 14,
+      "precio_venta": 4500.0,
+      "precio_5kg": 4000.0,
+      "precio_10kg": 3000.0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 4500.0,
+        "x5kg": 4000.0,
+        "x10kg": 3000.0
+      },
+      "imagen": "/catalogo/productos/mix_de_semillas_306.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 123,
+      "codigo": "MP-123",
+      "nombre": "Semilla Zapallo",
+      "descripcion": "",
+      "categoria": "Semillas",
+      "pagina": 14,
+      "precio_venta": 15000.0,
+      "precio_5kg": 14400.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 15000.0,
+        "x5kg": 14400.0
+      },
+      "imagen": "/catalogo/productos/semilla_zapallo_290.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 124,
+      "codigo": "MP-124",
+      "nombre": "Semilla De Sesamo Negro",
+      "descripcion": "",
+      "categoria": "Semillas",
+      "pagina": 14,
+      "precio_venta": 10680.0,
+      "precio_5kg": 9480.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 10680.0,
+        "x5kg": 9480.0
+      },
+      "imagen": "/catalogo/productos/semilla_zapallo_290.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 125,
+      "codigo": "MP-125",
+      "nombre": "Semilla De Lino",
+      "descripcion": "",
+      "categoria": "Semillas",
+      "pagina": 14,
+      "precio_venta": 3840.0,
+      "precio_5kg": 2880.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 3840.0,
+        "x5kg": 2880.0
+      },
+      "imagen": "/catalogo/productos/semilla_de_lino_296.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 126,
+      "codigo": "MP-126",
+      "nombre": "Semilla De Sesamo Blanco",
+      "descripcion": "",
+      "categoria": "Semillas",
+      "pagina": 14,
+      "precio_venta": 8880.0,
+      "precio_5kg": 7440.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 8880.0,
+        "x5kg": 7440.0
+      },
+      "imagen": "/catalogo/productos/semilla_de_sesamo_blanco_292.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 127,
+      "codigo": "MP-127",
+      "nombre": "Semilla De Chia",
+      "descripcion": "",
+      "categoria": "Semillas",
+      "pagina": 14,
+      "precio_venta": 9120.0,
+      "precio_5kg": 8160.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 9120.0,
+        "x5kg": 8160.0
+      },
+      "imagen": "/catalogo/productos/semilla_de_chia_298.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 128,
+      "codigo": "MP-128",
+      "nombre": "Girasol Pelado",
+      "descripcion": "",
+      "categoria": "Semillas",
+      "pagina": 14,
+      "precio_venta": 4560.0,
+      "precio_5kg": 3840.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 4560.0,
+        "x5kg": 3840.0
+      },
+      "imagen": "/catalogo/productos/girasol_pelado_304.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 129,
+      "codigo": "MP-129",
+      "nombre": "Barritas Proteicas Iron Bar",
+      "descripcion": "Chocolate, bananáa, cookies, frutilla, ddl, coco — Caja x20 uni",
+      "categoria": "Suplementos",
+      "pagina": 15,
+      "precio_venta": 1980.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 1980.0
+      },
+      "imagen": "/catalogo/productos/barritas_proteicas_iron_bar_313.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 130,
+      "codigo": "MP-130",
+      "nombre": "Cartilago De Tiburon",
+      "descripcion": "",
+      "categoria": "Suplementos",
+      "pagina": 15,
+      "precio_venta": 960.0,
+      "precio_5kg": 840.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 960.0,
+        "x5kg": 840.0
+      },
+      "imagen": "/catalogo/productos/barritas_proteicas_iron_bar_313.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 131,
+      "codigo": "MP-131",
+      "nombre": "Flor De Jamaica (Hibiscus)",
+      "descripcion": "",
+      "categoria": "Suplementos",
+      "pagina": 15,
+      "precio_venta": 17900.0,
+      "precio_5kg": 16500.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 17900.0,
+        "x5kg": 16500.0
+      },
+      "imagen": "/catalogo/productos/flor_de_jamaica_hibiscus_325.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 132,
+      "codigo": "MP-132",
+      "nombre": "Pum Pum activa tu fuerza",
+      "descripcion": "",
+      "categoria": "Suplementos",
+      "pagina": 15,
+      "precio_venta": 10500.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 10500.0
+      },
+      "imagen": "/catalogo/productos/flor_de_jamaica_hibiscus_325.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 133,
+      "codigo": "MP-133",
+      "nombre": "Colageno Hidrolizado",
+      "descripcion": "",
+      "categoria": "Suplementos",
+      "pagina": 15,
+      "precio_venta": 960.0,
+      "precio_5kg": 840.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 960.0,
+        "x5kg": 840.0
+      },
+      "imagen": "/catalogo/productos/colageno_hidrolizado_315.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 134,
+      "codigo": "MP-134",
+      "nombre": "Maca En Polvo",
+      "descripcion": "x 500 gramos",
+      "categoria": "Suplementos",
+      "pagina": 15,
+      "precio_venta": 2900.0,
+      "precio_5kg": 2040.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 2900.0,
+        "x5kg": 2040.0
+      },
+      "imagen": "/catalogo/productos/maca_en_polvo_321.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 135,
+      "codigo": "MP-135",
+      "nombre": "Honey del amor",
+      "descripcion": "",
+      "categoria": "Suplementos",
+      "pagina": 15,
+      "precio_venta": 16900.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 16900.0
+      },
+      "imagen": "/catalogo/productos/maca_en_polvo_321.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 136,
+      "codigo": "MP-136",
+      "nombre": "Harina De Coca",
+      "descripcion": "",
+      "categoria": "Suplementos",
+      "pagina": 15,
+      "precio_venta": 960.0,
+      "precio_5kg": 840.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 960.0,
+        "x5kg": 840.0
+      },
+      "imagen": "/catalogo/productos/harina_de_coca_317.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 137,
+      "codigo": "MP-137",
+      "nombre": "Aceite De Cannabis",
+      "descripcion": "30 ml",
+      "categoria": "Suplementos",
+      "pagina": 15,
+      "precio_venta": 8280.0,
+      "precio_5kg": 7800.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 8280.0,
+        "x5kg": 7800.0
+      },
+      "imagen": "/catalogo/productos/aceite_de_cannabis_323.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 138,
+      "codigo": "MP-138",
+      "nombre": "Huang He",
+      "descripcion": "",
+      "categoria": "Suplementos",
+      "pagina": 15,
+      "precio_venta": 5700.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 5700.0
+      },
+      "imagen": "/catalogo/productos/aceite_de_cannabis_323.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 139,
+      "codigo": "MP-139",
+      "nombre": "Aceite De Coco",
+      "descripcion": "",
+      "categoria": "Aceites",
+      "pagina": 16,
+      "precio_venta": 6600.0,
+      "precio_5kg": 6240.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 6600.0,
+        "x5kg": 6240.0
+      },
+      "imagen": "/catalogo/productos/aceite_de_coco_332.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 140,
+      "codigo": "MP-140",
+      "nombre": "Aceite De Oregano",
+      "descripcion": "x30cc — Bio Nativa",
+      "categoria": "Aceites",
+      "pagina": 16,
+      "precio_venta": 7680.0,
+      "precio_5kg": 7080.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 7680.0,
+        "x5kg": 7080.0
+      },
+      "imagen": "/catalogo/productos/aceite_de_oregano_336.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 141,
+      "codigo": "MP-141",
+      "nombre": "Aceite De Almendra",
+      "descripcion": "x250cc — Bio Nativa",
+      "categoria": "Aceites",
+      "pagina": 16,
+      "precio_venta": 9000.0,
+      "precio_5kg": 8640.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 9000.0,
+        "x5kg": 8640.0
+      },
+      "imagen": "/catalogo/productos/aceite_de_almendra_342.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 142,
+      "codigo": "MP-142",
+      "nombre": "Aceite De Palta",
+      "descripcion": "x250cc — Bio Nativa",
+      "categoria": "Aceites",
+      "pagina": 16,
+      "precio_venta": 12600.0,
+      "precio_5kg": 11760.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 12600.0,
+        "x5kg": 11760.0
+      },
+      "imagen": "/catalogo/productos/aceite_de_almendra_342.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 143,
+      "codigo": "MP-143",
+      "nombre": "Aceite De Rosa Mosqueta",
+      "descripcion": "x30cc — Bio Nativa",
+      "categoria": "Aceites",
+      "pagina": 16,
+      "precio_venta": 9840.0,
+      "precio_5kg": 9360.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 9840.0,
+        "x5kg": 9360.0
+      },
+      "imagen": "/catalogo/productos/aceite_de_rosa_mosqueta_346.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 144,
+      "codigo": "MP-144",
+      "nombre": "Aceite De Oliva x 2LT",
+      "descripcion": "",
+      "categoria": "Aceites",
+      "pagina": 16,
+      "precio_venta": 10080.0,
+      "precio_5kg": 9360.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 10080.0,
+        "x5kg": 9360.0
+      },
+      "imagen": "/catalogo/productos/aceite_de_oliva_x_2lt_334.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 145,
+      "codigo": "MP-145",
+      "nombre": "Aceite De Chia",
+      "descripcion": "x250cc — Bio Nativa",
+      "categoria": "Aceites",
+      "pagina": 16,
+      "precio_venta": 9840.0,
+      "precio_5kg": 9360.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 9840.0,
+        "x5kg": 9360.0
+      },
+      "imagen": "/catalogo/productos/aceite_de_chia_338.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 146,
+      "codigo": "MP-146",
+      "nombre": "Aceite De Jojoba",
+      "descripcion": "x100cc — Bio Nativa",
+      "categoria": "Aceites",
+      "pagina": 16,
+      "precio_venta": 7080.0,
+      "precio_5kg": 6600.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 7080.0,
+        "x5kg": 6600.0
+      },
+      "imagen": "/catalogo/productos/aceite_de_jojoba_344.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 147,
+      "codigo": "MP-147",
+      "nombre": "Aceite De Coco Virgen",
+      "descripcion": "x360cc — Bio Nativa",
+      "categoria": "Aceites",
+      "pagina": 16,
+      "precio_venta": 10320.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 10320.0
+      },
+      "imagen": "/catalogo/productos/aceite_de_coco_332.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 148,
+      "codigo": "MP-148",
+      "nombre": "Aceite De Sesamo",
+      "descripcion": "x250cc — Bio Nativa",
+      "categoria": "Aceites",
+      "pagina": 16,
+      "precio_venta": 6840.0,
+      "precio_5kg": 6480.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 6840.0,
+        "x5kg": 6480.0
+      },
+      "imagen": "/catalogo/productos/aceite_de_sesamo_348.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 149,
+      "codigo": "MP-149",
+      "nombre": "Aceite De Oliva x 1/2 Vidrio",
+      "descripcion": "",
+      "categoria": "Aceites",
+      "pagina": 16,
+      "precio_venta": 5880.0,
+      "precio_5kg": 5520.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 5880.0,
+        "x5kg": 5520.0
+      },
+      "imagen": "/catalogo/productos/aceite_de_oliva_x_2lt_334.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 150,
+      "codigo": "MP-150",
+      "nombre": "Aceite De Lino",
+      "descripcion": "x250cc — Bio Nativa",
+      "categoria": "Aceites",
+      "pagina": 16,
+      "precio_venta": 6960.0,
+      "precio_5kg": 6480.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 6960.0,
+        "x5kg": 6480.0
+      },
+      "imagen": "/catalogo/productos/aceite_de_lino_340.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 151,
+      "codigo": "MP-151",
+      "nombre": "Aceite De Ricino",
+      "descripcion": "x100cc — Bio Nativa",
+      "categoria": "Aceites",
+      "pagina": 16,
+      "precio_venta": 5880.0,
+      "precio_5kg": 5400.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 5880.0,
+        "x5kg": 5400.0
+      },
+      "imagen": "/catalogo/productos/aceite_de_lino_340.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 152,
+      "codigo": "MP-152",
+      "nombre": "Aceite De Romero",
+      "descripcion": "x30cc — Bio Nativa",
+      "categoria": "Aceites",
+      "pagina": 16,
+      "precio_venta": 7440.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 7440.0
+      },
+      "imagen": "/catalogo/productos/aceite_de_coco_332.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 153,
+      "codigo": "MP-153",
+      "nombre": "Miel Pura X 1KG",
+      "descripcion": "",
+      "categoria": "Otros",
+      "pagina": 17,
+      "precio_venta": 5400.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 5400.0
+      },
+      "imagen": "/catalogo/productos/miel_pura_x_1kg_355.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 154,
+      "codigo": "MP-154",
+      "nombre": "Eritritol Stevia 325gr Kony",
+      "descripcion": "",
+      "categoria": "Otros",
+      "pagina": 17,
+      "precio_venta": 21467.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 21467.0
+      },
+      "imagen": "/catalogo/productos/eritritol_stevia_325gr_kony_357.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 155,
+      "codigo": "MP-155",
+      "nombre": "Eritritol 200gr Oh Yeah!",
+      "descripcion": "",
+      "categoria": "Otros",
+      "pagina": 17,
+      "precio_venta": 7699.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 7699.0
+      },
+      "imagen": "/catalogo/productos/eritritol_200gr_oh_yeah_359.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 156,
+      "codigo": "MP-156",
+      "nombre": "Chocolate barra al 70% con stevia",
+      "descripcion": "Colonial por 10 unidades",
+      "categoria": "Chocolates sin TACC",
+      "pagina": 18,
+      "precio_venta": 30960.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 30960.0
+      },
+      "imagen": "/catalogo/productos/chocolate_barra_al_70_con_stevia_366.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 157,
+      "codigo": "MP-157",
+      "nombre": "Chocolate barra sin azúcar",
+      "descripcion": "Colonial por 10 unidades",
+      "categoria": "Chocolates sin TACC",
+      "pagina": 18,
+      "precio_venta": 28680.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 28680.0
+      },
+      "imagen": "/catalogo/productos/chocolate_barra_al_70_con_stevia_366.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 158,
+      "codigo": "MP-158",
+      "nombre": "Chocolatinas semiamargo (caja x50unid)",
+      "descripcion": "Colonial por 10 unidades",
+      "categoria": "Chocolates sin TACC",
+      "pagina": 18,
+      "precio_venta": 11280.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 11280.0
+      },
+      "imagen": "/catalogo/productos/chocolate_barra_al_70_con_stevia_366.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 159,
+      "codigo": "MP-159",
+      "nombre": "Almendras Con Chocolate",
+      "descripcion": "",
+      "categoria": "Chocolates sin TACC",
+      "pagina": 18,
+      "precio_venta": 33600.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 33600.0
+      },
+      "imagen": "/catalogo/productos/pasas_con_chocolate_123.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 160,
+      "codigo": "MP-160",
+      "nombre": "Chocolate barra al 80% organico",
+      "descripcion": "Colonial por 10 unidades",
+      "categoria": "Chocolates sin TACC",
+      "pagina": 18,
+      "precio_venta": 39600.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 39600.0
+      },
+      "imagen": "/catalogo/productos/chocolate_barra_al_70_con_stevia_366.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 161,
+      "codigo": "MP-161",
+      "nombre": "Chocolate para chocotaza",
+      "descripcion": "Colonial por 10 unidades",
+      "categoria": "Chocolates sin TACC",
+      "pagina": 18,
+      "precio_venta": 21840.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 21840.0
+      },
+      "imagen": "/catalogo/productos/chocolate_barra_al_70_con_stevia_366.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 162,
+      "codigo": "MP-162",
+      "nombre": "Chocolatinas sin azúcar (caja x50unid)",
+      "descripcion": "Colonial por 10 unidades",
+      "categoria": "Chocolates sin TACC",
+      "pagina": 18,
+      "precio_venta": 11940.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 11940.0
+      },
+      "imagen": "/catalogo/productos/chocolate_barra_al_70_con_stevia_366.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 163,
+      "codigo": "MP-163",
+      "nombre": "Chocolate barra al 60% organico",
+      "descripcion": "Colonial por 10 unidades",
+      "categoria": "Chocolates sin TACC",
+      "pagina": 18,
+      "precio_venta": 35040.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 35040.0
+      },
+      "imagen": "/catalogo/productos/chocolate_barra_al_70_con_stevia_366.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 164,
+      "codigo": "MP-164",
+      "nombre": "Chocolatinas con stevia (caja x50unid)",
+      "descripcion": "Colonial por 10 unidades",
+      "categoria": "Chocolates sin TACC",
+      "pagina": 18,
+      "precio_venta": 12720.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 12720.0
+      },
+      "imagen": "/catalogo/productos/chocolate_barra_al_70_con_stevia_366.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 165,
+      "codigo": "MP-165",
+      "nombre": "Pasas con chocolate",
+      "descripcion": "",
+      "categoria": "Chocolates sin TACC",
+      "pagina": 18,
+      "precio_venta": 21360.0,
+      "precio_5kg": 0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 21360.0
+      },
+      "imagen": "/catalogo/productos/pasas_con_chocolate_123.jpeg",
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 166,
+      "codigo": "MP-166",
+      "nombre": "Gingko Biloba x 1kg",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 19,
+      "precio_venta": 26045.0,
+      "precio_5kg": 21704.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 26045.0,
+        "x5kg": 21704.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 167,
+      "codigo": "MP-167",
+      "nombre": "Sem x 1kg",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 19,
+      "precio_venta": 5861.0,
+      "precio_5kg": 4884.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 5861.0,
+        "x5kg": 4884.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 168,
+      "codigo": "MP-168",
+      "nombre": "Graviola x 1kg",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 19,
+      "precio_venta": 43352.0,
+      "precio_5kg": 36127.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 43352.0,
+        "x5kg": 36127.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 169,
+      "codigo": "MP-169",
+      "nombre": "Sandalo",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 19,
+      "precio_venta": 34454.0,
+      "precio_5kg": 28712.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 34454.0,
+        "x5kg": 28712.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 170,
+      "codigo": "MP-170",
+      "nombre": "Valeriana",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 19,
+      "precio_venta": 71218.0,
+      "precio_5kg": 59348.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 71218.0,
+        "x5kg": 59348.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 171,
+      "codigo": "MP-171",
+      "nombre": "Hammamelis",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 19,
+      "precio_venta": 52410.0,
+      "precio_5kg": 43675.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 52410.0,
+        "x5kg": 43675.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 172,
+      "codigo": "MP-172",
+      "nombre": "Moringa x 1kg",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 19,
+      "precio_venta": 39960.0,
+      "precio_5kg": 33300.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 39960.0,
+        "x5kg": 33300.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 173,
+      "codigo": "MP-173",
+      "nombre": "Cascara Sagrada x 1kg",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 19,
+      "precio_venta": 63202.0,
+      "precio_5kg": 52668.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 63202.0,
+        "x5kg": 52668.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 174,
+      "codigo": "MP-174",
+      "nombre": "Manzanilla",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 19,
+      "precio_venta": 27000.0,
+      "precio_5kg": 22500.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 27000.0,
+        "x5kg": 22500.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 175,
+      "codigo": "MP-175",
+      "nombre": "Siempre Viva",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 19,
+      "precio_venta": 106560.0,
+      "precio_5kg": 88800.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 106560.0,
+        "x5kg": 88800.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 176,
+      "codigo": "MP-176",
+      "nombre": "Cedron",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 19,
+      "precio_venta": 29837.0,
+      "precio_5kg": 24864.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 29837.0,
+        "x5kg": 24864.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 177,
+      "codigo": "MP-177",
+      "nombre": "Higuera tinta 60 cc",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 19,
+      "precio_venta": 6026.0,
+      "precio_5kg": 5022.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 6026.0,
+        "x5kg": 5022.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 178,
+      "codigo": "MP-178",
+      "nombre": "Rosa Mosqueta x 1kg",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 19,
+      "precio_venta": 42166.0,
+      "precio_5kg": 35138.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 42166.0,
+        "x5kg": 35138.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 179,
+      "codigo": "MP-179",
+      "nombre": "Castañas de la India x 1kg",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 19,
+      "precio_venta": 12815.0,
+      "precio_5kg": 10679.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 12815.0,
+        "x5kg": 10679.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 180,
+      "codigo": "MP-180",
+      "nombre": "Petalo de Rosas",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 19,
+      "precio_venta": 68020.0,
+      "precio_5kg": 56683.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 68020.0,
+        "x5kg": 56683.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 181,
+      "codigo": "MP-181",
+      "nombre": "Flor de Tilo",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 19,
+      "precio_venta": 86598.0,
+      "precio_5kg": 72165.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 86598.0,
+        "x5kg": 72165.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 182,
+      "codigo": "MP-182",
+      "nombre": "Laurel",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 19,
+      "precio_venta": 19536.0,
+      "precio_5kg": 16280.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 19536.0,
+        "x5kg": 16280.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 183,
+      "codigo": "MP-183",
+      "nombre": "Malva",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 19,
+      "precio_venta": 9588.0,
+      "precio_5kg": 7990.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 9588.0,
+        "x5kg": 7990.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 184,
+      "codigo": "MP-184",
+      "nombre": "Melisa",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 20,
+      "precio_venta": 23024.0,
+      "precio_5kg": 19187.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 23024.0,
+        "x5kg": 19187.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 185,
+      "codigo": "MP-185",
+      "nombre": "Menta",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 20,
+      "precio_venta": 13741.0,
+      "precio_5kg": 11451.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 13741.0,
+        "x5kg": 11451.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 186,
+      "codigo": "MP-186",
+      "nombre": "Salvia",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 20,
+      "precio_venta": 16284.0,
+      "precio_5kg": 13570.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 16284.0,
+        "x5kg": 13570.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 187,
+      "codigo": "MP-187",
+      "nombre": "Peperina",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 20,
+      "precio_venta": 29268.0,
+      "precio_5kg": 24390.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 29268.0,
+        "x5kg": 24390.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 188,
+      "codigo": "MP-188",
+      "nombre": "Te rojo",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 20,
+      "precio_venta": 10680.0,
+      "precio_5kg": 8900.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 10680.0,
+        "x5kg": 8900.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 189,
+      "codigo": "MP-189",
+      "nombre": "Pesuña de vaca",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 20,
+      "precio_venta": 11940.0,
+      "precio_5kg": 9950.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 11940.0,
+        "x5kg": 9950.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 190,
+      "codigo": "MP-190",
+      "nombre": "Ajenjo",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 20,
+      "precio_venta": 12974.0,
+      "precio_5kg": 10812.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 12974.0,
+        "x5kg": 10812.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 191,
+      "codigo": "MP-191",
+      "nombre": "Lapacho",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 20,
+      "precio_venta": 10200.0,
+      "precio_5kg": 8500.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 10200.0,
+        "x5kg": 8500.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 192,
+      "codigo": "MP-192",
+      "nombre": "Muña Muña",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 20,
+      "precio_venta": 8466.0,
+      "precio_5kg": 7055.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 8466.0,
+        "x5kg": 7055.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 193,
+      "codigo": "MP-193",
+      "nombre": "Poleo",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 20,
+      "precio_venta": 15902.0,
+      "precio_5kg": 13252.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 15902.0,
+        "x5kg": 13252.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 194,
+      "codigo": "MP-194",
+      "nombre": "Pasionaria",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 20,
+      "precio_venta": 10657.0,
+      "precio_5kg": 8881.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 10657.0,
+        "x5kg": 8881.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 195,
+      "codigo": "MP-195",
+      "nombre": "Te verde",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 20,
+      "precio_venta": 9840.0,
+      "precio_5kg": 8200.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 9840.0,
+        "x5kg": 8200.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 196,
+      "codigo": "MP-196",
+      "nombre": "rompe piedra 50grs",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 20,
+      "precio_venta": 2292.0,
+      "precio_5kg": 1910.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 2292.0,
+        "x5kg": 1910.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 197,
+      "codigo": "MP-197",
+      "nombre": "Alcachofa",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 20,
+      "precio_venta": 7961.0,
+      "precio_5kg": 6634.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 7961.0,
+        "x5kg": 6634.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 198,
+      "codigo": "MP-198",
+      "nombre": "Llanten tinta 60 cc",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 20,
+      "precio_venta": 6026.0,
+      "precio_5kg": 5022.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 6026.0,
+        "x5kg": 5022.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 199,
+      "codigo": "MP-199",
+      "nombre": "Ortiga",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 20,
+      "precio_venta": 7548.0,
+      "precio_5kg": 6290.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 7548.0,
+        "x5kg": 6290.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 200,
+      "codigo": "MP-200",
+      "nombre": "Romero titura 50cc",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 20,
+      "precio_venta": 4723.0,
+      "precio_5kg": 3936.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 4723.0,
+        "x5kg": 3936.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 201,
+      "codigo": "MP-201",
+      "nombre": "Te negro",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 20,
+      "precio_venta": 9132.0,
+      "precio_5kg": 7610.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 9132.0,
+        "x5kg": 7610.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 202,
+      "codigo": "MP-202",
+      "nombre": "Marcela",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 20,
+      "precio_venta": 14690.0,
+      "precio_5kg": 12242.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 14690.0,
+        "x5kg": 12242.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 203,
+      "codigo": "MP-203",
+      "nombre": "rompe piedra tintura 60cc",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 20,
+      "precio_venta": 6026.0,
+      "precio_5kg": 5022.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 6026.0,
+        "x5kg": 5022.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 204,
+      "codigo": "MP-204",
+      "nombre": "Amargon",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 20,
+      "precio_venta": 15860.0,
+      "precio_5kg": 13217.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 15860.0,
+        "x5kg": 13217.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 205,
+      "codigo": "MP-205",
+      "nombre": "Ambay",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 21,
+      "precio_venta": 11890.0,
+      "precio_5kg": 9908.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 11890.0,
+        "x5kg": 9908.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 206,
+      "codigo": "MP-206",
+      "nombre": "Carqueja",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 21,
+      "precio_venta": 7038.0,
+      "precio_5kg": 5865.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 7038.0,
+        "x5kg": 5865.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 207,
+      "codigo": "MP-207",
+      "nombre": "Chañar titntura 60cc",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 21,
+      "precio_venta": 6026.0,
+      "precio_5kg": 5022.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 6026.0,
+        "x5kg": 5022.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 208,
+      "codigo": "MP-208",
+      "nombre": "Espina colorada",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 21,
+      "precio_venta": 6528.0,
+      "precio_5kg": 5440.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 6528.0,
+        "x5kg": 5440.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 209,
+      "codigo": "MP-209",
+      "nombre": "Eucalipto",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 21,
+      "precio_venta": 11911.0,
+      "precio_5kg": 9926.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 11911.0,
+        "x5kg": 9926.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 210,
+      "codigo": "MP-210",
+      "nombre": "Palo Amarillo",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 21,
+      "precio_venta": 3982.0,
+      "precio_5kg": 3318.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 3982.0,
+        "x5kg": 3318.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 211,
+      "codigo": "MP-211",
+      "nombre": "Hierbabuena",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 21,
+      "precio_venta": 30000.0,
+      "precio_5kg": 25000.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 30000.0,
+        "x5kg": 25000.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 212,
+      "codigo": "MP-212",
+      "nombre": "Burrito",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 21,
+      "precio_venta": 7200.0,
+      "precio_5kg": 6000.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 7200.0,
+        "x5kg": 6000.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 213,
+      "codigo": "MP-213",
+      "nombre": "Cola de caballo",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 21,
+      "precio_venta": 4380.0,
+      "precio_5kg": 3650.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 4380.0,
+        "x5kg": 3650.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 214,
+      "codigo": "MP-214",
+      "nombre": "Calendula",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 21,
+      "precio_venta": 21013.0,
+      "precio_5kg": 17511.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 21013.0,
+        "x5kg": 17511.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 215,
+      "codigo": "MP-215",
+      "nombre": "Doradilla 40grs",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 21,
+      "precio_venta": 2292.0,
+      "precio_5kg": 1910.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 2292.0,
+        "x5kg": 1910.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 216,
+      "codigo": "MP-216",
+      "nombre": "Cardo mariano",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 21,
+      "precio_venta": 74592.0,
+      "precio_5kg": 62160.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 74592.0,
+        "x5kg": 62160.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 217,
+      "codigo": "MP-217",
+      "nombre": "Salvia blanca",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 21,
+      "precio_venta": 13260.0,
+      "precio_5kg": 11050.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 13260.0,
+        "x5kg": 11050.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 218,
+      "codigo": "MP-218",
+      "nombre": "Yerba de pollo 25grs",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 21,
+      "precio_venta": 760.0,
+      "precio_5kg": 633.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 760.0,
+        "x5kg": 633.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 219,
+      "codigo": "MP-219",
+      "nombre": "Boldo",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 21,
+      "precio_venta": 15984.0,
+      "precio_5kg": 13320.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 15984.0,
+        "x5kg": 13320.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 220,
+      "codigo": "MP-220",
+      "nombre": "Cola de quirquincho",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 21,
+      "precio_venta": 17442.0,
+      "precio_5kg": 14535.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 17442.0,
+        "x5kg": 14535.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 221,
+      "codigo": "MP-221",
+      "nombre": "Diente de leon tintutara 60cc",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 21,
+      "precio_venta": 4716.0,
+      "precio_5kg": 3930.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 4716.0,
+        "x5kg": 3930.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 222,
+      "codigo": "MP-222",
+      "nombre": "Estigma de maíz",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 21,
+      "precio_venta": 25200.0,
+      "precio_5kg": 21000.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 25200.0,
+        "x5kg": 21000.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 223,
+      "codigo": "MP-223",
+      "nombre": "hisopo",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 21,
+      "precio_venta": 20893.0,
+      "precio_5kg": 17411.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 20893.0,
+        "x5kg": 17411.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 224,
+      "codigo": "MP-224",
+      "nombre": "Tilo",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 21,
+      "precio_venta": 86610.0,
+      "precio_5kg": 72175.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 86610.0,
+        "x5kg": 72175.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    },
+    {
+      "id": 225,
+      "codigo": "MP-225",
+      "nombre": "Mirra",
+      "descripcion": "",
+      "categoria": "Herboristería",
+      "pagina": 21,
+      "precio_venta": 27362.0,
+      "precio_5kg": 22802.0,
+      "precio_10kg": 0,
+      "precio_25kg": 0,
+      "precio_30kg": 0,
+      "escalas": {
+        "x1kg": 27362.0,
+        "x5kg": 22802.0
+      },
+      "imagen": null,
+      "unidad_medida": "kg"
+    }
+  ]
+}
