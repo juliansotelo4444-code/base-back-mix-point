@@ -33,17 +33,33 @@ router.get('/:id', async (req, res, next) => {
     } catch (err) { next(err); }
 });
 
+router.post('/rapido', async (req, res, next) => {
+    try {
+        const { razon_social, telefono, direccion, lista_precio = 'general', segmento = 'Comercio' } = req.body;
+        if (!razon_social || !razon_social.trim()) {
+            return res.status(400).json({ error: 'La razón social o nombre es obligatorio.' });
+        }
+
+        const { row } = await db.run(`
+            INSERT INTO clientes (razon_social, telefono, direccion, lista_precio, segmento, condicion_iva, saldo_cuenta)
+            VALUES ($1, $2, $3, $4, $5, 'Consumidor Final', 0) RETURNING id
+        `, [razon_social.trim(), telefono || null, direccion || null, lista_precio, segmento]);
+
+        res.status(201).json(await db.one('SELECT * FROM clientes WHERE id = $1', [row.id]));
+    } catch (err) { next(err); }
+});
+
 router.post('/', async (req, res, next) => {
     try {
-        const { razon_social, cuit, condicion_iva, direccion, localidad, telefono, email, lista_precio, limite_credito, plazo_dias, observaciones } = req.body;
+        const { razon_social, cuit, condicion_iva, direccion, localidad, telefono, email, lista_precio, segmento, limite_credito, plazo_dias, observaciones } = req.body;
         if (!razon_social) return res.status(400).json({ error: 'razon_social es requerido.' });
 
         const { row } = await db.run(`
-            INSERT INTO clientes (razon_social, cuit, condicion_iva, direccion, localidad, telefono, email, lista_precio, limite_credito, plazo_dias, observaciones)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id
+            INSERT INTO clientes (razon_social, cuit, condicion_iva, direccion, localidad, telefono, email, lista_precio, segmento, limite_credito, plazo_dias, observaciones)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id
         `, [
             razon_social, cuit || null, condicion_iva || 'Consumidor Final', direccion || null, localidad || null,
-            telefono || null, email || null, lista_precio || 'general', Number(limite_credito) || 0, Number(plazo_dias) || 0, observaciones || null
+            telefono || null, email || null, lista_precio || 'general', segmento || 'Comercio', Number(limite_credito) || 0, Number(plazo_dias) || 0, observaciones || null
         ]);
 
         res.status(201).json(await db.one('SELECT * FROM clientes WHERE id = $1', [row.id]));
@@ -59,12 +75,12 @@ router.put('/:id', async (req, res, next) => {
         await db.run(`
             UPDATE clientes SET
                 razon_social=$1, cuit=$2, condicion_iva=$3, direccion=$4, localidad=$5,
-                telefono=$6, email=$7, lista_precio=$8, limite_credito=$9, plazo_dias=$10,
-                observaciones=$11, activo=$12
-            WHERE id = $13
+                telefono=$6, email=$7, lista_precio=$8, segmento=$9, limite_credito=$10, plazo_dias=$11,
+                observaciones=$12, activo=$13
+            WHERE id = $14
         `, [
             c.razon_social, c.cuit, c.condicion_iva, c.direccion, c.localidad,
-            c.telefono, c.email, c.lista_precio, Number(c.limite_credito) || 0, Number(c.plazo_dias) || 0,
+            c.telefono, c.email, c.lista_precio, c.segmento || 'Comercio', Number(c.limite_credito) || 0, Number(c.plazo_dias) || 0,
             c.observaciones, c.activo, req.params.id
         ]);
 

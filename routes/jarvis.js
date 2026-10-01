@@ -33,9 +33,23 @@ router.get('/sugerencias', (req, res) => {
             '¿Podemos elaborar 50 kg de Mix Tropical?',
             '¿Cuánto facturamos hoy en remitos?',
             '¿Qué productos tienen stock crítico o agotado?',
-            '¿Cómo viene el flujo de caja del mes?'
+            '¿Cómo viene el flujo de caja del mes?',
+            '¿Qué productos tienen predicción de quiebre de stock?'
         ]
     });
+});
+
+/**
+ * Predicción de quiebre de stock por consumo proyectado
+ */
+router.get('/prediccion-stock', async (req, res, next) => {
+    try {
+        const limite = parseInt(req.query.limite) || 20;
+        const predicciones = await JarvisService.predecirQuiebreStock({ limite });
+        res.json({ ok: true, predicciones });
+    } catch (err) {
+        next(err);
+    }
 });
 
 module.exports = router;

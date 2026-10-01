@@ -43,6 +43,18 @@ app.use('/api/conciliacion', require('./routes/conciliacion'));
 app.use('/api/reportes', require('./routes/reportes'));
 app.use('/api/jarvis', require('./routes/jarvis'));
 
+// Servir frontend compilado y resolver 404 en recargas de rutas SPA
+const path = require('path');
+const fs = require('fs');
+const distPath = path.join(__dirname, '../frontend/dist');
+if (fs.existsSync(distPath)) {
+    app.use(express.static(distPath));
+    app.get('*', (req, res, next) => {
+        if (req.path.startsWith('/api')) return next();
+        res.sendFile(path.join(distPath, 'index.html'));
+    });
+}
+
 app.use((err, req, res, next) => {
     console.error(err);
     res.status(500).json({ error: err.message || 'Error interno del servidor.' });

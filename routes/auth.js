@@ -26,12 +26,13 @@ router.post('/login', async (req, res, next) => {
         const token = jwt.sign(
             { id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol },
             SECRET,
-            { expiresIn: '12h' }
+            { expiresIn: '1h' }
         );
 
         res.json({
             token,
-            usuario: { id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol }
+            usuario: { id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol },
+            expires_in: 3600
         });
     } catch (err) { next(err); }
 });

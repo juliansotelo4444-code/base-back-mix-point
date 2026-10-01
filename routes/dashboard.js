@@ -48,6 +48,13 @@ router.get('/resumen', async (req, res, next) => {
             SELECT COALESCE(SUM(stock_actual * precio_compra), 0) as total FROM productos WHERE activo = true
         `);
 
+        const estadosPedidos = await db.all(`
+            SELECT estado, COUNT(*)::int as cantidad, COALESCE(SUM(total), 0) as total
+            FROM remitos
+            WHERE fecha >= CURRENT_DATE - INTERVAL '30 days'
+            GROUP BY estado
+        `);
+
         res.json({
             ventas_mes: ventasMes,
             compras_mes: comprasMes,
@@ -55,7 +62,8 @@ router.get('/resumen', async (req, res, next) => {
             remitos_pendientes: remitosPendientes.cantidad,
             productos_bajo_stock: productosBajoStock,
             lotes_por_vencer: lotesPorVencer,
-            valor_stock_actual: valorStock.total
+            valor_stock_actual: valorStock.total,
+            estados_pedidos: estadosPedidos
         });
     } catch (err) { next(err); }
 });

@@ -44,6 +44,58 @@ class JarvisService {
     }
 
     /**
+     * Predicción inteligente de quiebre de stock basado en consumo promedio diario (últimos 30 días)
+     */
+    static async predecirQuiebreStock({ limite = 15 } = {}) {
+        const query = `
+            WITH ventas_30d AS (
+                SELECT rd.producto_id,
+                       COALESCE(SUM(rd.cantidad), 0) as total_vendido_30d,
+                       ROUND(COALESCE(SUM(rd.cantidad), 0) / 30.0, 2) as consumo_diario_promedio
+                FROM remitos_detalle rd
+                JOIN remitos r ON r.id = rd.remito_id
+                WHERE r.fecha >= CURRENT_DATE - INTERVAL '30 days'
+                  AND r.estado NOT IN ('cancelado', 'anulado')
+                GROUP BY rd.producto_id
+            )
+            SELECT p.id, p.codigo, p.nombre, p.stock_actual, p.stock_minimo, p.unidad_medida, p.precio_venta,
+                   c.nombre as categoria,
+                   COALESCE(v.total_vendido_30d, 0) as total_vendido_30d,
+                   COALESCE(v.consumo_diario_promedio, 0) as consumo_diario_promedio,
+                   CASE 
+                     WHEN COALESCE(v.consumo_diario_promedio, 0) > 0 THEN 
+                       ROUND(p.stock_actual / v.consumo_diario_promedio, 1)
+                     ELSE 999 
+                   END as dias_restantes
+            FROM productos p
+            LEFT JOIN categorias_producto c ON c.id = p.categoria_id
+            LEFT JOIN ventas_30d v ON v.producto_id = p.id
+            WHERE p.activo = true
+            ORDER BY dias_restantes ASC, p.stock_actual ASC
+            LIMIT $1
+        `;
+        const items = await db.all(query, [limite]);
+        return items.map(p => {
+            const dias = Number(p.dias_restantes);
+            const diasVal = dias >= 999 ? null : dias;
+            return {
+                id: p.id,
+                codigo: p.codigo,
+                nombre: p.nombre,
+                categoria: p.categoria,
+                stock_actual: Number(p.stock_actual),
+                stock_minimo: Number(p.stock_minimo),
+                unidad: p.unidad_medida,
+                precio: Number(p.precio_venta),
+                total_vendido_30d: Number(p.total_vendido_30d),
+                consumo_diario: Number(p.consumo_diario_promedio),
+                dias_restantes: diasVal,
+                alerta_quiebre: (diasVal !== null && diasVal <= 7) || Number(p.stock_actual) <= Number(p.stock_minimo)
+            };
+        });
+    }
+
+    /**
      * Consulta de ventas recientes y facturación
      */
     static async consultarVentas({ periodo = 'hoy', limite = 10 } = {}) {
@@ -306,7 +358,28 @@ class JarvisService {
             };
         }
 
-        // 5. Preguntas sobre Stock o Productos
+        // 5. Predicción inteligente de quiebre de stock
+        if (texto.includes('quiebre') || texto.includes('predic') || texto.includes('cuanto dura') || texto.includes('cuánto dura') || texto.includes('agota') || texto.includes('termina') || texto.includes('reponer')) {
+            const predicciones = await this.predecirQuiebreStock({ limite: 5 });
+            const criticos = predicciones.filter(p => p.dias_restantes !== null && p.dias_restantes <= 10);
+            
+            if (criticos.length > 0) {
+                const detalle = criticos.map(p => `${p.nombre} (quedan ${p.stock_actual} ${p.unidad}, dura ~${p.dias_restantes} días con venta de ${p.consumo_diario} ${p.unidad}/día)`).join('; ');
+                return {
+                    respuesta: `⚠️ Predicción de quiebre de stock: Hay productos en riesgo inminente según el ritmo de venta de los últimos 30 días: ${detalle}. Se sugiere reponer mercadería.`,
+                    datos: predicciones,
+                    accion_sugerida: 'Ver Compras a Proveedores'
+                };
+            } else {
+                return {
+                    respuesta: `✅ Según el análisis de rotación de los últimos 30 días, el inventario principal cuenta con cobertura para más de 10 días de venta normal.`,
+                    datos: predicciones,
+                    accion_sugerida: 'Ver Inventario'
+                };
+            }
+        }
+
+        // 6. Preguntas sobre Stock o Productos
         if (texto.includes('stock') || texto.includes('qued') || texto.includes('alerta') || texto.includes('cuanto') || texto.includes('precio') || texto.includes('hay')) {
             const soloCritico = texto.includes('critico') || texto.includes('falta') || texto.includes('baj') || texto.includes('agotad');
             
