@@ -235,3 +235,114 @@ CREATE INDEX IF NOT EXISTS idx_gastos_categoria ON gastos(categoria_id);
 CREATE INDEX IF NOT EXISTS idx_mov_cuenta_entidad ON movimientos_cuenta(entidad_tipo, entidad_id, fecha DESC);
 CREATE INDEX IF NOT EXISTS idx_clientes_nombre ON clientes(LOWER(razon_social));
 CREATE INDEX IF NOT EXISTS idx_proveedores_nombre ON proveedores(LOWER(razon_social));
+
+-- ---------------------------------------------------------
+-- MIGRACIONES IDEMPOTENTES PARA CLIENTES
+-- ---------------------------------------------------------
+ALTER TABLE clientes ADD COLUMN IF NOT EXISTS limite_credito NUMERIC NOT NULL DEFAULT 0;
+ALTER TABLE clientes ADD COLUMN IF NOT EXISTS plazo_dias INTEGER NOT NULL DEFAULT 0;
+
+-- ---------------------------------------------------------
+-- MÓDULO DE RECETAS Y PRODUCCIÓN DE MIXES (BOM)
+-- ---------------------------------------------------------
+CREATE TABLE IF NOT EXISTS recetas (
+    id              SERIAL PRIMARY KEY,
+    producto_id     INTEGER NOT NULL REFERENCES productos(id) ON DELETE CASCADE,
+    nombre          TEXT NOT NULL,
+    descripcion     TEXT,
+    rendimiento_kg  NUMERIC NOT NULL DEFAULT 100,
+    activo          BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at      TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS receta_ingredientes (
+    id                      SERIAL PRIMARY KEY,
+    receta_id               INTEGER NOT NULL REFERENCES recetas(id) ON DELETE CASCADE,
+    producto_ingrediente_id INTEGER NOT NULL REFERENCES productos(id),
+    porcentaje              NUMERIC NOT NULL DEFAULT 0,
+    cantidad_por_batch      NUMERIC NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS producciones (
+    id                  SERIAL PRIMARY KEY,
+    numero              TEXT UNIQUE NOT NULL,
+    receta_id           INTEGER REFERENCES recetas(id),
+    producto_id         INTEGER NOT NULL REFERENCES productos(id),
+    cantidad_producida  NUMERIC NOT NULL,
+    lote_id             INTEGER REFERENCES lotes(id),
+    fecha               DATE NOT NULL DEFAULT CURRENT_DATE,
+    costo_unitario      NUMERIC NOT NULL DEFAULT 0,
+    costo_total         NUMERIC NOT NULL DEFAULT 0,
+    observaciones       TEXT,
+    usuario_id          INTEGER REFERENCES usuarios(id),
+    created_at          TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS produccion_insumos (
+    id              SERIAL PRIMARY KEY,
+    produccion_id   INTEGER NOT NULL REFERENCES producciones(id) ON DELETE CASCADE,
+    producto_id     INTEGER NOT NULL REFERENCES productos(id),
+    lote_id         INTEGER REFERENCES lotes(id),
+    cantidad_usada  NUMERIC NOT NULL,
+    costo_unitario  NUMERIC NOT NULL DEFAULT 0
+);
+
+CREATE INDEX IF NOT EXISTS idx_recetas_producto ON recetas(producto_id);
+CREATE INDEX IF NOT EXISTS idx_receta_ingredientes_receta ON receta_ingredientes(receta_id);
+CREATE INDEX IF NOT EXISTS idx_producciones_fecha ON producciones(fecha DESC);
+CREATE INDEX IF NOT EXISTS idx_producciones_producto ON producciones(producto_id);
+CREATE INDEX IF NOT EXISTS idx_produccion_insumos_prod ON produccion_insumos(produccion_id);
+
+-- Configuración del Sistema (claves/valores para integraciones, webhooks, reportes)
+CREATE TABLE IF NOT EXISTS configuracion_sistema (
+    clave       TEXT PRIMARY KEY,
+    valor       TEXT,
+    updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+-- Logs de Sincronización con Google Sheets y otros servicios
+CREATE TABLE IF NOT EXISTS sync_logs (
+    id          SERIAL PRIMARY KEY,
+    tipo        TEXT NOT NULL,
+    resultado   TEXT NOT NULL,
+    detalles    TEXT,
+    fecha       TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+-- Conciliación Bancaria y Billeteras Virtuales
+CREATE TABLE IF NOT EXISTS conciliaciones_bancarias (
+    id                  SERIAL PRIMARY KEY,
+    fecha_movimiento    DATE NOT NULL,
+    cuenta_origen       TEXT NOT NULL, -- 'mercadopago', 'banco_galicia', 'banco_nacion', etc.
+    descripcion         TEXT,
+    monto               NUMERIC NOT NULL,
+    comprobante_nro     TEXT,
+    titular             TEXT,
+    cuit                TEXT,
+    remito_id           INTEGER REFERENCES remitos(id),
+    cliente_id         INTEGER REFERENCES clientes(id),
+    estado              TEXT NOT NULL DEFAULT 'pendiente', -- 'pendiente', 'conciliado', 'parcial', 'discrepante', 'descartado'
+    diferencia          NUMERIC DEFAULT 0,
+    observaciones       TEXT,
+    created_at          TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+-- Centro de Notificaciones y Alertas (Stock crítico, vencimientos, cobros pendientes)
+CREATE TABLE IF NOT EXISTS notificaciones (
+    id                  SERIAL PRIMARY KEY,
+    tipo                TEXT NOT NULL, -- 'stock_minimo', 'stock_cero', 'cobro_vencido', 'sync_error', 'conciliacion'
+    titulo              TEXT NOT NULL,
+    mensaje             TEXT NOT NULL,
+    nivel               TEXT NOT NULL DEFAULT 'info', -- 'info', 'warning', 'danger', 'success'
+    referencia_tipo     TEXT, -- 'producto', 'remito', 'cliente'
+    referencia_id       INTEGER,
+    leida               BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at          TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_sync_logs_fecha ON sync_logs(fecha DESC);
+CREATE INDEX IF NOT EXISTS idx_conciliaciones_estado ON conciliaciones_bancarias(estado);
+CREATE INDEX IF NOT EXISTS idx_conciliaciones_fecha ON conciliaciones_bancarias(fecha_movimiento DESC);
+CREATE INDEX IF NOT EXISTS idx_conciliaciones_remito ON conciliaciones_bancarias(remito_id);
+CREATE INDEX IF NOT EXISTS idx_notificaciones_leida ON notificaciones(leida, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_notificaciones_fecha ON notificaciones(created_at DESC);

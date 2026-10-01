@@ -107,6 +107,22 @@ router.post('/:id/anular', async (req, res, next) => {
         if (!recepcion) return res.status(404).json({ error: 'Recepción no encontrada.' });
         if (recepcion.estado === 'anulada') return res.status(400).json({ error: 'La recepción ya está anulada.' });
 
+        const itemsLotes = await db.all(`
+            SELECT ri.*, l.cantidad_actual, l.cantidad_inicial, p.nombre as producto_nombre
+            FROM recepcion_items ri
+            LEFT JOIN lotes l ON l.id = ri.lote_id
+            JOIN productos p ON p.id = ri.producto_id
+            WHERE ri.recepcion_id = $1
+        `, [req.params.id]);
+
+        for (const it of itemsLotes) {
+            if (it.cantidad_actual !== null && Number(it.cantidad_actual) < Number(it.cantidad_inicial)) {
+                return res.status(400).json({
+                    error: `No se puede anular la recepción: el lote de "${it.producto_nombre}" ya fue utilizado o despachado en remitos (stock actual del lote: ${it.cantidad_actual}, inicial: ${it.cantidad_inicial}).`
+                });
+            }
+        }
+
         await db.transaction(async (tx) => {
             const items = await tx.all('SELECT * FROM recepcion_items WHERE recepcion_id = $1', [req.params.id]);
             for (const item of items) {

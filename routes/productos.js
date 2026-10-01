@@ -1,6 +1,7 @@
 const express = require('express');
 const db = require('../db/pool');
 const { requireAuth } = require('../middleware/auth');
+const AlertasService = require('../services/alertasService');
 
 const router = express.Router();
 router.use(requireAuth);
@@ -121,23 +122,61 @@ router.delete('/:id', async (req, res, next) => {
     } catch (err) { next(err); }
 });
 
-// Ajuste manual de stock (mermas, conteos físicos, etc.)
+// Ajuste manual de stock (mermas, conteos físicos, etc.) con sincronización de lotes
 router.post('/:id/ajuste-stock', async (req, res, next) => {
     try {
-        const { cantidad, motivo } = req.body;
+        const { cantidad, motivo, lote_id, fecha_vencimiento } = req.body;
         const producto = await db.one('SELECT * FROM productos WHERE id = $1', [req.params.id]);
         if (!producto) return res.status(404).json({ error: 'Producto no encontrado.' });
-        if (cantidad === undefined || Number(cantidad) === 0) return res.status(400).json({ error: 'cantidad es requerida y debe ser distinta de 0.' });
+        const numCant = Number(cantidad);
+        if (cantidad === undefined || numCant === 0) return res.status(400).json({ error: 'cantidad es requerida y debe ser distinta de 0.' });
 
-        const tipo = Number(cantidad) > 0 ? 'ajuste_positivo' : 'ajuste_negativo';
+        const tipo = numCant > 0 ? 'ajuste_positivo' : 'ajuste_negativo';
+        const absCant = Math.abs(numCant);
 
         await db.transaction(async (tx) => {
-            await tx.run('UPDATE productos SET stock_actual = stock_actual + $1 WHERE id = $2', [cantidad, req.params.id]);
+            let loteRef = lote_id ? Number(lote_id) : null;
+
+            if (numCant > 0) {
+                // Ajuste positivo: sumar a un lote existente o crear uno nuevo
+                if (loteRef) {
+                    await tx.run('UPDATE lotes SET cantidad_actual = cantidad_actual + $1 WHERE id = $2 AND producto_id = $3', [absCant, loteRef, req.params.id]);
+                } else {
+                    const loteNum = `AJUSTE-${req.params.id}-${Date.now().toString().slice(-5)}`;
+                    const { row: loteRow } = await tx.run(`
+                        INSERT INTO lotes (producto_id, numero_lote, fecha_ingreso, fecha_vencimiento, cantidad_inicial, cantidad_actual, costo_unitario)
+                        VALUES ($1, $2, CURRENT_DATE, $3, $4, $4, $5) RETURNING id
+                    `, [req.params.id, loteNum, fecha_vencimiento || null, absCant, producto.precio_compra || 0]);
+                    loteRef = loteRow.id;
+                }
+            } else {
+                // Ajuste negativo (merma, faltante): descontar del lote específico o por FEFO
+                if (loteRef) {
+                    await tx.run('UPDATE lotes SET cantidad_actual = GREATEST(0, cantidad_actual - $1) WHERE id = $2 AND producto_id = $3', [absCant, loteRef, req.params.id]);
+                } else {
+                    let rest = absCant;
+                    const lotes = await tx.all(`
+                        SELECT * FROM lotes WHERE producto_id = $1 AND cantidad_actual > 0
+                        ORDER BY (fecha_vencimiento IS NULL), fecha_vencimiento ASC, fecha_ingreso ASC
+                    `, [req.params.id]);
+                    for (const l of lotes) {
+                        if (rest <= 0) break;
+                        const tomar = Math.min(Number(l.cantidad_actual), rest);
+                        await tx.run('UPDATE lotes SET cantidad_actual = cantidad_actual - $1 WHERE id = $2', [tomar, l.id]);
+                        rest -= tomar;
+                        if (!loteRef) loteRef = l.id;
+                    }
+                }
+            }
+
+            await tx.run('UPDATE productos SET stock_actual = stock_actual + $1 WHERE id = $2', [numCant, req.params.id]);
             await tx.run(`
-                INSERT INTO movimientos_stock (producto_id, tipo, cantidad, motivo, referencia_tipo, usuario_id)
-                VALUES ($1, $2, $3, $4, 'ajuste', $5)
-            `, [req.params.id, tipo, Math.abs(cantidad), motivo || 'Ajuste manual', req.usuario.id]);
+                INSERT INTO movimientos_stock (producto_id, lote_id, tipo, cantidad, motivo, referencia_tipo, usuario_id)
+                VALUES ($1, $2, $3, $4, $5, 'ajuste', $6)
+            `, [req.params.id, loteRef, tipo, absCant, motivo || 'Ajuste manual', req.usuario.id]);
         });
+
+        AlertasService.verificarStockProducto(req.params.id).catch(() => {});
 
         res.json(await db.one('SELECT * FROM productos WHERE id = $1', [req.params.id]));
     } catch (err) { next(err); }

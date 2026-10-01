@@ -1,32 +1,173 @@
 const express = require('express');
 const { requireAuth } = require('../middleware/auth');
-const { sincronizarCatalogo, fetchUrl, parseCSV, extraerSheetId } = require('../services/googleSheets');
+const {
+    sincronizarCatalogo,
+    fetchUrl,
+    parseCSV,
+    extraerSheetId,
+    sanitizarNumero,
+    sincronizarBidireccional,
+    obtenerCodigoAppsScript
+} = require('../services/googleSheets');
 const { generarNumero } = require('../utils/numerador');
 const db = require('../db/pool');
+const AlertasService = require('../services/alertasService');
 
 const router = express.Router();
-router.use(requireAuth);
 
 const DEFAULT_CATALOGO_URL = process.env.GOOGLE_SHEET_CATALOGO_URL || 'https://docs.google.com/spreadsheets/d/1PC-DPIePHgDQPXt7sGuXCObJyO2YAiMOyTS1clAvTao/edit?usp=sharing';
-let pedidosUrl = process.env.GOOGLE_SHEET_PEDIDOS_URL || 'https://docs.google.com/spreadsheets/d/1uJfkTvjqm_TEySTLJx2YW1fIViIrryjXl6IpDMlcPtk/edit?usp=sharing';
+const DEFAULT_PEDIDOS_URL = process.env.GOOGLE_SHEET_PEDIDOS_URL || 'https://docs.google.com/spreadsheets/d/1uJfkTvjqm_TEySTLJx2YW1fIViIrryjXl6IpDMlcPtk/edit?usp=sharing';
 
-router.get('/config', (req, res) => {
-    res.json({
-        catalogo_url: DEFAULT_CATALOGO_URL,
-        pedidos_url: pedidosUrl
-    });
-});
-
-router.post('/config', (req, res) => {
-    if (req.body.pedidos_url !== undefined) {
-        pedidosUrl = req.body.pedidos_url;
+/**
+ * Middleware híbrido: acepta x-mixpoint-token o sesión de usuario activa
+ */
+async function authOrWebhookToken(req, res, next) {
+    const tokenHeader = req.headers['x-mixpoint-token'];
+    if (tokenHeader) {
+        // Consultar token configurado o aceptar el predeterminado
+        const cfgToken = await db.one("SELECT valor FROM configuracion_sistema WHERE clave = 'sheets_webhook_token'");
+        const validToken = (cfgToken && cfgToken.valor) ? cfgToken.valor : 'MIXPOINT_SECRET_KEY';
+        if (tokenHeader === validToken) {
+            req.esWebhook = true;
+            return next();
+        }
     }
-    res.json({ ok: true, catalogo_url: DEFAULT_CATALOGO_URL, pedidos_url: pedidosUrl });
+    return requireAuth(req, res, next);
+}
+
+/**
+ * Endpoint de Webhook público/autenticado por token para Google Apps Script
+ */
+router.post('/sheets-webhook', authOrWebhookToken, async (req, res, next) => {
+    try {
+        const { evento, fila, columna, valor } = req.body;
+        console.log(`[Google Sheets Webhook] Evento recibido: ${evento} (Fila: ${fila}, Col: ${columna})`);
+
+        // Si se editó el catálogo, sincronizar automáticamente
+        if (evento === 'CATALOGO_EDITADO') {
+            sincronizarBidireccional().catch(e => console.error('Error en sync diferido:', e.message));
+        }
+
+        await db.run(`
+            INSERT INTO sync_logs (tipo, resultado, detalles, fecha)
+            VALUES ('webhook_inbound', 'recibido', $1, NOW())
+        `, [JSON.stringify(req.body)]);
+
+        res.json({ ok: true, mensaje: 'Webhook procesado con éxito' });
+    } catch (err) {
+        next(err);
+    }
 });
 
+// A partir de aquí, las rutas administrativas requieren autenticación o token
+router.use(authOrWebhookToken);
+
+/**
+ * Obtener configuración actual de Google Sheets
+ */
+router.get('/config', async (req, res, next) => {
+    try {
+        const rows = await db.all("SELECT clave, valor FROM configuracion_sistema WHERE clave LIKE 'sheets_%'");
+        const configMap = {};
+        rows.forEach(r => { configMap[r.clave] = r.valor; });
+
+        res.json({
+            catalogo_url: configMap.sheets_catalogo_url || DEFAULT_CATALOGO_URL,
+            pedidos_url: configMap.sheets_pedidos_url || DEFAULT_PEDIDOS_URL,
+            script_url: configMap.sheets_script_url || '',
+            webhook_token: configMap.sheets_webhook_token || 'MIXPOINT_SECRET_KEY',
+            auto_sync_interval: configMap.sheets_auto_sync_min || '5'
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * Guardar configuración de Google Sheets
+ */
+router.post('/config', async (req, res, next) => {
+    try {
+        const { catalogo_url, pedidos_url, script_url, webhook_token, auto_sync_interval } = req.body;
+
+        const entries = [
+            ['sheets_catalogo_url', catalogo_url],
+            ['sheets_pedidos_url', pedidos_url],
+            ['sheets_script_url', script_url],
+            ['sheets_webhook_token', webhook_token],
+            ['sheets_auto_sync_min', auto_sync_interval]
+        ];
+
+        for (const [clave, valor] of entries) {
+            if (valor !== undefined) {
+                await db.run(`
+                    INSERT INTO configuracion_sistema (clave, valor, updated_at)
+                    VALUES ($1, $2, NOW())
+                    ON CONFLICT (clave) DO UPDATE SET valor = EXCLUDED.valor, updated_at = NOW()
+                `, [clave, String(valor)]);
+            }
+        }
+
+        res.json({ ok: true, mensaje: 'Configuración guardada correctamente.' });
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * Obtener código de Google Apps Script generado dinámicamente
+ */
+router.get('/apps-script-code', async (req, res, next) => {
+    try {
+        const host = req.get('host');
+        const protocol = req.protocol;
+        const backendUrl = `${protocol}://${host}`;
+
+        const cfgToken = await db.one("SELECT valor FROM configuracion_sistema WHERE clave = 'sheets_webhook_token'");
+        const token = (cfgToken && cfgToken.valor) ? cfgToken.valor : 'MIXPOINT_SECRET_KEY';
+
+        const code = obtenerCodigoAppsScript(backendUrl, token);
+        res.json({ ok: true, backendUrl, token, code });
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * Sincronización manual / forzada bidireccional
+ */
+router.post('/sync-bidireccional', async (req, res, next) => {
+    try {
+        const resultado = await sincronizarBidireccional(req.body);
+        res.json(resultado);
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * Obtener logs recientes de sincronización
+ */
+router.get('/sync-logs', async (req, res, next) => {
+    try {
+        const logs = await db.all(`
+            SELECT * FROM sync_logs 
+            ORDER BY fecha DESC 
+            LIMIT 50
+        `);
+        res.json({ logs });
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * Sincronizar catálogo unidireccional (compatibilidad)
+ */
 router.post('/sync-catalogo', async (req, res, next) => {
     try {
-        const url = req.body.url || DEFAULT_CATALOGO_URL;
+        const cfg = await db.one("SELECT valor FROM configuracion_sistema WHERE clave = 'sheets_catalogo_url'");
+        const url = req.body.url || (cfg && cfg.valor) || DEFAULT_CATALOGO_URL;
         const resultado = await sincronizarCatalogo(url);
         res.json(resultado);
     } catch (err) {
@@ -34,9 +175,13 @@ router.post('/sync-catalogo', async (req, res, next) => {
     }
 });
 
+/**
+ * Leer pedidos desde el Sheet de pedidos
+ */
 router.get('/pedidos-web', async (req, res, next) => {
     try {
-        const url = req.query.url || pedidosUrl;
+        const cfg = await db.one("SELECT valor FROM configuracion_sistema WHERE clave = 'sheets_pedidos_url'");
+        const url = req.query.url || (cfg && cfg.valor) || DEFAULT_PEDIDOS_URL;
         if (!url) {
             return res.json({ pedidos: [], mensaje: 'Configurá el enlace de tu Google Sheet de pedidos.' });
         }
@@ -60,7 +205,6 @@ router.get('/pedidos-web', async (req, res, next) => {
         const productosDB = await db.all('SELECT id, codigo, nombre, unidad_medida, precio_venta, stock_actual FROM productos WHERE activo = true');
 
         const pedidosProcesados = rows.map(r => {
-            // Normalizar claves ya que el CSV puede tener espacios en los encabezados (" Zona ", "Productos ")
             const normalizado = {};
             Object.keys(r).forEach(k => {
                 normalizado[k.trim().toLowerCase()] = r[k];
@@ -73,7 +217,7 @@ router.get('/pedidos-web', async (req, res, next) => {
             const direccion = normalizado.direccion || '';
             const zona = normalizado.zona || '';
             const productosStr = normalizado.productos || '';
-            const total = parseFloat(normalizado.total) || 0;
+            const total = sanitizarNumero(normalizado.total);
 
             // Parsear ítems del string "Producto (1kg) x2 | Otro x1"
             const itemsParsed = productosStr.split('|').map(raw => {
@@ -82,9 +226,8 @@ router.get('/pedidos-web', async (req, res, next) => {
                 const m = trimmed.match(/^(.*?)(?:\s*\((.*?)\))?\s*x(\d+(?:\.\d+)?)$/);
                 const nombreItem = m ? m[1].trim() : trimmed;
                 const unidadItem = m && m[2] ? m[2].trim() : 'kg';
-                const cantidad = m ? parseFloat(m[3]) : 1;
+                const cantidad = m ? sanitizarNumero(m[3]) : 1;
 
-                // Buscar producto más cercano en la DB
                 const match = productosDB.find(p =>
                     p.nombre.toLowerCase() === nombreItem.toLowerCase() ||
                     p.nombre.toLowerCase().includes(nombreItem.toLowerCase()) ||
@@ -119,7 +262,6 @@ router.get('/pedidos-web', async (req, res, next) => {
             };
         });
 
-        // Ordenar con los más recientes primero
         res.json({ pedidos: pedidosProcesados.reverse() });
     } catch (err) {
         next(err);
@@ -136,6 +278,9 @@ router.post('/crear-remito-desde-pedido', async (req, res, next) => {
         if (!nombre) return res.status(400).json({ error: 'El nombre del cliente es requerido.' });
         if (!items || !items.length) return res.status(400).json({ error: 'El pedido no contiene ítems.' });
 
+        const adminUser = await db.one("SELECT id FROM usuarios WHERE rol = 'admin' LIMIT 1");
+        const usuarioId = req.usuario ? req.usuario.id : (adminUser ? adminUser.id : 1);
+
         const remitoId = await db.transaction(async (tx) => {
             // 1. Buscar o crear cliente
             let cliente = await tx.one('SELECT id, direccion, telefono FROM clientes WHERE LOWER(razon_social) = LOWER($1)', [nombre.trim()]);
@@ -147,7 +292,6 @@ router.post('/crear-remito-desde-pedido', async (req, res, next) => {
                 );
                 cliente = row;
             } else if (direccion_completa || telefono) {
-                // Actualizar datos si no estaban
                 await tx.run(
                     `UPDATE clientes SET
                         direccion = COALESCE(direccion, $1),
@@ -165,7 +309,7 @@ router.post('/crear-remito-desde-pedido', async (req, res, next) => {
             const { row: remitoRow } = await tx.run(
                 `INSERT INTO remitos (numero, cliente_id, fecha, direccion_entrega, transportista, observaciones, total, usuario_id)
                  VALUES ($1, $2, CURRENT_DATE, $3, 'Distribución propia', $4, $5, $6) RETURNING id`,
-                [numero, cliente.id, direccion_completa || null, observaciones, total, req.usuario.id]
+                [numero, cliente.id, direccion_completa || null, observaciones, total, usuarioId]
             );
 
             const rId = remitoRow.id;
@@ -201,7 +345,7 @@ router.post('/crear-remito-desde-pedido', async (req, res, next) => {
                 await tx.run(`
                     INSERT INTO movimientos_stock (producto_id, lote_id, tipo, cantidad, motivo, referencia_tipo, referencia_id, usuario_id)
                     VALUES ($1, $2, 'egreso', $3, $4, 'remito', $5, $6)
-                `, [it.producto_id, loteRef, cant, `Remito Web ${pedido_numero}`, rId, req.usuario.id]);
+                `, [it.producto_id, loteRef, cant, `Remito Web ${pedido_numero}`, rId, usuarioId]);
             }
 
             // Actualizar cuenta corriente del cliente si el remito tiene monto
@@ -210,11 +354,16 @@ router.post('/crear-remito-desde-pedido', async (req, res, next) => {
                 await tx.run(`
                     INSERT INTO movimientos_cuenta (entidad_tipo, entidad_id, tipo, monto, medio_pago, referencia_tipo, referencia_id, observaciones, usuario_id)
                     VALUES ('cliente', $1, 'cargo', $2, 'cuenta_corriente', 'remito', $3, $4, $5)
-                `, [cliente.id, total, rId, `Remito Web ${pedido_numero} (${numero})`, req.usuario.id]);
+                `, [cliente.id, total, rId, `Remito Web ${pedido_numero} (${numero})`, usuarioId]);
             }
 
             return rId;
         });
+
+        // Alerta de stock para productos vendidos
+        if (items && items.length > 0) {
+            AlertasService.verificarMultiplesProductos(items.map(i => i.producto_id)).catch(() => {});
+        }
 
         res.status(201).json(await db.one('SELECT * FROM remitos WHERE id = $1', [remitoId]));
     } catch (err) {

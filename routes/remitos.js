@@ -2,6 +2,7 @@ const express = require('express');
 const db = require('../db/pool');
 const { requireAuth } = require('../middleware/auth');
 const { generarNumero } = require('../utils/numerador');
+const AlertasService = require('../services/alertasService');
 
 const router = express.Router();
 router.use(requireAuth);
@@ -126,6 +127,11 @@ router.post('/', async (req, res, next) => {
             return remitoId;
         });
 
+        // Verificar si algún producto quedó en stock crítico o agotado
+        if (items && items.length > 0) {
+            AlertasService.verificarMultiplesProductos(items.map(it => it.producto_id)).catch(() => {});
+        }
+
         res.status(201).json(await db.one('SELECT * FROM remitos WHERE id = $1', [remitoId]));
     } catch (err) { next(err); }
 });
@@ -169,6 +175,64 @@ router.put('/:id/estado', async (req, res, next) => {
         }
 
         res.json(await db.one('SELECT * FROM remitos WHERE id = $1', [req.params.id]));
+    } catch (err) { next(err); }
+});
+
+/**
+ * Genera la Hoja de Ruta de Reparto y la Planilla de Picking consolidada
+ * para un conjunto de IDs de remitos.
+ */
+router.post('/hoja-de-ruta', async (req, res, next) => {
+    try {
+        const { remito_ids } = req.body;
+        if (!remito_ids || !Array.isArray(remito_ids) || !remito_ids.length) {
+            return res.status(400).json({ error: 'Debe proporcionar al menos un ID de remito.' });
+        }
+
+        const ids = remito_ids.map(Number).filter(Boolean);
+        const remitos = await db.all(`
+            SELECT r.*, c.razon_social as cliente_nombre, c.telefono as cliente_telefono,
+                   c.direccion as cliente_direccion_base, c.localidad as cliente_localidad,
+                   c.cuit as cliente_cuit, c.saldo_cuenta as cliente_saldo_cuenta
+            FROM remitos r
+            JOIN clientes c ON c.id = r.cliente_id
+            WHERE r.id = ANY($1::int[]) AND r.estado != 'anulado'
+            ORDER BY c.localidad ASC, r.fecha ASC, r.id ASC
+        `, [ids]);
+
+        for (const r of remitos) {
+            r.items = await db.all(`
+                SELECT ri.*, p.nombre as producto_nombre, p.codigo as producto_codigo, p.unidad_medida
+                FROM remito_items ri
+                JOIN productos p ON p.id = ri.producto_id
+                WHERE ri.remito_id = $1
+            `, [r.id]);
+        }
+
+        const picking = await db.all(`
+            SELECT p.id as producto_id, p.codigo, p.nombre as producto_nombre, p.unidad_medida,
+                   SUM(ri.cantidad) as total_cantidad,
+                   COUNT(DISTINCT r.id) as cantidad_pedidos
+            FROM remito_items ri
+            JOIN remitos r ON r.id = ri.remito_id
+            JOIN productos p ON p.id = ri.producto_id
+            WHERE r.id = ANY($1::int[]) AND r.estado != 'anulado'
+            GROUP BY p.id, p.codigo, p.nombre, p.unidad_medida
+            ORDER BY p.nombre ASC
+        `, [ids]);
+
+        const totalKilos = picking.reduce((acc, it) => acc + (it.unidad_medida === 'kg' ? Number(it.total_cantidad) : 0), 0);
+        const totalImporte = remitos.reduce((acc, r) => acc + Number(r.total || 0), 0);
+
+        res.json({
+            remitos,
+            picking,
+            totales: {
+                cantidad_remitos: remitos.length,
+                total_kilos: Math.round(totalKilos * 100) / 100,
+                total_importe: Math.round(totalImporte * 100) / 100
+            }
+        });
     } catch (err) { next(err); }
 });
 
