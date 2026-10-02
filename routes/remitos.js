@@ -3,6 +3,9 @@ const db = require('../db/pool');
 const { requireAuth } = require('../middleware/auth');
 const { generarNumero } = require('../utils/numerador');
 const AlertasService = require('../services/alertasService');
+const AuditService = require('../services/auditService');
+const { emitirEventoDeposito } = require('../socket');
+const WebhookService = require('../services/webhookService');
 
 // Retorna la fecha de hoy 'YYYY-MM-DD' en la zona horaria de Argentina (America/Argentina/Buenos_Aires)
 function getFechaHoyBuenosAires() {
@@ -182,8 +185,260 @@ router.post('/', async (req, res, next) => {
             AlertasService.verificarMultiplesProductos(items.map(it => it.producto_id)).catch(() => {});
         }
 
-        res.status(201).json(await db.one('SELECT * FROM remitos WHERE id = $1', [remitoId]));
+        const remitoNuevo = await db.one('SELECT * FROM remitos WHERE id = $1', [remitoId]);
+
+        // Auditoría y evento en tiempo real
+        AuditService.registrar({
+            usuario_id: req.usuario.id,
+            accion: 'CREO_REMITO',
+            entidad: 'remitos',
+            entidad_id: remitoId,
+            detalles: {
+                numero: remitoNuevo.numero,
+                total: remitoNuevo.total,
+                estado: remitoNuevo.estado,
+                cliente_id: cliente_id,
+                items_count: items.length
+            },
+            ip_origen: AuditService.extraerIp(req)
+        }).catch(() => {});
+
+        emitirEventoDeposito('remito:creado', remitoNuevo);
+
+        res.status(201).json(remitoNuevo);
     } catch (err) { next(err); }
+});
+
+/**
+ * PUT /:id
+ * Edición Completa Transaccional ACID de Remito con Rebalanceo de Stock y Registro de Auditoría
+ */
+router.put('/:id', async (req, res, next) => {
+    try {
+        const remitoId = parseInt(req.params.id, 10);
+        const {
+            cliente_id,
+            fecha,
+            direccion_entrega,
+            transportista,
+            observaciones,
+            items,
+            permitir_sin_stock,
+            descuento_porcentaje = 0,
+            bultos,
+            peso_kg,
+            valor_declarado,
+            motivo_edicion
+        } = req.body;
+
+        if (!items || !items.length) {
+            return res.status(400).json({ error: 'Debe incluir al menos un ítem.' });
+        }
+
+        const remitoExistente = await db.one('SELECT * FROM remitos WHERE id = $1', [remitoId]);
+        if (!remitoExistente) {
+            return res.status(404).json({ error: 'Remito no encontrado.' });
+        }
+
+        if (['anulado', 'cancelado'].includes(remitoExistente.estado)) {
+            return res.status(400).json({ error: `No se puede editar un remito en estado "${remitoExistente.estado}".` });
+        }
+
+        const ip = AuditService.extraerIp(req);
+        const yaHabiaDescontado = Boolean(remitoExistente.stock_descontado);
+        const clienteFinalId = cliente_id ? Number(cliente_id) : remitoExistente.cliente_id;
+        const descPorc = Math.max(0, Math.min(100, Number(descuento_porcentaje) || 0));
+
+        // Cálculo de totales
+        const subtotalBruto = items.reduce((acc, it) => acc + (Number(it.cantidad || 0) * Number(it.precio_unitario || 0)), 0);
+        const nuevoTotal = Math.round((subtotalBruto - (subtotalBruto * (descPorc / 100))) * 100) / 100;
+
+        const pesoEstimado = items.reduce((acc, it) => acc + (Number(it.cantidad) || 0), 0);
+        const pesoFinal = (peso_kg !== undefined && peso_kg !== null) ? Number(peso_kg) : Math.round(pesoEstimado * 100) / 100;
+        const valorFinal = (valor_declarado !== undefined && valor_declarado !== null && Number(valor_declarado) > 0) ? Number(valor_declarado) : nuevoTotal;
+        const bultosFinal = Math.max(1, parseInt(bultos, 10) || remitoExistente.bultos || 1);
+        const fechaEmision = (fecha && String(fecha).trim()) ? String(fecha).slice(0, 10) : remitoExistente.fecha;
+
+        // EJECUCIÓN EN TRANSACCIÓN ACID
+        await db.transaction(async (tx) => {
+            // 1. Obtener ítems viejos
+            const itemsViejos = await tx.all('SELECT * FROM remito_items WHERE remito_id = $1', [remitoId]);
+
+            // 2. Si ya había descontado stock, REVERTIR el stock previo
+            if (yaHabiaDescontado) {
+                for (const oldIt of itemsViejos) {
+                    await tx.run('UPDATE productos SET stock_actual = stock_actual + $1 WHERE id = $2', [oldIt.cantidad, oldIt.producto_id]);
+                    if (oldIt.lote_id) {
+                        await tx.run('UPDATE lotes SET cantidad_actual = cantidad_actual + $1 WHERE id = $2', [oldIt.cantidad, oldIt.lote_id]);
+                    }
+                    await tx.run(`
+                        INSERT INTO movimientos_stock (producto_id, lote_id, tipo, cantidad, motivo, referencia_tipo, referencia_id, usuario_id)
+                        VALUES ($1, $2, 'ajuste_positivo', $3, 'Reversión por edición de remito', 'remito', $4, $5)
+                    `, [oldIt.producto_id, oldIt.lote_id, oldIt.cantidad, remitoId, req.usuario.id]);
+                }
+
+                // Revertir cargo en cuenta corriente anterior
+                if (Number(remitoExistente.total) > 0) {
+                    await tx.run('UPDATE clientes SET saldo_cuenta = saldo_cuenta - $1 WHERE id = $2', [remitoExistente.total, remitoExistente.cliente_id]);
+                    await tx.run(`
+                        INSERT INTO movimientos_cuenta (entidad_tipo, entidad_id, tipo, monto, medio_pago, referencia_tipo, referencia_id, observaciones, usuario_id)
+                        VALUES ('cliente', $1, 'ajuste', $2, 'ajuste', 'remito_editado', $3, $4, $5)
+                    `, [remitoExistente.cliente_id, remitoExistente.total, remitoId, `Ajuste por edición de remito ${remitoExistente.numero}`, req.usuario.id]);
+                }
+            }
+
+            // 3. Eliminar ítems anteriores del remito
+            await tx.run('DELETE FROM remito_items WHERE remito_id = $1', [remitoId]);
+
+            // 4. Validar y descontar nuevo stock si corresponde
+            if (yaHabiaDescontado) {
+                for (const item of items) {
+                    const cant = Number(item.cantidad) || 0;
+                    const prod = await tx.one('SELECT * FROM productos WHERE id = $1', [item.producto_id]);
+                    if (!prod) throw new Error(`El producto ID ${item.producto_id} no existe.`);
+
+                    if (!permitir_sin_stock && Number(prod.stock_actual) < cant) {
+                        throw new Error(`Stock insuficiente para "${prod.nombre}". Disponible: ${prod.stock_actual} ${prod.unidad_medida}.`);
+                    }
+
+                    // FEFO de lotes
+                    let cantidadRestante = cant;
+                    let loteRef = null;
+                    const lotes = await tx.all(`
+                        SELECT * FROM lotes WHERE producto_id = $1 AND cantidad_actual > 0
+                        ORDER BY (fecha_vencimiento IS NULL), fecha_vencimiento ASC, fecha_ingreso ASC
+                    `, [item.producto_id]);
+
+                    for (const lote of lotes) {
+                        if (cantidadRestante <= 0) break;
+                        const tomar = Math.min(Number(lote.cantidad_actual), cantidadRestante);
+                        await tx.run('UPDATE lotes SET cantidad_actual = cantidad_actual - $1 WHERE id = $2', [tomar, lote.id]);
+                        cantidadRestante -= tomar;
+                        if (!loteRef) loteRef = lote.id;
+                    }
+
+                    await tx.run('UPDATE productos SET stock_actual = stock_actual - $1 WHERE id = $2', [cant, item.producto_id]);
+                    await tx.run(`
+                        INSERT INTO movimientos_stock (producto_id, lote_id, tipo, cantidad, motivo, referencia_tipo, referencia_id, usuario_id)
+                        VALUES ($1, $2, 'egreso', $3, 'Entrega actualizada por edición remito', 'remito', $4, $5)
+                    `, [item.producto_id, loteRef, cant, remitoId, req.usuario.id]);
+
+                    item._loteRef = loteRef;
+                }
+            }
+
+            // 5. Insertar nuevos ítems
+            for (const item of items) {
+                const cant = Number(item.cantidad) || 0;
+                const precio = Number(item.precio_unitario) || 0;
+                const subtotal = Math.round(cant * precio * 100) / 100;
+                const loteId = item._loteRef || null;
+
+                await tx.run(`
+                    INSERT INTO remito_items (remito_id, producto_id, lote_id, cantidad, precio_unitario, subtotal)
+                    VALUES ($1, $2, $3, $4, $5, $6)
+                `, [remitoId, item.producto_id, loteId, cant, precio, subtotal]);
+            }
+
+            // 6. Si ya había descontado y tiene importe, cargar nuevo saldo a cuenta corriente
+            if (yaHabiaDescontado && nuevoTotal > 0) {
+                await tx.run('UPDATE clientes SET saldo_cuenta = saldo_cuenta + $1 WHERE id = $2', [nuevoTotal, clienteFinalId]);
+                await tx.run(`
+                    INSERT INTO movimientos_cuenta (entidad_tipo, entidad_id, tipo, monto, medio_pago, referencia_tipo, referencia_id, observaciones, usuario_id)
+                    VALUES ('cliente', $1, 'cargo', $2, 'cuenta_corriente', 'remito', $3, $4, $5)
+                `, [clienteFinalId, nuevoTotal, remitoId, `Cargo actualizado por edición de remito ${remitoExistente.numero}`, req.usuario.id]);
+            }
+
+            // 7. Actualizar cabecera del remito
+            await tx.run(`
+                UPDATE remitos SET
+                    cliente_id = $1,
+                    fecha = $2,
+                    direccion_entrega = $3,
+                    transportista = $4,
+                    bultos = $5,
+                    peso_kg = $6,
+                    valor_declarado = $7,
+                    observaciones = $8,
+                    total = $9,
+                    descuento_porcentaje = $10
+                WHERE id = $11
+            `, [
+                clienteFinalId, fechaEmision,
+                direccion_entrega !== undefined ? direccion_entrega : remitoExistente.direccion_entrega,
+                transportista !== undefined ? transportista : remitoExistente.transportista,
+                bultosFinal, pesoFinal, valorFinal,
+                observaciones !== undefined ? observaciones : remitoExistente.observaciones,
+                nuevoTotal, descPorc, remitoId
+            ]);
+
+            // 8. Registro de auditoría ACID (si falla, tx revierte)
+            await AuditService.registrar({
+                usuario_id: req.usuario.id,
+                accion: 'EDITO_REMITO',
+                entidad: 'remitos',
+                entidad_id: remitoId,
+                detalles: {
+                    numero: remitoExistente.numero,
+                    motivo: motivo_edicion || 'Edición general de remito',
+                    antes: {
+                        cliente_id: remitoExistente.cliente_id,
+                        total: remitoExistente.total,
+                        items_count: itemsViejos.length,
+                        descuento_porcentaje: remitoExistente.descuento_porcentaje
+                    },
+                    despues: {
+                        cliente_id: clienteFinalId,
+                        total: nuevoTotal,
+                        items_count: items.length,
+                        descuento_porcentaje: descPorc
+                    }
+                },
+                ip_origen: ip
+            }, tx);
+        });
+
+        // Verificación de stock post-transacción
+        if (yaHabiaDescontado && items && items.length > 0) {
+            AlertasService.verificarMultiplesProductos(items.map(it => it.producto_id)).catch(() => {});
+        }
+
+        // Notificar en tiempo real por socket
+        emitirEventoDeposito('remito:editado', {
+            id: remitoId,
+            numero: remitoExistente.numero,
+            cliente_id: clienteFinalId,
+            total: nuevoTotal
+        });
+
+        // Obtener remito actualizado con cliente e ítems
+        const actualizado = await db.one(`
+            SELECT r.*, c.razon_social as cliente_nombre, c.cuit as cliente_cuit,
+                   c.condicion_iva as cliente_condicion_iva, c.direccion as cliente_direccion,
+                   c.localidad as cliente_localidad, c.telefono as cliente_telefono, c.email as cliente_email,
+                   EXISTS (
+                       SELECT 1 FROM conciliaciones_bancarias cb 
+                       WHERE cb.remito_id = r.id AND cb.estado = 'conciliado'
+                   ) as pago_validado
+            FROM remitos r
+            JOIN clientes c ON c.id = r.cliente_id
+            WHERE r.id = $1
+        `, [remitoId]);
+
+        const itemsActualizados = await db.all(`
+            SELECT ri.*, p.nombre as producto_nombre, p.codigo as producto_codigo, p.unidad_medida,
+                   l.numero_lote, l.fecha_vencimiento
+            FROM remito_items ri
+            JOIN productos p ON p.id = ri.producto_id
+            LEFT JOIN lotes l ON l.id = ri.lote_id
+            WHERE ri.remito_id = $1
+            ORDER BY ri.id ASC
+        `, [remitoId]);
+
+        res.json({ ...actualizado, items: itemsActualizados });
+    } catch (err) {
+        next(err);
+    }
 });
 
 /**
@@ -326,6 +581,20 @@ router.put('/:id/estado', async (req, res, next) => {
             else {
                 await tx.run('UPDATE remitos SET estado = $1 WHERE id = $2', [estado, remito.id]);
             }
+
+            // Registrar en auditoría
+            await AuditService.registrar({
+                usuario_id: req.usuario.id,
+                accion: 'CAMBIO_ESTADO_REMITO',
+                entidad: 'remitos',
+                entidad_id: remito.id,
+                detalles: {
+                    numero: remito.numero,
+                    estado_anterior: estadoPrevio,
+                    nuevo_estado: estado
+                },
+                ip_origen: AuditService.extraerIp(req)
+            }, tx);
         });
 
         // Alerta de stock si se entregó
@@ -334,7 +603,16 @@ router.put('/:id/estado', async (req, res, next) => {
             AlertasService.verificarMultiplesProductos(items.map(it => it.producto_id)).catch(() => {});
         }
 
-        res.json(await db.one('SELECT * FROM remitos WHERE id = $1', [req.params.id]));
+        const actualizado = await db.one('SELECT * FROM remitos WHERE id = $1', [req.params.id]);
+
+        emitirEventoDeposito('remito:estado_cambiado', {
+            id: remito.id,
+            numero: remito.numero,
+            estado_anterior: estadoPrevio,
+            nuevo_estado: estado
+        });
+
+        res.json(actualizado);
     } catch (err) { next(err); }
 });
 

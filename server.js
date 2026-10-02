@@ -1,14 +1,20 @@
 require('dotenv').config();
+const http = require('http');
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 
 const db = require('./db/pool');
+const { initSocket } = require('./socket');
 const ReporteDiarioService = require('./services/reporteDiario');
 const { sincronizarUnidireccional } = require('./services/googleSheets');
 
 const app = express();
+const server = http.createServer(app);
 const PORT = process.env.PORT || 4000;
+
+// Inicializar Socket.io con el servidor HTTP
+initSocket(server);
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
@@ -42,6 +48,8 @@ app.use('/api/notificaciones', require('./routes/notificaciones'));
 app.use('/api/conciliacion', require('./routes/conciliacion'));
 app.use('/api/reportes', require('./routes/reportes'));
 app.use('/api/jarvis', require('./routes/jarvis'));
+app.use('/api/audit-logs', require('./routes/auditLogs'));
+app.use('/api/deposito', require('./routes/deposito'));
 
 // Servir frontend compilado y resolver 404 en recargas de rutas SPA
 const path = require('path');
@@ -93,8 +101,8 @@ async function start() {
 
     iniciarTareasEnSegundoPlano();
 
-    app.listen(PORT, '0.0.0.0', () => {
-        console.log(`🥭 API de Mix Point corriendo en http://0.0.0.0:${PORT}`);
+    server.listen(PORT, '0.0.0.0', () => {
+        console.log(`🥭 API de Mix Point corriendo en http://0.0.0.0:${PORT} (HTTP + WebSockets activo)`);
     });
 }
 

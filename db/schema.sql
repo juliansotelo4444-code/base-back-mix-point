@@ -361,3 +361,24 @@ ALTER TABLE remitos ADD COLUMN IF NOT EXISTS bultos INTEGER NOT NULL DEFAULT 1;
 ALTER TABLE remitos ADD COLUMN IF NOT EXISTS peso_kg NUMERIC NOT NULL DEFAULT 0;
 ALTER TABLE remitos ADD COLUMN IF NOT EXISTS valor_declarado NUMERIC NOT NULL DEFAULT 0;
 ALTER TABLE remitos ADD COLUMN IF NOT EXISTS datos_despacho JSONB DEFAULT '{}'::jsonb;
+ALTER TABLE remitos ADD COLUMN IF NOT EXISTS operario_asignado_id INTEGER REFERENCES usuarios(id);
+
+-- ---------------------------------------------------------
+-- HISTORIAL DE ACTIVIDAD (AUDIT LOGS)
+-- ---------------------------------------------------------
+CREATE TABLE IF NOT EXISTS audit_logs (
+    id          SERIAL PRIMARY KEY,
+    usuario_id  INTEGER REFERENCES usuarios(id),
+    accion      TEXT NOT NULL, -- 'CREO_REMITO', 'EDITO_REMITO', 'CAMBIO_ESTADO', 'AJUSTE_STOCK', 'ELIMINO_REMITO', etc.
+    entidad     TEXT NOT NULL, -- 'remito', 'producto', 'cliente', 'stock'
+    entidad_id  INTEGER,
+    detalles    JSONB DEFAULT '{}'::jsonb,
+    ip_origen   TEXT,
+    created_at  TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_audit_logs_fecha ON audit_logs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_usuario ON audit_logs(usuario_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_entidad ON audit_logs(entidad, entidad_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_accion ON audit_logs(accion);
+CREATE INDEX IF NOT EXISTS idx_remitos_operario ON remitos(operario_asignado_id);
