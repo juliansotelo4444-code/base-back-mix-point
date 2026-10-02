@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
     password_hash   TEXT NOT NULL,
     rol             TEXT NOT NULL CHECK (rol IN ('admin','ventas','deposito','administracion')) DEFAULT 'ventas',
     activo          BOOLEAN NOT NULL DEFAULT TRUE,
+    preferencias    JSONB DEFAULT '{}'::jsonb,
     created_at      TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
@@ -349,3 +350,6 @@ CREATE INDEX IF NOT EXISTS idx_conciliaciones_fecha ON conciliaciones_bancarias(
 CREATE INDEX IF NOT EXISTS idx_conciliaciones_remito ON conciliaciones_bancarias(remito_id);
 CREATE INDEX IF NOT EXISTS idx_notificaciones_leida ON notificaciones(leida, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_notificaciones_fecha ON notificaciones(created_at DESC);
+
+-- Migración segura para columnas nuevas
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS preferencias JSONB DEFAULT '{}'::jsonb;

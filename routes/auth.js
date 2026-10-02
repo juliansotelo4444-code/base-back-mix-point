@@ -31,14 +31,26 @@ router.post('/login', async (req, res, next) => {
 
         res.json({
             token,
-            usuario: { id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol },
+            usuario: {
+                id: usuario.id,
+                nombre: usuario.nombre,
+                email: usuario.email,
+                rol: usuario.rol,
+                preferencias: usuario.preferencias || {}
+            },
             expires_in: 3600
         });
     } catch (err) { next(err); }
 });
 
-router.get('/me', requireAuth, (req, res) => {
-    res.json({ usuario: req.usuario });
+router.get('/me', requireAuth, async (req, res, next) => {
+    try {
+        const usuario = await db.one('SELECT id, nombre, email, rol, preferencias FROM usuarios WHERE id = $1', [req.usuario.id]);
+        if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
+        res.json({ usuario: { ...usuario, preferencias: usuario.preferencias || {} } });
+    } catch (err) {
+        next(err);
+    }
 });
 
 module.exports = router;

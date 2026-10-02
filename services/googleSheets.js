@@ -217,157 +217,141 @@ async function sincronizarCatalogo(sheetUrl) {
     };
 }
 
-/**
- * Envía datos hacia un Google Apps Script desplegado como Web App (Push Mix Point -> Google Sheets)
- */
-async function pushToGoogleSheets(scriptUrl, payload) {
-    if (!scriptUrl) return { ok: false, error: 'URL de Google Apps Script no configurada.' };
+// Estado en memoria de sincronización para consulta inmediata desde la interfaz web
+let syncStatus = {
+    syncing: false,
+    ultimo_sync: null,
+    resultado: 'idle',
+    mensaje: 'Listo para sincronizar desde Google Sheets',
+    tipo: 'unidireccional'
+};
 
-    try {
-        const response = await fetch(scriptUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-            redirect: 'follow'
-        });
-
-        const contentType = response.headers.get('content-type') || '';
-        let data;
-        if (contentType.includes('application/json')) {
-            data = await response.json();
-        } else {
-            const text = await response.text();
-            data = { ok: response.ok, raw: text.slice(0, 300) };
-        }
-
-        return { ok: response.ok, data };
-    } catch (err) {
-        console.error('Error enviando datos a Google Sheets:', err.message);
-        return { ok: false, error: err.message };
-    }
+function getSyncStatus() {
+    return syncStatus;
 }
 
 /**
- * Ejecuta una sincronización bidireccional completa:
- * 1. Lee configuración de BD
- * 2. Inbound: Lee catálogo y pedidos desde Google Sheets
- * 3. Outbound: Envía stocks actuales a Google Sheets si hay Web App configurada
- * 4. Guarda registro en sync_logs
+ * Función saliente deshabilitada por diseño arquitectónico:
+ * Mix Point opera en modo SINCRONIZACIÓN UNIDIRECCIONAL ESTRICTA.
+ * La base de datos PostgreSQL NUNCA modifica, altera ni sobrescribe las planillas de Google Sheets.
  */
-async function sincronizarBidireccional(options = {}) {
+async function pushToGoogleSheets() {
+    console.warn('[Mix Point Security] Intento de push a Google Sheets bloqueado: la arquitectura es estrictamente unidireccional (Sheets -> Postgres).');
+    return {
+        ok: false,
+        prohibido: true,
+        mensaje: 'Flujo saliente bloqueado: Google Sheets es la única interfaz de entrada de datos y nunca recibe modificaciones desde la base de datos.'
+    };
+}
+
+/**
+ * Ejecuta una sincronización UNIDIRECCIONAL estricta (Google Sheets -> Postgres):
+ * 1. Lee configuración de BD (URL del catálogo de Google Sheets)
+ * 2. Inbound: Descarga y sincroniza catálogo de productos y lotes en PostgreSQL
+ * 3. Prohíbe cualquier escritura saliente hacia Google Sheets
+ * 4. Guarda registro de auditoría en sync_logs
+ */
+async function sincronizarUnidireccional(options = {}) {
     const logs = [];
     const inicio = Date.now();
     let estadoGeneral = 'exito';
 
+    syncStatus.syncing = true;
+    syncStatus.mensaje = 'Sincronizando datos desde Google Sheets hacia PostgreSQL...';
+
     try {
+        logs.push('Iniciando sincronización unidireccional estricta (Google Sheets -> PostgreSQL).');
+
         // Obtener configuraciones de BD
-        const cfgRows = await db.all("SELECT clave, valor FROM configuracion_sistema WHERE clave IN ('sheets_catalogo_url', 'sheets_pedidos_url', 'sheets_script_url')");
+        const cfgRows = await db.all("SELECT clave, valor FROM configuracion_sistema WHERE clave IN ('sheets_catalogo_url', 'sheets_pedidos_url')");
         const cfg = {};
         cfgRows.forEach(r => { cfg[r.clave] = r.valor; });
 
         const catalogoUrl = options.catalogo_url || cfg.sheets_catalogo_url || process.env.GOOGLE_SHEET_CATALOGO_URL;
-        const scriptUrl = options.script_url || cfg.sheets_script_url || process.env.GOOGLE_SHEET_SCRIPT_URL;
 
         let resCatalogo = null;
         if (catalogoUrl) {
             try {
                 resCatalogo = await sincronizarCatalogo(catalogoUrl);
-                logs.push(`Catálogo importado: ${resCatalogo.nuevos} nuevos, ${resCatalogo.actualizados} actualizados.`);
+                logs.push(`Catálogo importado con éxito: ${resCatalogo.nuevos} productos nuevos, ${resCatalogo.actualizados} actualizados.`);
             } catch (err) {
-                logs.push(`Error importando catálogo: ${err.message}`);
+                logs.push(`Error importando catálogo desde Sheet: ${err.message}`);
                 estadoGeneral = 'advertencia';
             }
+        } else {
+            logs.push('No hay URL de catálogo configurada en sheets_catalogo_url.');
         }
 
-        // Outbound: Push de stock actual hacia Google Sheets si hay Apps Script configurado
-        let resPush = null;
-        if (scriptUrl) {
-            try {
-                const productos = await db.all(`
-                    SELECT p.id, p.codigo, p.nombre, p.stock_actual, p.precio_venta, p.unidad_medida, c.nombre as categoria
-                    FROM productos p
-                    LEFT JOIN categorias_producto c ON c.id = p.categoria_id
-                    WHERE p.activo = true
-                    ORDER BY p.id ASC
-                `);
-
-                resPush = await pushToGoogleSheets(scriptUrl, {
-                    accion: 'ACTUALIZAR_STOCK_Y_PRECIOS',
-                    timestamp: new Date().toISOString(),
-                    total_productos: productos.length,
-                    productos: productos.map(p => ({
-                        id: p.id,
-                        codigo: p.codigo,
-                        nombre: p.nombre,
-                        stock: Number(p.stock_actual),
-                        precio_venta: Number(p.precio_venta),
-                        unidad: p.unidad_medida,
-                        categoria: p.categoria || ''
-                    }))
-                });
-
-                if (resPush.ok) {
-                    logs.push(`Sincronización saliente hacia Google Sheets exitosa (${productos.length} productos sincronizados).`);
-                } else {
-                    logs.push(`Aviso en push a Google Sheets: ${resPush.error || 'Respuesta no confirmada'}`);
-                }
-            } catch (err) {
-                logs.push(`Error en push a Google Sheets: ${err.message}`);
-                estadoGeneral = 'advertencia';
-            }
-        }
+        // Regla estricta: No se realiza ningún push hacia Google Sheets
+        logs.push('Flujo saliente omitido: La base de datos no altera Google Sheets (Unidireccionalidad asegurada).');
 
         const duracion = ((Date.now() - inicio) / 1000).toFixed(2);
         const detalles = JSON.stringify({
+            modo: 'unidireccional_estricto',
             duracion_segundos: duracion,
             catalogo: resCatalogo,
-            push: resPush,
             logs
         });
 
         await db.run(`
             INSERT INTO sync_logs (tipo, resultado, detalles, fecha)
-            VALUES ('bidireccional', $1, $2, NOW())
+            VALUES ('unidireccional', $1, $2, NOW())
         `, [estadoGeneral, detalles]);
+
+        syncStatus.syncing = false;
+        syncStatus.ultimo_sync = new Date().toISOString();
+        syncStatus.resultado = estadoGeneral;
+        syncStatus.mensaje = `Última sincronización completada (${duracion}s): ${estadoGeneral === 'exito' ? 'Correcta' : 'Con avisos'}`;
 
         return {
             ok: true,
+            modo: 'unidireccional_estricto',
             estado: estadoGeneral,
             duracion: `${duracion}s`,
             logs,
-            resCatalogo,
-            resPush
+            resCatalogo
         };
     } catch (err) {
-        console.error('Error en sincronización bidireccional:', err);
+        syncStatus.syncing = false;
+        syncStatus.resultado = 'error';
+        syncStatus.mensaje = `Error en sincronización: ${err.message}`;
+
+        console.error('Error en sincronización unidireccional:', err);
         await db.run(`
             INSERT INTO sync_logs (tipo, resultado, detalles, fecha)
-            VALUES ('bidireccional', 'error', $1, NOW())
+            VALUES ('unidireccional', 'error', $1, NOW())
         `, [JSON.stringify({ error: err.message, logs })]);
 
         throw err;
     }
 }
 
+// Alias de retrocompatibilidad
+const sincronizarBidireccional = sincronizarUnidireccional;
+
 /**
  * Genera el código de Google Apps Script listo para pegar en el Google Sheet del cliente
+ */
+/**
+ * Genera el código de Google Apps Script listo para pegar en el Google Sheet del cliente
+ * Modo: Sincronización Unidireccional Estricta (Google Sheets -> Postgres)
  */
 function obtenerCodigoAppsScript(backendUrl = 'https://tu-servidor-mixpoint.com', webhookSecret = 'MIXPOINT_SECRET_KEY') {
     return `/**
  * =========================================================================
- * CONECTOR OFICIAL MIX POINT - GOOGLE SHEETS (SINCRONIZACIÓN BIDIRECCIONAL)
+ * CONECTOR OFICIAL MIX POINT - GOOGLE SHEETS (SINCRONIZACIÓN UNIDIRECCIONAL)
  * =========================================================================
  * 
+ * ARQUITECTURA: UNIDIRECCIONAL ESTRICTA
+ * - Esta planilla es la ÚNICA interfaz de carga de datos para el operador.
+ * - Toda modificación se refleja inmediatamente en el sistema web de Mix Point.
+ * - La base de datos NO altera ni sobrescribe las celdas de esta planilla.
+ * 
  * INSTRUCCIONES DE INSTALACIÓN:
- * 1. En tu Google Sheet, ve a: Extensiones > Apps Script.
+ * 1. En esta hoja de cálculo ve a: Extensiones > Apps Script.
  * 2. Borra el código existente y pega este archivo completo.
- * 3. En la constante BACKEND_URL pon la URL de tu servidor Mix Point.
- * 4. Ve a "Implementar" > "Nueva implementación" > Tipo: "Aplicación web".
- *    - Ejecutar como: "Yo" (tu cuenta)
- *    - Quién tiene acceso: "Cualquier persona" (permite a Mix Point actualizar el Sheet)
- * 5. Haz clic en "Implementar", copia la URL generada y pégala en Mix Point en
- *    "Configuración de Sincronización".
- * 6. Vuelve a tu hoja de cálculo y actualiza la página: ¡verás el menú "🌱 Mix Point"!
+ * 3. Guarda el proyecto (Ctrl + S / Cmd + S).
+ * 4. Actualiza la pestaña de la planilla en el navegador: ¡verás el menú "🌱 Mix Point"!
  */
 
 const CONFIG = {
@@ -383,66 +367,15 @@ const CONFIG = {
 function onOpen() {
   const ui = SpreadsheetApp.getUi();
   ui.createMenu("🌱 Mix Point")
-    .addItem("🔄 Sincronizar Todo Ahora", "sincronizarTodoManual")
-    .addItem("📦 Enviar Pedidos Pendientes", "enviarPedidosPendientes")
+    .addItem("🔄 Sincronizar hacia Mix Point Ahora", "sincronizarTodoManual")
     .addSeparator()
     .addItem("🩺 Probar Conexión con Mix Point", "probarConexion")
     .addToUi();
 }
 
 /**
- * Webhook Receptor: Mix Point llama a esta función cuando hay ventas o ajustes
- * y actualiza automáticamente los stocks en la hoja de cálculo.
- */
-function doPost(e) {
-  try {
-    const rawData = e.postData.contents;
-    const body = JSON.parse(rawData);
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-
-    if (body.accion === "ACTUALIZAR_STOCK_Y_PRECIOS") {
-      const hoja = ss.getSheetByName(CONFIG.HOJA_CATALOGO) || ss.getSheets()[0];
-      const data = hoja.getDataRange().getValues();
-      if (data.length < 2) return ContentService.createTextOutput(JSON.stringify({ ok: true, msg: "Hoja vacia" }));
-
-      const headers = data[0].map(h => String(h).trim().toLowerCase());
-      const colNombre = headers.indexOf("nombre");
-      const colId = headers.indexOf("id");
-      const colStock = headers.indexOf("stock") !== -1 ? headers.indexOf("stock") : headers.indexOf("stock_actual");
-
-      if (colStock !== -1 && body.productos && Array.isArray(body.productos)) {
-        const prodMap = {};
-        body.productos.forEach(p => {
-          if (p.nombre) prodMap[p.nombre.toLowerCase().trim()] = p.stock;
-          if (p.codigo) prodMap[p.codigo.toLowerCase().trim()] = p.stock;
-        });
-
-        for (let i = 1; i < data.length; i++) {
-          const nombreRow = String(data[i][colNombre] || "").toLowerCase().trim();
-          const idRow = colId !== -1 ? String(data[i][colId] || "").toLowerCase().trim() : "";
-          
-          if (prodMap[nombreRow] !== undefined) {
-            hoja.getRange(i + 1, colStock + 1).setValue(prodMap[nombreRow]);
-          } else if (idRow && prodMap[idRow] !== undefined) {
-            hoja.getRange(i + 1, colStock + 1).setValue(prodMap[idRow]);
-          }
-        }
-      }
-
-      return ContentService.createTextOutput(JSON.stringify({ ok: true, mensaje: "Stock actualizado con éxito en Sheet" }))
-        .setMimeType(ContentService.MimeType.JSON);
-    }
-
-    return ContentService.createTextOutput(JSON.stringify({ ok: true, mensaje: "Evento recibido" }))
-      .setMimeType(ContentService.MimeType.JSON);
-  } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({ ok: false, error: err.toString() }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}
-
-/**
- * Trigger al editar: si se carga un pedido o cambia el catálogo, notifica a Mix Point
+ * Trigger al editar: cuando el operador carga o modifica un pedido o el catálogo,
+ * notifica al servidor de Mix Point para sincronización en segundo plano sin latencia.
  */
 function onEdit(e) {
   try {
@@ -454,9 +387,9 @@ function onEdit(e) {
     if (sheetName !== CONFIG.HOJA_PEDIDOS && sheetName !== CONFIG.HOJA_CATALOGO) return;
 
     const row = range.getRow();
-    if (row === 1) return; // ignorar encabezados
+    if (row === 1) return; // ignorar fila de encabezados
 
-    // Notificar al backend de Mix Point
+    // Notificar al webhook seguro de Mix Point
     const payload = {
       evento: sheetName === CONFIG.HOJA_PEDIDOS ? "PEDIDO_EDITADO" : "CATALOGO_EDITADO",
       fila: row,
@@ -478,12 +411,12 @@ function onEdit(e) {
 }
 
 /**
- * Enviar todos los pedidos de la hoja a Mix Point manualmente
+ * Disparar sincronización inmediata hacia Mix Point
  */
-function enviarPedidosPendientes() {
+function sincronizarTodoManual() {
   const ui = SpreadsheetApp.getUi();
   try {
-    const response = UrlFetchApp.fetch(CONFIG.BACKEND_URL + "/api/integraciones/sync-bidireccional", {
+    const response = UrlFetchApp.fetch(CONFIG.BACKEND_URL + "/api/integraciones/sync-unidireccional", {
       method: "post",
       contentType: "application/json",
       headers: { "x-mixpoint-token": CONFIG.SECRET_TOKEN },
@@ -492,7 +425,7 @@ function enviarPedidosPendientes() {
 
     const resJson = JSON.parse(response.getContentText());
     if (resJson.ok) {
-      ui.alert("✅ Mix Point Sincronizado", "La sincronización se completó correctamente.\\n" + (resJson.logs || []).join("\\n"), ui.ButtonSet.OK);
+      ui.alert("✅ Sincronización Exitosa", "La base de datos de Mix Point se actualizó con los datos de esta planilla.\\nDuración: " + (resJson.duracion || ""), ui.ButtonSet.OK);
     } else {
       ui.alert("⚠️ Advertencia", "Respuesta del servidor: " + (resJson.error || response.getContentText()), ui.ButtonSet.OK);
     }
@@ -508,14 +441,10 @@ function probarConexion() {
   const ui = SpreadsheetApp.getUi();
   try {
     const response = UrlFetchApp.fetch(CONFIG.BACKEND_URL + "/api/health", { muteHttpExceptions: true });
-    ui.alert("🟢 Conexión Exitosa", "Servidor Mix Point respondiendo OK (Código: " + response.getResponseCode() + ")", ui.ButtonSet.OK);
+    ui.alert("🟢 Conexión Exitosa", "Servidor Mix Point respondiendo correctamente (Código HTTP: " + response.getResponseCode() + ")", ui.ButtonSet.OK);
   } catch (err) {
-    ui.alert("🔴 Error", "No se pudo conectar: " + err.toString(), ui.ButtonSet.OK);
+    ui.alert("🔴 Error", "No se pudo conectar con Mix Point: " + err.toString(), ui.ButtonSet.OK);
   }
-}
-
-function sincronizarTodoManual() {
-  enviarPedidosPendientes();
 }
 `;
 }
@@ -528,6 +457,8 @@ module.exports = {
     sanitizarNumero,
     sincronizarCatalogo,
     pushToGoogleSheets,
+    sincronizarUnidireccional,
     sincronizarBidireccional,
-    obtenerCodigoAppsScript
+    obtenerCodigoAppsScript,
+    getSyncStatus
 };

@@ -31,6 +31,31 @@ router.post('/', requireRole('admin'), async (req, res, next) => {
     } catch (err) { next(err); }
 });
 
+// Obtener preferencias del usuario autenticado
+router.get('/me/preferencias', async (req, res, next) => {
+    try {
+        const usuario = await db.one('SELECT preferencias FROM usuarios WHERE id = $1', [req.usuario.id]);
+        res.json({ preferencias: (usuario && usuario.preferencias) || {} });
+    } catch (err) { next(err); }
+});
+
+// Guardar preferencias del usuario autenticado
+router.put('/me/preferencias', async (req, res, next) => {
+    try {
+        const { preferencias } = req.body;
+        if (!preferencias || typeof preferencias !== 'object') {
+            return res.status(400).json({ error: 'El cuerpo debe incluir un objeto preferencias.' });
+        }
+
+        const usuarioActual = await db.one('SELECT preferencias FROM usuarios WHERE id = $1', [req.usuario.id]);
+        const actual = (usuarioActual && usuarioActual.preferencias) || {};
+        const fusionadas = { ...actual, ...preferencias };
+
+        await db.run('UPDATE usuarios SET preferencias = $1 WHERE id = $2', [JSON.stringify(fusionadas), req.usuario.id]);
+        res.json({ ok: true, preferencias: fusionadas });
+    } catch (err) { next(err); }
+});
+
 router.put('/:id', requireRole('admin'), async (req, res, next) => {
     try {
         const existente = await db.one('SELECT * FROM usuarios WHERE id = $1', [req.params.id]);

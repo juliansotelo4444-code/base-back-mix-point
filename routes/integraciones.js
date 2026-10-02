@@ -6,8 +6,10 @@ const {
     parseCSV,
     extraerSheetId,
     sanitizarNumero,
+    sincronizarUnidireccional,
     sincronizarBidireccional,
-    obtenerCodigoAppsScript
+    obtenerCodigoAppsScript,
+    getSyncStatus
 } = require('../services/googleSheets');
 const { generarNumero } = require('../utils/numerador');
 const db = require('../db/pool');
@@ -36,24 +38,29 @@ async function authOrWebhookToken(req, res, next) {
 }
 
 /**
- * Endpoint de Webhook público/autenticado por token para Google Apps Script
+ * Endpoint de Webhook seguro para Google Apps Script
+ * Modo: Sincronización Unidireccional Estricta (Google Sheets -> Postgres)
+ * Responde de inmediato a Apps Script y ejecuta la sincronización en segundo plano sin latencia.
  */
 router.post('/sheets-webhook', authOrWebhookToken, async (req, res, next) => {
     try {
         const { evento, fila, columna, valor } = req.body;
-        console.log(`[Google Sheets Webhook] Evento recibido: ${evento} (Fila: ${fila}, Col: ${columna})`);
+        console.log(`[Google Sheets Webhook Inbound] Evento recibido: ${evento || 'EDIT'} (Fila: ${fila}, Col: ${columna})`);
 
-        // Si se editó el catálogo, sincronizar automáticamente
-        if (evento === 'CATALOGO_EDITADO') {
-            sincronizarBidireccional().catch(e => console.error('Error en sync diferido:', e.message));
-        }
+        // Disparar sincronización unidireccional en segundo plano sin bloquear el webhook
+        sincronizarUnidireccional().catch(e => console.error('[Sheets Webhook Sync Error]:', e.message));
 
         await db.run(`
             INSERT INTO sync_logs (tipo, resultado, detalles, fecha)
             VALUES ('webhook_inbound', 'recibido', $1, NOW())
         `, [JSON.stringify(req.body)]);
 
-        res.json({ ok: true, mensaje: 'Webhook procesado con éxito' });
+        res.json({
+            ok: true,
+            mensaje: 'Webhook recibido con éxito. Sincronización unidireccional ejecutándose en segundo plano.',
+            modo: 'unidireccional_estricto',
+            evento: evento || 'EDIT'
+        });
     } catch (err) {
         next(err);
     }
@@ -134,11 +141,30 @@ router.get('/apps-script-code', async (req, res, next) => {
 });
 
 /**
- * Sincronización manual / forzada bidireccional
+ * Obtener estado en tiempo real de la sincronización
+ */
+router.get('/sync-status', (req, res) => {
+    res.json(getSyncStatus());
+});
+
+/**
+ * Sincronización manual / forzada unidireccional (Google Sheets -> PostgreSQL)
+ */
+router.post('/sync-unidireccional', async (req, res, next) => {
+    try {
+        const resultado = await sincronizarUnidireccional(req.body);
+        res.json(resultado);
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * Sincronización bidireccional (Compatibilidad: ejecuta sincronización unidireccional estricta hacia Postgres)
  */
 router.post('/sync-bidireccional', async (req, res, next) => {
     try {
-        const resultado = await sincronizarBidireccional(req.body);
+        const resultado = await sincronizarUnidireccional(req.body);
         res.json(resultado);
     } catch (err) {
         next(err);

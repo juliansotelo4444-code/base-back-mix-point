@@ -5,7 +5,7 @@ const morgan = require('morgan');
 
 const db = require('./db/pool');
 const ReporteDiarioService = require('./services/reporteDiario');
-const { sincronizarBidireccional } = require('./services/googleSheets');
+const { sincronizarUnidireccional } = require('./services/googleSheets');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -71,9 +71,9 @@ function iniciarTareasEnSegundoPlano() {
         });
     }, 60 * 1000);
 
-    // 2. Sincronización periódica con Google Sheets cada 10 minutos (si hay conexión configurada)
+    // 2. Sincronización periódica unidireccional con Google Sheets cada 10 minutos (Sheets -> Postgres)
     setInterval(() => {
-        sincronizarBidireccional().catch(err => {
+        sincronizarUnidireccional().catch(err => {
             // Silencioso si no hay sheet o hay error temporal
             console.warn('[Sync Sheets Periódico]', err.message);
         });
