@@ -78,7 +78,8 @@ router.post('/', async (req, res, next) => {
     try {
         const {
             cliente_id, fecha, direccion_entrega, transportista, observaciones,
-            items, permitir_sin_stock, estado = 'pendiente', descuento_porcentaje = 0
+            items, permitir_sin_stock, estado = 'pendiente', descuento_porcentaje = 0,
+            bultos = 1, peso_kg, valor_declarado, datos_despacho
         } = req.body;
 
         if (!cliente_id) return res.status(400).json({ error: 'cliente_id es requerido.' });
@@ -105,6 +106,12 @@ router.post('/', async (req, res, next) => {
         const total = Math.round((subtotalBruto - (subtotalBruto * (descPorc / 100))) * 100) / 100;
         const debeDescontar = (estadoFinal === 'entregado');
 
+        // Cálculo de peso y valor declarado predeterminados
+        const pesoEstimado = items.reduce((acc, it) => acc + (Number(it.cantidad) || 0), 0);
+        const pesoFinal = (peso_kg !== undefined && peso_kg !== null) ? Number(peso_kg) : Math.round(pesoEstimado * 100) / 100;
+        const valorFinal = (valor_declarado !== undefined && valor_declarado !== null && Number(valor_declarado) > 0) ? Number(valor_declarado) : total;
+        const bultosFinal = Math.max(1, parseInt(bultos, 10) || 1);
+
         const remitoId = await db.transaction(async (tx) => {
             const numero = await generarNumero('remitos', 'REM', tx);
 
@@ -113,12 +120,14 @@ router.post('/', async (req, res, next) => {
             const { row } = await tx.run(`
                 INSERT INTO remitos (
                     numero, cliente_id, fecha, direccion_entrega, transportista,
+                    bultos, peso_kg, valor_declarado, datos_despacho,
                     observaciones, total, estado, stock_descontado, descuento_porcentaje, usuario_id
-                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING id
             `, [
                 numero, cliente_id, fechaEmision,
-                direccion_entrega || null, transportista || null, observaciones || null,
-                total, estadoFinal, debeDescontar, descPorc, req.usuario.id
+                direccion_entrega || null, transportista || null,
+                bultosFinal, pesoFinal, valorFinal, JSON.stringify(datos_despacho || {}),
+                observaciones || null, total, estadoFinal, debeDescontar, descPorc, req.usuario.id
             ]);
 
             const rId = row.id;
@@ -175,6 +184,54 @@ router.post('/', async (req, res, next) => {
 
         res.status(201).json(await db.one('SELECT * FROM remitos WHERE id = $1', [remitoId]));
     } catch (err) { next(err); }
+});
+
+/**
+ * Actualizar datos de despacho del remito (Transporte, Bultos, Peso, Valor Declarado)
+ */
+router.put('/:id/despacho', async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { transportista, bultos, peso_kg, valor_declarado, datos_despacho } = req.body;
+
+        const remito = await db.one('SELECT * FROM remitos WHERE id = $1', [id]);
+        if (!remito) return res.status(404).json({ error: 'Remito no encontrado.' });
+
+        const nuevoTransportista = transportista !== undefined ? transportista : remito.transportista;
+        const nuevosBultos = bultos !== undefined ? Math.max(1, parseInt(bultos, 10) || 1) : (remito.bultos || 1);
+        const nuevoPeso = peso_kg !== undefined ? Math.max(0, parseFloat(peso_kg) || 0) : (remito.peso_kg || 0);
+        const nuevoValor = valor_declarado !== undefined ? Math.max(0, parseFloat(valor_declarado) || 0) : (remito.valor_declarado || remito.total || 0);
+        const nuevosDatos = datos_despacho !== undefined ? datos_despacho : (remito.datos_despacho || {});
+
+        await db.run(`
+            UPDATE remitos
+            SET transportista = $1, bultos = $2, peso_kg = $3, valor_declarado = $4, datos_despacho = $5
+            WHERE id = $6
+        `, [nuevoTransportista, nuevosBultos, nuevoPeso, nuevoValor, JSON.stringify(nuevosDatos), id]);
+
+        const actualizado = await db.one(`
+            SELECT r.*, c.razon_social as cliente_nombre, c.cuit as cliente_cuit,
+                   c.condicion_iva as cliente_condicion_iva, c.direccion as cliente_direccion,
+                   c.localidad as cliente_localidad, c.telefono as cliente_telefono, c.email as cliente_email
+            FROM remitos r
+            JOIN clientes c ON c.id = r.cliente_id
+            WHERE r.id = $1
+        `, [id]);
+
+        const items = await db.all(`
+            SELECT ri.*, p.nombre as producto_nombre, p.codigo as producto_codigo, p.unidad_medida,
+                   l.numero_lote, l.fecha_vencimiento
+            FROM remito_items ri
+            JOIN productos p ON p.id = ri.producto_id
+            LEFT JOIN lotes l ON l.id = ri.lote_id
+            WHERE ri.remito_id = $1
+            ORDER BY ri.id ASC
+        `, [id]);
+
+        res.json({ ...actualizado, items });
+    } catch (err) {
+        next(err);
+    }
 });
 
 /**

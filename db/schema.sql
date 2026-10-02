@@ -157,6 +157,10 @@ CREATE TABLE IF NOT EXISTS remitos (
     stock_descontado    BOOLEAN NOT NULL DEFAULT FALSE,
     descuento_porcentaje NUMERIC NOT NULL DEFAULT 0,
     transportista       TEXT,
+    bultos              INTEGER NOT NULL DEFAULT 1,
+    peso_kg             NUMERIC NOT NULL DEFAULT 0,
+    valor_declarado     NUMERIC NOT NULL DEFAULT 0,
+    datos_despacho      JSONB DEFAULT '{}'::jsonb,
     observaciones       TEXT,
     total               NUMERIC NOT NULL DEFAULT 0,
     usuario_id          INTEGER REFERENCES usuarios(id),
@@ -353,3 +357,7 @@ CREATE INDEX IF NOT EXISTS idx_notificaciones_fecha ON notificaciones(created_at
 
 -- Migración segura para columnas nuevas
 ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS preferencias JSONB DEFAULT '{}'::jsonb;
+ALTER TABLE remitos ADD COLUMN IF NOT EXISTS bultos INTEGER NOT NULL DEFAULT 1;
+ALTER TABLE remitos ADD COLUMN IF NOT EXISTS peso_kg NUMERIC NOT NULL DEFAULT 0;
+ALTER TABLE remitos ADD COLUMN IF NOT EXISTS valor_declarado NUMERIC NOT NULL DEFAULT 0;
+ALTER TABLE remitos ADD COLUMN IF NOT EXISTS datos_despacho JSONB DEFAULT '{}'::jsonb;
