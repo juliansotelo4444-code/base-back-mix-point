@@ -149,11 +149,20 @@ async function sincronizarCatalogo(sheetUrl) {
         const imagen = r.imagen || null;
         const unidadMedida = (r.tipoVenta && r.tipoVenta.toLowerCase().includes('unidad')) ? 'unidad' : 'kg';
 
-        const existente = await db.one('SELECT id, stock_actual FROM productos WHERE LOWER(nombre) = LOWER($1) OR (codigo IS NOT NULL AND codigo = $2)', [nombre, codigo]);
+        // 1. Buscar coincidencia por nombre exacto o normalizado
+        const existente = await db.one('SELECT id, codigo, stock_actual FROM productos WHERE LOWER(nombre) = LOWER($1)', [nombre]);
 
         let prodId;
         if (existente) {
             prodId = existente.id;
+            let codigoUpdate = existente.codigo;
+            if (codigo && codigo !== existente.codigo) {
+                const ocupado = await db.one('SELECT id FROM productos WHERE codigo = $1 AND id != $2', [codigo, prodId]);
+                if (!ocupado) {
+                    codigoUpdate = codigo;
+                }
+            }
+
             await db.run(`
                 UPDATE productos SET
                     codigo = COALESCE($1, codigo),
@@ -170,9 +179,21 @@ async function sincronizarCatalogo(sheetUrl) {
                     stock_actual = GREATEST(stock_actual, 100),
                     activo = true
                 WHERE id = $12
-            `, [codigo, catId, descripcion, imagen, unidadMedida, precio1kg, precio5kg, precio10kg, precio25kg, precio30kg, precioCompra, prodId]);
+            `, [codigoUpdate, catId, descripcion, imagen, unidadMedida, precio1kg, precio5kg, precio10kg, precio25kg, precio30kg, precioCompra, prodId]);
             actualizados++;
         } else {
+            let nuevoCodigo = codigo;
+            if (nuevoCodigo) {
+                const ocupado = await db.one('SELECT id FROM productos WHERE codigo = $1', [nuevoCodigo]);
+                if (ocupado) {
+                    const maxCodRow = await db.one(`SELECT COALESCE(MAX(NULLIF(regexp_replace(codigo, '[^0-9]', '', 'g'), '')::bigint), 0) as max_num FROM productos`);
+                    nuevoCodigo = 'MP-' + String(Number(maxCodRow.max_num) + 1).padStart(3, '0');
+                }
+            } else {
+                const maxCodRow = await db.one(`SELECT COALESCE(MAX(NULLIF(regexp_replace(codigo, '[^0-9]', '', 'g'), '')::bigint), 0) as max_num FROM productos`);
+                nuevoCodigo = 'MP-' + String(Number(maxCodRow.max_num) + 1).padStart(3, '0');
+            }
+
             const { row } = await db.run(`
                 INSERT INTO productos (
                     codigo, nombre, descripcion, imagen, categoria_id, unidad_medida,
@@ -180,7 +201,7 @@ async function sincronizarCatalogo(sheetUrl) {
                     stock_minimo, stock_actual, activo
                 ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 20, 100, true)
                 RETURNING id
-            `, [codigo, nombre, descripcion, imagen, catId, unidadMedida, precioCompra, precio1kg, precio5kg, precio10kg, precio25kg, precio30kg]);
+            `, [nuevoCodigo, nombre, descripcion, imagen, catId, unidadMedida, precioCompra, precio1kg, precio5kg, precio10kg, precio25kg, precio30kg]);
             prodId = row.id;
             nuevos++;
         }

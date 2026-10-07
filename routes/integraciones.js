@@ -230,6 +230,108 @@ router.get('/pedidos-web', async (req, res, next) => {
         // Obtener catálogo para matchear productos
         const productosDB = await db.all('SELECT id, codigo, nombre, unidad_medida, precio_venta, stock_actual FROM productos WHERE activo = true');
 
+function normalizarTexto(str) {
+    if (!str) return '';
+    return str
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .trim();
+}
+
+function parsearItemsProductos(productosStr, productosDB) {
+    if (!productosStr) return [];
+    const lineas = productosStr.split(/[|\r\n;]+/).map(s => s.trim()).filter(Boolean);
+
+    return lineas.map(raw => {
+        let nombre = raw;
+        let unidad = 'kg';
+        let cantidad = 1;
+        let subtotalDeclarado = null;
+        let precioUnitarioDeclarado = null;
+
+        // 1. Extraer precio/subtotal entre corchetes tipo [$4.700] o [4700]
+        const precioMatch = nombre.match(/\[\s*\$?\s*([0-9.,]+)\s*\]/);
+        if (precioMatch) {
+            subtotalDeclarado = sanitizarNumero(precioMatch[1]);
+            nombre = nombre.replace(precioMatch[0], '').trim();
+        }
+
+        // 2. Extraer cantidad tipo "x1", "x 2", "x2.5" al final o antes de corchetes
+        const cantMatch = nombre.match(/(?:^|\s)x\s*(\d+(?:[.,]\d+)?)\s*$/i) ||
+                          nombre.match(/(?:^|\s)x\s*(\d+(?:[.,]\d+)?)(?:\s|$)/i);
+        if (cantMatch) {
+            cantidad = sanitizarNumero(cantMatch[1]) || 1;
+            nombre = (nombre.slice(0, cantMatch.index) + ' ' + nombre.slice(cantMatch.index + cantMatch[0].length)).trim();
+        } else {
+            const cantPrefixMatch = nombre.match(/^(\d+(?:[.,]\d+)?)\s*x\s+/i);
+            if (cantPrefixMatch) {
+                cantidad = sanitizarNumero(cantPrefixMatch[1]) || 1;
+                nombre = nombre.slice(cantPrefixMatch[0].length).trim();
+            }
+        }
+
+        // 3. Extraer unidad tipo "(1kg)", "(unidad)", "(500g)"
+        const regexParen = /\((.*?)\)/g;
+        let pMatch;
+        while ((pMatch = regexParen.exec(nombre)) !== null) {
+            const dentro = pMatch[1].trim().toLowerCase();
+            if (dentro.includes('unidad') || dentro.includes('u') || dentro === 'un') {
+                unidad = 'unidad';
+                nombre = nombre.replace(pMatch[0], '').trim();
+                break;
+            } else if (dentro.includes('kg') || dentro.includes('kilo')) {
+                unidad = 'kg';
+                nombre = nombre.replace(pMatch[0], '').trim();
+                break;
+            } else if (dentro.includes('g') && !dentro.includes('kg')) {
+                unidad = 'g';
+                nombre = nombre.replace(pMatch[0], '').trim();
+                break;
+            }
+        }
+
+        nombre = nombre.replace(/\s+/g, ' ').replace(/^[-–—]\s*/, '').replace(/\s*[-–—]$/, '').trim();
+
+        if (subtotalDeclarado && cantidad > 0) {
+            precioUnitarioDeclarado = Math.round(subtotalDeclarado / cantidad);
+        }
+
+        const normNombre = normalizarTexto(nombre);
+
+        let match = productosDB.find(p => normalizarTexto(p.nombre) === normNombre);
+        if (!match) {
+            match = productosDB.find(p => {
+                const pNorm = normalizarTexto(p.nombre);
+                return pNorm === normNombre || pNorm.startsWith(normNombre) || normNombre.startsWith(pNorm);
+            });
+        }
+        if (!match) {
+            match = productosDB.find(p => {
+                const pNorm = normalizarTexto(p.nombre);
+                return pNorm.includes(normNombre) || normNombre.includes(pNorm);
+            });
+        }
+
+        const precioFinal = (match && Number(match.precio_venta) > 0) ? Number(match.precio_venta) : (precioUnitarioDeclarado || 0);
+        const subtotalFinal = (precioFinal > 0) ? (precioFinal * cantidad) : (subtotalDeclarado || 0);
+
+        return {
+            raw,
+            nombreOriginal: nombre,
+            nombre: match ? match.nombre : nombre,
+            producto_id: match ? match.id : null,
+            codigo: match ? match.codigo : null,
+            unidad_medida: match ? match.unidad_medida : unidad,
+            precio_unitario: precioFinal,
+            cantidad,
+            subtotal: subtotalFinal,
+            stock_actual: match ? Number(match.stock_actual) : 0,
+            es_nuevo: !match
+        };
+    });
+}
+
         const pedidosProcesados = rows.map(r => {
             const normalizado = {};
             Object.keys(r).forEach(k => {
@@ -245,31 +347,8 @@ router.get('/pedidos-web', async (req, res, next) => {
             const productosStr = normalizado.productos || '';
             const total = sanitizarNumero(normalizado.total);
 
-            // Parsear ítems del string "Producto (1kg) x2 | Otro x1"
-            const itemsParsed = productosStr.split('|').map(raw => {
-                const trimmed = raw.trim();
-                if (!trimmed) return null;
-                const m = trimmed.match(/^(.*?)(?:\s*\((.*?)\))?\s*x(\d+(?:\.\d+)?)$/);
-                const nombreItem = m ? m[1].trim() : trimmed;
-                const unidadItem = m && m[2] ? m[2].trim() : 'kg';
-                const cantidad = m ? sanitizarNumero(m[3]) : 1;
-
-                const match = productosDB.find(p =>
-                    p.nombre.toLowerCase() === nombreItem.toLowerCase() ||
-                    p.nombre.toLowerCase().includes(nombreItem.toLowerCase()) ||
-                    nombreItem.toLowerCase().includes(p.nombre.toLowerCase())
-                );
-
-                return {
-                    raw: trimmed,
-                    nombre: match ? match.nombre : nombreItem,
-                    producto_id: match ? match.id : null,
-                    unidad_medida: match ? match.unidad_medida : (unidadItem.includes('unidad') ? 'unidad' : 'kg'),
-                    precio_unitario: match ? Number(match.precio_venta) : 0,
-                    cantidad,
-                    stock_actual: match ? Number(match.stock_actual) : 0
-                };
-            }).filter(Boolean);
+            // Parsear ítems con soporte para múltiples formatos y corchetes de precios
+            const itemsParsed = parsearItemsProductos(productosStr, productosDB);
 
             const remitoAsociado = remitosMap[numero] || null;
 
@@ -329,27 +408,62 @@ router.post('/crear-remito-desde-pedido', async (req, res, next) => {
 
             // 2. Generar número correlativo
             const numero = await generarNumero('remitos', 'REM', tx);
-            const total = items.reduce((acc, it) => acc + (Number(it.cantidad || 0) * Number(it.precio_unitario || 0)), 0);
-            const observaciones = req.body.observaciones || '';
+            const observaciones = req.body.observaciones || (pedido_numero ? `Pedido Web ${pedido_numero}` : '');
 
             const { row: remitoRow } = await tx.run(
                 `INSERT INTO remitos (numero, cliente_id, fecha, direccion_entrega, transportista, observaciones, total, usuario_id)
-                 VALUES ($1, $2, CURRENT_DATE, $3, 'Distribución propia', $4, $5, $6) RETURNING id`,
-                [numero, cliente.id, direccion_completa || null, observaciones, total, usuarioId]
+                 VALUES ($1, $2, CURRENT_DATE, $3, 'Distribución propia', $4, 0, $5) RETURNING id`,
+                [numero, cliente.id, direccion_completa || null, observaciones, usuarioId]
             );
 
             const rId = remitoRow.id;
+            let totalCalculado = 0;
 
-            // 3. Crear ítems y descontar stock por FEFO
+            // 3. Crear ítems y descontar stock por FEFO garantizando que NINGÚN ÍTEM se pierda
             for (const it of items) {
-                if (!it.producto_id) continue;
                 const cant = Number(it.cantidad) || 1;
-                const precio = Number(it.precio_unitario) || 0;
+                let precio = Number(it.precio_unitario) || 0;
+                let productoId = it.producto_id;
 
-                const lotes = await tx.all(`
+                // Si el ítem no tiene producto_id, buscar en DB o crear el producto en el catálogo
+                if (!productoId) {
+                    const nombreBuscado = it.nombre || it.nombreOriginal || it.raw || 'Producto Sin Nombre';
+                    const normNom = normalizarTexto(nombreBuscado);
+                    let prodExistente = await tx.one('SELECT id, precio_venta, unidad_medida FROM productos WHERE LOWER(nombre) = LOWER($1)', [nombreBuscado.trim()]);
+                    if (!prodExistente) {
+                        const todosProds = await tx.all('SELECT id, nombre, precio_venta, unidad_medida FROM productos WHERE activo = true');
+                        prodExistente = todosProds.find(p => normalizarTexto(p.nombre) === normNom || normalizarTexto(p.nombre).includes(normNom) || normNom.includes(normalizarTexto(p.nombre)));
+                    }
+
+                    if (prodExistente) {
+                        productoId = prodExistente.id;
+                        if (!precio && Number(prodExistente.precio_venta) > 0) {
+                            precio = Number(prodExistente.precio_venta);
+                        }
+                    } else {
+                        const nuevoCodigo = await generarNumero('productos', 'MP', tx);
+                        const { row: nuevoProd } = await tx.run(`
+                            INSERT INTO productos (codigo, nombre, unidad_medida, precio_venta, stock_actual, activo)
+                            VALUES ($1, $2, $3, $4, 100, true) RETURNING id
+                        `, [nuevoCodigo, nombreBuscado.trim(), it.unidad_medida || 'kg', precio]);
+                        productoId = nuevoProd.id;
+                    }
+                }
+
+                // Asegurar que exista un lote disponible en lotes para trazabilidad FEFO
+                let lotes = await tx.all(`
                     SELECT * FROM lotes WHERE producto_id = $1 AND cantidad_actual > 0
                     ORDER BY (fecha_vencimiento IS NULL), fecha_vencimiento ASC, fecha_ingreso ASC
-                `, [it.producto_id]);
+                `, [productoId]);
+
+                if (!lotes || lotes.length === 0) {
+                    const loteNum = `LOT-${String(productoId).padStart(3, '0')}-2026`;
+                    const { row: nuevoLote } = await tx.run(`
+                        INSERT INTO lotes (producto_id, numero_lote, fecha_ingreso, fecha_vencimiento, cantidad_inicial, cantidad_actual, costo_unitario)
+                        VALUES ($1, $2, CURRENT_DATE, '2027-12-31', 100, 100, $3) RETURNING *
+                    `, [productoId, loteNum, Math.round(precio * 0.7)]);
+                    lotes = [nuevoLote];
+                }
 
                 let cantidadRestante = cant;
                 let loteRef = null;
@@ -361,18 +475,29 @@ router.post('/crear-remito-desde-pedido', async (req, res, next) => {
                     if (!loteRef) loteRef = lote.id;
                 }
 
+                if (!loteRef && lotes.length > 0) {
+                    loteRef = lotes[0].id;
+                }
+
+                const subtotalItem = Math.round(cant * precio * 100) / 100;
+                totalCalculado += subtotalItem;
+
                 await tx.run(`
                     INSERT INTO remito_items (remito_id, producto_id, lote_id, cantidad, precio_unitario, subtotal)
                     VALUES ($1, $2, $3, $4, $5, $6)
-                `, [rId, it.producto_id, loteRef, cant, precio, cant * precio]);
+                `, [rId, productoId, loteRef, cant, precio, subtotalItem]);
 
-                await tx.run('UPDATE productos SET stock_actual = stock_actual - $1 WHERE id = $2', [cant, it.producto_id]);
+                await tx.run('UPDATE productos SET stock_actual = stock_actual - $1 WHERE id = $2', [cant, productoId]);
 
                 await tx.run(`
                     INSERT INTO movimientos_stock (producto_id, lote_id, tipo, cantidad, motivo, referencia_tipo, referencia_id, usuario_id)
                     VALUES ($1, $2, 'egreso', $3, $4, 'remito', $5, $6)
-                `, [it.producto_id, loteRef, cant, `Remito Web ${pedido_numero}`, rId, usuarioId]);
+                `, [productoId, loteRef, cant, `Remito Web ${pedido_numero || ''}`, rId, usuarioId]);
             }
+
+            // Actualizar total definitivo del remito
+            const total = totalCalculado;
+            await tx.run('UPDATE remitos SET total = $1 WHERE id = $2', [total, rId]);
 
             // Actualizar cuenta corriente del cliente si el remito tiene monto
             if (Number(total) > 0) {
