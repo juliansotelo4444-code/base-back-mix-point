@@ -62,6 +62,66 @@ router.post('/mcp/call-tool', async (req, res, next) => {
 });
 
 /**
+ * Endpoint para obtener personas conectadas a la red
+ */
+router.get('/usuarios-conectados', async (req, res, next) => {
+    try {
+        const { getUsuariosConectados } = require('../socket');
+        const online = getUsuariosConectados ? getUsuariosConectados() : [];
+        res.json({ ok: true, online });
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * Consultas que Jarvis le hizo a personas del equipo
+ */
+router.get('/consultas-equipo', async (req, res, next) => {
+    try {
+        const db = require('../db/pool');
+        const consultas = await db.all(`
+            SELECT * FROM jarvis_consultas_equipo
+            ORDER BY created_at DESC
+            LIMIT 20
+        `);
+        res.json({ ok: true, consultas });
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * Responder una consulta de Jarvis dirigida al usuario actual
+ */
+router.post('/consultas-equipo/:id/responder', async (req, res, next) => {
+    try {
+        const { respuesta } = req.body;
+        if (!respuesta || !respuesta.trim()) {
+            return res.status(400).json({ error: 'La respuesta es requerida.' });
+        }
+        const db = require('../db/pool');
+        const { getIO } = require('../socket');
+
+        await db.run(`
+            UPDATE jarvis_consultas_equipo
+            SET respuesta = $1, estado = 'respondida', answered_at = NOW()
+            WHERE id = $2
+        `, [respuesta.trim(), req.params.id]);
+
+        const actualizada = await db.one('SELECT * FROM jarvis_consultas_equipo WHERE id = $1', [req.params.id]);
+        const io = getIO ? getIO() : null;
+        if (io) {
+            io.emit('jarvis:consulta_respondida', actualizada);
+        }
+
+        res.json({ ok: true, consulta: actualizada });
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
  * Endpoint para monitoreo de alertas automáticas
  */
 router.get('/alertas-monitoreo', async (req, res, next) => {

@@ -159,6 +159,32 @@ class MixPointMCPServer {
                             },
                             required: ['cliente_nombre', 'items']
                         }
+                    },
+                    {
+                        name: 'consultar_usuarios_conectados',
+                        description: 'Obtiene en tiempo real la lista de personas y operarios del equipo que están conectados a la red del sistema (nombre, rol, socket activo).',
+                        inputSchema: {
+                            type: 'object',
+                            properties: {}
+                        }
+                    },
+                    {
+                        name: 'consultar_persona_en_red',
+                        description: 'Envía una consulta directa de Jarvis a una persona específica conectada a la red (ej: chofer, operario de depósito, vendedor) para averiguar datos que faltan o confirmar detalles operativos.',
+                        inputSchema: {
+                            type: 'object',
+                            properties: {
+                                destinatario_nombre_o_rol: {
+                                    type: 'string',
+                                    description: 'Nombre del usuario (ej: "Franco", "Damian") o rol ("deposito", "ventas", "admin")'
+                                },
+                                consulta: {
+                                    type: 'string',
+                                    description: 'La pregunta o consulta específica que Jarvis le hará a esa persona'
+                                }
+                            },
+                            required: ['destinatario_nombre_o_rol', 'consulta']
+                        }
                     }
                 ]
             };
@@ -182,6 +208,10 @@ class MixPointMCPServer {
                         return await this.toolMonitorearAlertas(args);
                     case 'verificar_y_generar_remito':
                         return await this.toolGenerarRemito(args);
+                    case 'consultar_usuarios_conectados':
+                        return await this.toolConsultarUsuariosConectados(args);
+                    case 'consultar_persona_en_red':
+                        return await this.toolConsultarPersonaEnRed(args);
                     default:
                         throw new Error(`Herramienta no implementada: ${name}`);
                 }
@@ -523,6 +553,98 @@ class MixPointMCPServer {
                     cliente: cliente_nombre,
                     total: remito.total,
                     mensaje: `Remito ${remito.numero} generado exitosamente a partir de los datos exactos del pedido.`
+                }, null, 2)
+            }]
+        };
+    }
+
+    async toolConsultarUsuariosConectados(args) {
+        const { getUsuariosConectados } = require('../socket');
+        const online = getUsuariosConectados ? getUsuariosConectados() : [];
+        return {
+            content: [{
+                type: 'text',
+                text: JSON.stringify({
+                    total_online: online.length,
+                    usuarios: online.map(u => ({
+                        id: u.usuarioId,
+                        nombre: u.nombre,
+                        email: u.email,
+                        rol: u.rol,
+                        conectado_desde: u.conectadoDesde
+                    }))
+                }, null, 2)
+            }]
+        };
+    }
+
+    async toolConsultarPersonaEnRed(args) {
+        const { destinatario_nombre_o_rol, consulta } = args;
+        if (!destinatario_nombre_o_rol || !consulta) {
+            throw new Error('Debe especificar el destinatario y la consulta.');
+        }
+
+        const { getUsuariosConectados, emitirConsultaJarvisAEquipo } = require('../socket');
+        const online = getUsuariosConectados ? getUsuariosConectados() : [];
+
+        // Buscar coincidencia por nombre o rol
+        const dest = destinatario_nombre_o_rol.toLowerCase();
+        let target = online.find(u =>
+            (u.nombre && u.nombre.toLowerCase().includes(dest)) ||
+            (u.rol && u.rol.toLowerCase() === dest)
+        );
+
+        // Si no está conectado ahora, buscarlo en la base de datos de usuarios para registrarle la consulta pendiente
+        let destUsuario = null;
+        if (target) {
+            destUsuario = { id: target.usuarioId, nombre: target.nombre };
+        } else {
+            const dbUser = await db.one(`
+                SELECT id, nombre, rol FROM usuarios
+                WHERE activo = true AND (LOWER(nombre) LIKE $1 OR LOWER(rol) = $2)
+                LIMIT 1
+            `, [`%${dest}%`, dest]);
+            if (dbUser) {
+                destUsuario = { id: dbUser.id, nombre: dbUser.nombre, online: false };
+            }
+        }
+
+        const nombreFinal = destUsuario ? destUsuario.nombre : destinatario_nombre_o_rol;
+        const idFinal = destUsuario ? destUsuario.id : null;
+
+        // Registrar consulta en DB
+        const { row } = await db.run(`
+            INSERT INTO jarvis_consultas_equipo (solicitante_nombre, destinatario_id, destinatario_nombre, consulta, estado)
+            VALUES ('J.A.R.V.I.S.', $1, $2, $3, 'pendiente')
+            RETURNING id, created_at
+        `, [idFinal, nombreFinal, consulta]);
+
+        const consultaObj = {
+            id: row.id,
+            solicitante: 'J.A.R.V.I.S.',
+            destinatario_id: idFinal,
+            destinatario_nombre: nombreFinal,
+            consulta,
+            created_at: row.created_at
+        };
+
+        // Emitir por Socket.io a la red en vivo
+        if (emitirConsultaJarvisAEquipo) {
+            emitirConsultaJarvisAEquipo(consultaObj);
+        }
+
+        return {
+            content: [{
+                type: 'text',
+                text: JSON.stringify({
+                    ok: true,
+                    consulta_id: row.id,
+                    destinatario: nombreFinal,
+                    esta_conectado_ahora: !!target,
+                    consulta,
+                    mensaje: target
+                        ? `Mensaje transmitido en tiempo real por la red a ${nombreFinal}. Jarvis está aguardando su confirmación.`
+                        : `El usuario ${nombreFinal} no está conectado en este instante, pero la consulta fue enviada a su terminal y quedará pendiente para cuando inicie sesión.`
                 }, null, 2)
             }]
         };

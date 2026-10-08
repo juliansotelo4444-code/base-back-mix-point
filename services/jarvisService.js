@@ -260,6 +260,46 @@ class JarvisService {
         const texto = (pregunta || '').toLowerCase().trim();
         const fmtDinero = n => `$ ${Number(n).toLocaleString('es-AR')}`;
 
+        // 0. CAPACIDAD DE COMUNICACIÓN EN RED CON PERSONAS DEL EQUIPO
+        // 0.A: "¿Quién está conectado?" o "¿Quiénes están en línea?"
+        if (texto.includes('conectad') || texto.includes('en linea') || texto.includes('en línea') || texto.includes('quien esta') || texto.includes('quién está') || texto.includes('equipo online')) {
+            if (mcp) {
+                const onlineRes = await mcp.toolConsultarUsuariosConectados({});
+                const onlineData = JSON.parse(onlineRes.content[0].text);
+                const usuarios = onlineData.usuarios || [];
+
+                if (usuarios.length === 0) {
+                    return {
+                        respuesta: `He escaneado la red de terminales de Mix Point. Actualmente no detecto otros usuarios con sesión activa en este momento. Sin embargo, puedo dejarle un mensaje o consulta a cualquier miembro del equipo para que lo reciba al conectarse.`
+                    };
+                }
+
+                const lista = usuarios.map(u => `• ${u.nombre} (${u.rol})`).join('\n');
+                return {
+                    respuesta: `Sistemas en red: Actualmente hay ${usuarios.length} usuario(s) conectado(s) al sistema:\n${lista}\n\nPuede pedirme: "Preguntale a [Nombre] tal cosa" y estableceré contacto de inmediato.`,
+                    datos: onlineData
+                };
+            }
+        }
+
+        // 0.B: "Preguntale a Franco si...", "Averigua con Damian...", "Hablá con deposito..."
+        const matchPreguntaRed = texto.match(/(?:preguntale|pregúntale|preguntar|averigua|averiguá|consultale|consúltale|habla|hablá|pedile|pídele|decile|dile)\s+(?:a|con|al)?\s*([a-záéíóúñ]+)\s+(.+)/i);
+        if (matchPreguntaRed && mcp) {
+            const destinatarioRaw = matchPreguntaRed[1].trim();
+            const consultaRaw = matchPreguntaRed[2].trim();
+
+            const resultadoEnvio = await mcp.toolConsultarPersonaEnRed({
+                destinatario_nombre_o_rol: destinatarioRaw,
+                consulta: consultaRaw
+            });
+            const info = JSON.parse(resultadoEnvio.content[0].text);
+
+            return {
+                respuesta: `Comprobación de enlace de red:\n${info.mensaje}\n\nDetalle de la consulta: "${info.consulta}". Le notificaré en cuanto reciba su contestación.`,
+                datos: info
+            };
+        }
+
         // 1. AUTOMATIZACIÓN DE REMITOS Y PEDIDOS VÍA MCP
         const matchPedido = texto.match(/remito.*(?:pedido|para|de)?\s*(mp-?\d+|\d+)/i) ||
                             texto.match(/(?:generar|crear|emitir|hacer)\s*remito/i) ||
