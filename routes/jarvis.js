@@ -52,6 +52,15 @@ router.post('/mcp/call-tool', async (req, res, next) => {
             case 'verificar_y_generar_remito':
                 resultado = await mcpServerInstance.toolGenerarRemito(args);
                 break;
+            case 'consultar_usuarios_conectados':
+                resultado = await mcpServerInstance.toolConsultarUsuariosConectados(args);
+                break;
+            case 'consultar_persona_en_red':
+                resultado = await mcpServerInstance.toolConsultarPersonaEnRed(args);
+                break;
+            case 'buscar_en_internet':
+                resultado = await mcpServerInstance.toolBuscarEnInternet(args);
+                break;
             default:
                 return res.status(400).json({ error: `Herramienta MCP desconocida: ${name}` });
         }

@@ -16,6 +16,7 @@ const {
     ReadResourceRequestSchema
 } = require('@modelcontextprotocol/sdk/types.js');
 const db = require('../db/pool');
+const WebSearchService = require('./webSearchService');
 
 class MixPointMCPServer {
     constructor() {
@@ -185,6 +186,25 @@ class MixPointMCPServer {
                             },
                             required: ['destinatario_nombre_o_rol', 'consulta']
                         }
+                    },
+                    {
+                        name: 'buscar_en_internet',
+                        description: 'Permite a Jarvis consultar la red abierta en tiempo real: cotizaciones oficiales y paralelas de dólar (oficial, blue, MEP), alertas meteorológicas para rutas de entrega o búsquedas generales de mercado.',
+                        inputSchema: {
+                            type: 'object',
+                            properties: {
+                                query: {
+                                    type: 'string',
+                                    description: 'Término de búsqueda o consulta (ej: "dolar", "clima buenos aires", "precio de nueces")'
+                                },
+                                categoria: {
+                                    type: 'string',
+                                    enum: ['auto', 'dolar', 'clima', 'general'],
+                                    description: 'Categoría específica de consulta web'
+                                }
+                            },
+                            required: ['query']
+                        }
                     }
                 ]
             };
@@ -212,6 +232,8 @@ class MixPointMCPServer {
                         return await this.toolConsultarUsuariosConectados(args);
                     case 'consultar_persona_en_red':
                         return await this.toolConsultarPersonaEnRed(args);
+                    case 'buscar_en_internet':
+                        return await this.toolBuscarEnInternet(args);
                     default:
                         throw new Error(`Herramienta no implementada: ${name}`);
                 }
@@ -646,6 +668,39 @@ class MixPointMCPServer {
                         ? `Mensaje transmitido en tiempo real por la red a ${nombreFinal}. Jarvis está aguardando su confirmación.`
                         : `El usuario ${nombreFinal} no está conectado en este instante, pero la consulta fue enviada a su terminal y quedará pendiente para cuando inicie sesión.`
                 }, null, 2)
+            }]
+        };
+    }
+
+    async toolBuscarEnInternet(args) {
+        const query = String(args?.query || '').trim();
+        const categoria = args?.categoria || 'auto';
+
+        if (categoria === 'dolar') {
+            const dolar = await WebSearchService.obtenerCotizacionesDolar();
+            return {
+                content: [{
+                    type: 'text',
+                    text: JSON.stringify(dolar, null, 2)
+                }]
+            };
+        }
+
+        if (categoria === 'clima') {
+            const clima = await WebSearchService.obtenerClimaLogistica();
+            return {
+                content: [{
+                    type: 'text',
+                    text: JSON.stringify(clima, null, 2)
+                }]
+            };
+        }
+
+        const res = await WebSearchService.buscarEnWeb(query);
+        return {
+            content: [{
+                type: 'text',
+                text: JSON.stringify(res, null, 2)
             }]
         };
     }

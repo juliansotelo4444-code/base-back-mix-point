@@ -1,10 +1,21 @@
 const db = require('../db/pool');
+const WebSearchService = require('./webSearchService');
 
 /**
  * Motor de Inteligencia de Negocios y Asistente Autónomo "J.A.R.V.I.S." para Mix Point
- * Nivel Avanzado: Razonamiento multi-variable, MCP, memoria extendida y análisis probabilístico.
+ * Nivel Avanzado: Razonamiento Chain-of-Thought (CoT), Búsqueda Web en Vivo, MCP, memoria extendida y análisis probabilístico.
  */
 class JarvisService {
+    /**
+     * Helper estructurador de razonamiento profundo Chain-of-Thought (CoT)
+     */
+    static estructurarRazonamiento({ analisis, evaluacion, recomendacion }) {
+        return [
+            { paso: 1, fase: 'Auditoría & Análisis de Datos', icono: '📊', detalle: analisis },
+            { paso: 2, fase: 'Evaluación de Impacto Operativo & Riesgo', icono: '⚖️', detalle: evaluacion },
+            { paso: 3, fase: 'Conclusión Estratégica & Decisión Ejecutiva', icono: '🎯', detalle: recomendacion }
+        ];
+    }
     /**
      * Consulta de stock y lotes
      */
@@ -296,7 +307,127 @@ class JarvisService {
 
             return {
                 respuesta: `Comprobación de enlace de red:\n${info.mensaje}\n\nDetalle de la consulta: "${info.consulta}". Le notificaré en cuanto reciba su contestación.`,
-                datos: info
+                datos: info,
+                fuente: 'red_local'
+            };
+        }
+
+        // 0.C: BÚSQUEDA WEB EN VIVO - COTIZACIÓN DE DÓLAR Y MERCADO CAMBIARIO
+        if (texto.includes('dolar') || texto.includes('dólar') || texto.includes('blue') || texto.includes('mep') || texto.includes('cotiz') || texto.includes('divisa') || texto.includes('tipo de cambio')) {
+            const dolar = await WebSearchService.obtenerCotizacionesDolar();
+            if (dolar.ok) {
+                const c = dolar.cotizaciones;
+                const analisis = `Relevamiento cambiario en vivo (DolarAPI): Dólar Oficial Venta $${c.oficial.venta} | Dólar Blue Venta $${c.blue.venta} | Dólar MEP $${c.mep.venta} | Dólar Mayorista Venta $${c.mayorista.venta}.`;
+                const evaluacion = `Brecha cambiaria oficial/blue aproximada: ${(((c.blue.venta - c.oficial.venta) / c.oficial.venta) * 100).toFixed(1)}%. En el rubro de frutos secos, los insumos importados (almendra Nonpareil, castaña de cajú, pasas rubias) cotizan al tipo de cambio mayorista/financiero. Una aceleración del Blue/MEP impacta de forma directa en el costo de reposición por bolsa de 10-25 kg.`;
+                const recomendacion = `Mantener listas de precios actualizadas con margen de seguridad del 18-25%. Para clientes mayoristas con compras superiores a $500.000, fijar pagos a un máximo de 7 días para preservar el capital de trabajo de Mix Point.`;
+
+                const pasos = JarvisService.estructurarRazonamiento({ analisis, evaluacion, recomendacion });
+
+                // Almacenar en la memoria persistente del agente
+                if (mcp) {
+                    await mcp.toolGuardarMemoria({
+                        clave: 'ultima_cotizacion_dolar',
+                        contenido: {
+                            fecha: new Date().toISOString(),
+                            oficial: c.oficial.venta,
+                            blue: c.blue.venta,
+                            mep: c.mep.venta
+                        }
+                    }).catch(() => {});
+                }
+
+                return {
+                    respuesta: `Cotizaciones del mercado cambiario obtenidas en tiempo real de la red:\n• Dólar Blue Venta: $${c.blue.venta} (Compra: $${c.blue.compra})\n• Dólar Oficial Venta: $${c.oficial.venta}\n• Dólar MEP: $${c.mep.venta}\n• Dólar Tarjeta: $${c.tarjeta.venta}\n\n💡 Análisis para Mix Point: Con el blue a $${c.blue.venta}, se recomienda auditar los costos de reposición de frutos secos importados (almendras y castañas) antes de emitir listas de precios mayoristas con plazos de pago extendidos.`,
+                    datos: dolar,
+                    razonamiento_pasos: pasos,
+                    fuente: 'web_dolar',
+                    accion_sugerida: 'Ver Inventario'
+                };
+            }
+        }
+
+        // 0.D: BÚSQUEDA WEB EN VIVO - ESTADO DEL CLIMA & LOGÍSTICA DE REPARTO
+        if (texto.includes('clima') || texto.includes('lluvia') || texto.includes('tiempo') || texto.includes('meteorol') || ((texto.includes('reparto') || texto.includes('entrega')) && (texto.includes('calle') || texto.includes('ruta') || texto.includes('llueve')))) {
+            const clima = await WebSearchService.obtenerClimaLogistica();
+            if (clima.ok) {
+                const analisis = `Reporte satelital Open-Meteo en vivo para Buenos Aires: Temperatura ${clima.temperatura} (Sensación ${clima.sensacion_termica}), Humedad ${clima.humedad}, Precipitaciones ${clima.precipitacion}, Viento ${clima.viento}. Condición: ${clima.condicion}.`;
+                const evaluacion = `Riesgo logístico: ${clima.riesgo_logistico.toUpperCase()}. Los frutos secos y semillas son sensibles a la absorción de humedad ambiental relativa (>75%), lo que puede comprometer la textura crocante del producto si el embalaje se expone a la intemperie en muelle de descarga.`;
+                const recomendacion = clima.recomendacion;
+
+                const pasos = JarvisService.estructurarRazonamiento({ analisis, evaluacion, recomendacion });
+
+                return {
+                    respuesta: `Telemetría meteorológica y logística en tiempo real para Buenos Aires:\n• Estado: ${clima.condicion} (${clima.temperatura}, sensación térmica ${clima.sensacion_termica})\n• Humedad relativa: ${clima.humedad} | Viento: ${clima.viento}\n• Nivel de riesgo en ruta: ${clima.riesgo_logistico}\n\nDirectiva para choferes y despacho: ${clima.recomendacion}`,
+                    datos: clima,
+                    razonamiento_pasos: pasos,
+                    fuente: 'web_clima',
+                    accion_sugerida: 'Ver Preparación & Despacho'
+                };
+            }
+        }
+
+        // 0.E: BÚSQUEDA WEB EN VIVO - CONSULTAS GENERALES EN LA RED / GOOGLE / DUCKDUCKGO
+        if (texto.startsWith('busca') || texto.startsWith('buscá') || texto.includes('buscar en internet') || texto.includes('buscar en la red') || texto.includes('buscar en google') || texto.includes('en la web') || texto.includes('noticias') || texto.includes('precio de mercado') || texto.includes('averigua en internet')) {
+            const queryLimpia = texto
+                .replace(/^(?:jarvis\s+)?(?:busca|buscá|buscar|averigua|averiguá)\s+(?:en\s+(?:internet|la\s+web|la\s+red|google)\s+)?/i, '')
+                .replace(/en\s+(?:internet|la\s+web|la\s+red|google)$/i, '')
+                .trim();
+
+            const resultadoWeb = await WebSearchService.buscarEnWeb(queryLimpia || texto);
+            if (resultadoWeb.ok) {
+                const analisis = `Búsqueda ejecutada en la red para "${queryLimpia || texto}". Fuente: ${resultadoWeb.fuente || 'DuckDuckGo Open Web'}.`;
+                const evaluacion = resultadoWeb.resumen;
+                const recomendacion = `Información externa triangulada con los procesos comerciales de Mix Point. Lista para incorporar a las decisiones operativas.`;
+
+                const pasos = JarvisService.estructurarRazonamiento({ analisis, evaluacion, recomendacion });
+
+                return {
+                    respuesta: `He rastreado la red para "${queryLimpia || texto}":\n\n${resultadoWeb.resumen}\n\n${resultadoWeb.url ? `🔗 Enlace de referencia: ${resultadoWeb.url}` : ''}`,
+                    datos: resultadoWeb,
+                    razonamiento_pasos: pasos,
+                    fuente: 'web_busqueda'
+                };
+            }
+        }
+
+        // 0.F: ANÁLISIS ESTRATÉGICO HOLÍSTICO DEL NEGOCIO (CHAIN-OF-THOUGHT DE MÁXIMA INTELIGENCIA)
+        if (texto.includes('analisis estrategico') || texto.includes('análisis estratégico') || texto.includes('plan de negocio') || texto.includes('como ves el negocio') || texto.includes('cómo ves el negocio') || texto.includes('rendimiento integral') || texto.includes('auditoria completa')) {
+            const finanzas = await this.consultarFinanzas();
+            const deudas = await this.consultarDeudaClientes({ top: 3 });
+            const predicciones = await this.predecirQuiebreStock({ limite: 3 });
+            const dolar = await WebSearchService.obtenerCotizacionesDolar().catch(() => ({ ok: false }));
+
+            const criticosStock = predicciones.filter(p => p.alerta_quiebre);
+            const stockTexto = criticosStock.length > 0
+                ? `${criticosStock.length} producto(s) en umbral de quiebre (${criticosStock.map(c => c.nombre).join(', ')})`
+                : 'Inventario de alta rotación equilibrado sin quiebres proyectados a 7 días';
+
+            const analisis = `Estado verificado de subsistemas: Ventas facturadas en el mes: ${fmtDinero(finanzas.ventas_facturadas)} | Cobranzas efectivas: ${fmtDinero(finanzas.cobranzas_efectivas)} | Deuda de clientes en la calle: ${fmtDinero(deudas.deuda_total_calle)} (${deudas.clientes_deudores_total} cuentas) | Inventario: ${stockTexto}.${dolar.ok ? ` Dólar Blue de referencia: $${dolar.cotizaciones.blue.venta}.` : ''}`;
+            const evaluacion = `Evaluación de liquidez y rotación: La tasa de cobranza sobre ventas representa el ${finanzas.ventas_facturadas > 0 ? Math.round((finanzas.cobranzas_efectivas / finanzas.ventas_facturadas) * 100) : 0}%. Si la deuda en calle supera el 30% del volumen mensual, el capital de trabajo queda inmovilizado afectando la recompra de insumos clave.`;
+            const recomendacion = `Plan de acción en 3 frentes:\n1. Logística y Stock: Emitir órdenes de reposición inmediatas para ${criticosStock.length > 0 ? criticosStock[0].nombre : 'insumos de mayor rotación'}.\n2. Cartera: Intimar cobro a los 3 mayores saldos deudores (${deudas.top_deudores.map(d => d.cliente).join(', ') || 'sin deudores críticos'}).\n3. Precios: Revaluar costos con la cotización del dólar actual ($${dolar.ok ? dolar.cotizaciones.blue.venta : 'vigente'}).`;
+
+            const pasos = JarvisService.estructurarRazonamiento({ analisis, evaluacion, recomendacion });
+
+            // Almacenar en memoria extendida
+            if (mcp) {
+                await mcp.toolGuardarMemoria({
+                    clave: 'ultimo_analisis_estrategico_negocio',
+                    contenido: {
+                        fecha: new Date().toISOString(),
+                        ventas: finanzas.ventas_facturadas,
+                        cobranzas: finanzas.cobranzas_efectivas,
+                        deuda_calle: deudas.deuda_total_calle,
+                        productos_criticos: criticosStock.length
+                    }
+                }).catch(() => {});
+            }
+
+            return {
+                respuesta: `📊 Informe Estratégico Ejecutivo - Diagnóstico Holístico Mix Point:\n\n• Facturación del mes: ${fmtDinero(finanzas.ventas_facturadas)} (Cobranzas: ${fmtDinero(finanzas.cobranzas_efectivas)})\n• Cartera en la calle: ${fmtDinero(deudas.deuda_total_calle)} en ${deudas.clientes_deudores_total} cuentas activas\n• Estado de Stock: ${stockTexto}\n${dolar.ok ? `• Referencia cambiaria (Dólar Blue): $${dolar.cotizaciones.blue.venta}\n` : ''}\nHe desglosado el plan de acción en 3 pasos estratégicos para potenciar la rentabilidad.`,
+                datos: { finanzas, deudas, predicciones, dolar },
+                razonamiento_pasos: pasos,
+                fuente: 'mcp_estrategico',
+                accion_sugerida: 'Ver Reportes'
             };
         }
 
@@ -349,9 +480,17 @@ class JarvisService {
                         }
                     });
 
+                    const pasos = JarvisService.estructurarRazonamiento({
+                        analisis: `Pedido origen #${pedidoData.numero} validado en solo lectura. Se certificaron ${pedidoData.items.length} ítems y destinatario ${resRemito.cliente}.`,
+                        evaluacion: `Control estricto de integridad: No se permitieron alteraciones de precios ni ítems externos. Valor total verificado: ${fmtDinero(resRemito.total)}.`,
+                        recomendacion: `Remito #${resRemito.remito_numero} emitido e insertado en cola de preparación del depósito para picking inmediato.`
+                    });
+
                     return {
                         respuesta: `He analizado la orden #${pedidoData.numero} mediante MCP y procesado el remito #${resRemito.remito_numero} para ${resRemito.cliente}. Se validaron exactamente ${pedidoData.items.length} ítems por un total de ${fmtDinero(resRemito.total)}, garantizando trazabilidad y sin alterar registros anexos. El pedido está listo para el depósito.`,
                         datos: resRemito,
+                        razonamiento_pasos: pasos,
+                        fuente: 'mcp_db',
                         accion_sugerida: 'Ver Remitos'
                     };
                 }
@@ -378,9 +517,17 @@ class JarvisService {
                     r += `\nPrioridad 1 (Abastecimiento): ${dataAlertas.stock_critico[0].mensaje}.`;
                 }
 
+                const pasos = JarvisService.estructurarRazonamiento({
+                    analisis: `Auditoría multi-nodo completada: ${criticas} alertas de inventario, ${logistica} órdenes en picking y ${financieras} cuentas a cobrar.`,
+                    evaluacion: `Riesgo operacional general: ${criticas > 0 ? 'MODERADO-ALTO por stock en quiebre' : 'CONTROLADO'}. La fluidez logística en depósito requiere despacho ágil para evitar cuellos de botella.`,
+                    recomendacion: criticas > 0 ? `Coordinar compras para ${dataAlertas.stock_critico[0].producto} y priorizar remitos con cobro contra entrega.` : 'Mantener ritmo estándar de empaque y monitoreo continuo.'
+                });
+
                 return {
                     respuesta: r,
                     datos: dataAlertas,
+                    razonamiento_pasos: pasos,
+                    fuente: 'mcp_alertas',
                     accion_sugerida: 'Ajustar Stock'
                 };
             }
@@ -393,9 +540,17 @@ class JarvisService {
                 const memorias = JSON.parse(memRes.content[0].text);
                 const cantidad = Array.isArray(memorias) ? memorias.length : 0;
 
+                const pasos = JarvisService.estructurarRazonamiento({
+                    analisis: `Acceso al vector de memoria extendida persistente. Recuperados ${cantidad} registros históricos de decisiones, remitos y compras.`,
+                    evaluacion: `La memoria extendida permite correlacionar el comportamiento de compra de clientes con quiebres recurrentes de stock para evitar desabastecimiento.`,
+                    recomendacion: `Utilizar los registros para anticipar pedidos semanales a proveedores de Mendoza, Catamarca y Entre Ríos.`
+                });
+
                 return {
                     respuesta: `Accediendo a la memoria contextual persistente. Cuento con ${cantidad} nodos estratégicos indexados sobre transacciones, remitos emitidos y conducta de compra en Mix Point. Esto me permite tomar decisiones informadas y prever patrones de demanda sin perder el hilo operativo.`,
-                    datos: memorias
+                    datos: memorias,
+                    razonamiento_pasos: pasos,
+                    fuente: 'memoria_extendida'
                 };
             }
         }
@@ -407,15 +562,32 @@ class JarvisService {
 
             if (criticos.length > 0) {
                 const detalle = criticos.map(p => `"${p.nombre}" (quedan ${p.stock_actual} ${p.unidad}, cobertura estimada: ~${p.dias_restantes} días a razón de ${p.consumo_diario} ${p.unidad}/día)`).join('; ');
+                
+                const pasos = JarvisService.estructurarRazonamiento({
+                    analisis: `Cálculo de consumo móvil de 30 días contra existencias físicas actuales para ${criticos.length} productos críticos.`,
+                    evaluacion: `El runway promedio es menor a 10 días para ítems clave (${criticos.map(c => c.nombre).slice(0, 2).join(', ')}). Si el lead time de transporte desde origen es de 4 a 6 días, la ventana de emisión de OC es inmediata.`,
+                    recomendacion: `Generar órdenes de compra a proveedores de frutos secos hoy mismo para evitar lucro cesante en ventas mayoristas.`
+                });
+
                 return {
                     respuesta: `Análisis de proyección de inventario: Se detectaron productos con riesgo inminente de agotamiento basado en el promedio móvil de los últimos 30 días: ${detalle}. Recomiendo emitir órdenes de compra a proveedores preventivamente.`,
                     datos: predicciones,
+                    razonamiento_pasos: pasos,
+                    fuente: 'mcp_stock_predictivo',
                     accion_sugerida: 'Ver Proveedores'
                 };
             } else {
+                const pasos = JarvisService.estructurarRazonamiento({
+                    analisis: `Auditoría de inventario contra consumo promedio de los últimos 30 días sin quiebres detectados a 10 días vista.`,
+                    evaluacion: `Rotación equilibrada. El stock de seguridad actual amortigua fluctuaciones ordinarias de la demanda.`,
+                    recomendacion: `Mantener ritmo de fraccionado y monitorear nuevamente en 48 horas.`
+                });
+
                 return {
                     respuesta: `Los niveles de inventario proyectados están estables. La rotación de los últimos 30 días indica una cobertura superior a los 10 días para todos los productos de alta demanda.`,
                     datos: predicciones,
+                    razonamiento_pasos: pasos,
+                    fuente: 'mcp_stock_predictivo',
                     accion_sugerida: 'Ver Inventario'
                 };
             }
@@ -428,9 +600,18 @@ class JarvisService {
             if (res.top_deudores.length > 0) {
                 r += `Principales saldos: ` + res.top_deudores.map(d => `${d.cliente} (${fmtDinero(d.deuda)})`).join(', ') + '.';
             }
+
+            const pasos = JarvisService.estructurarRazonamiento({
+                analisis: `Auditoría de cuentas corrientes: Deuda en calle de ${fmtDinero(res.deuda_total_calle)} repartida en ${res.clientes_deudores_total} clientes.`,
+                evaluacion: `Riesgo crediticio concentrado: El top 3 de deudores representa la mayor proporción de crédito otorgado. Demoras en estas cuentas reducen la velocidad de rotación de caja.`,
+                recomendacion: `Pausar nuevas emisiones a plazo a clientes con saldo moroso y ofrecer condiciones de pago contado contra despacho.`
+            });
+
             return {
                 respuesta: r,
                 datos: res,
+                razonamiento_pasos: pasos,
+                fuente: 'mcp_cuentas_corrientes',
                 accion_sugerida: 'Ver Cuentas Corrientes'
             };
         }
@@ -442,16 +623,32 @@ class JarvisService {
 
             const sim = await this.simularProduccion({ cantidad_kg: kg });
             if (sim.es_factible) {
+                const pasos = JarvisService.estructurarRazonamiento({
+                    analisis: `Simulación de fórmula de ${sim.receta} para ${kg} kg completada. Todos los ingredientes cuentan con stock positivo suficiente.`,
+                    evaluacion: `El lote máximo elaborable con el insumo cuello de botella actual es de ${sim.produccion_maxima_posible_kg} kg.`,
+                    recomendacion: `Autorizar orden de fraccionado en depósito para abastecer la demanda planificada.`
+                });
+
                 return {
                     respuesta: `Simulación de fraccionado completada: Es totalmente viable producir ${kg} kg de ${sim.receta}. Los insumos en depósito son suficientes. Con las existencias actuales el lote máximo realizable es de ${sim.produccion_maxima_posible_kg} kg.`,
                     datos: sim,
+                    razonamiento_pasos: pasos,
+                    fuente: 'mcp_produccion',
                     accion_sugerida: 'Ir a Producción'
                 };
             } else {
                 const faltantes = sim.insumos.filter(i => i.falta_kg > 0).map(i => `${i.ingrediente} (faltan ${i.falta_kg.toFixed(1)} kg)`).join(', ');
+                const pasos = JarvisService.estructurarRazonamiento({
+                    analisis: `Auditoría de receta de ${sim.receta} para ${kg} kg: Se encontraron faltantes en insumos primarios: ${faltantes}.`,
+                    evaluacion: `Producir el lote completo generará rotura de stock negativa. Lote máximo que se puede envasar hoy: ${sim.produccion_maxima_posible_kg} kg.`,
+                    recomendacion: `Comprar los insumos deficitarios a granel o reducir el lote a ${sim.produccion_maxima_posible_kg} kg.`
+                });
+
                 return {
                     respuesta: `Alerta en línea de producción: No es viable producir ${kg} kg de ${sim.receta}. Insumos deficitarios: ${faltantes}. Lote máximo actual permitido: ${sim.produccion_maxima_posible_kg} kg.`,
                     datos: sim,
+                    razonamiento_pasos: pasos,
+                    fuente: 'mcp_produccion',
                     accion_sugerida: 'Comprar Insumos'
                 };
             }

@@ -87,7 +87,69 @@ function iniciarTareasEnSegundoPlano() {
         });
     }, 10 * 60 * 1000);
 
-    console.log('⏰ Schedulers de Reporte Matutino (8:00 AM) y Sincronización activa inicializados.');
+    // 3. J.A.R.V.I.S. Sentry Daemon (Monitoreo autónomo 24/7 de stock crítico y clientes inactivos)
+    async function ejecutarSentryJarvis() {
+        try {
+            const JarvisService = require('./services/jarvisService');
+            const { getIO } = require('./socket');
+
+            // Quiebres de stock inminentes
+            const predicciones = await JarvisService.predecirQuiebreStock({ limite: 5 });
+            const criticos = predicciones.filter(p => p.alerta_quiebre);
+
+            // Clientes clave inactivos (>20 días sin comprar con historial previo)
+            const clientesInactivos = await db.all(`
+                SELECT c.id, c.razon_social, MAX(r.fecha) as ultima_compra,
+                       (CURRENT_DATE - MAX(r.fecha)::date) as dias_inactivo
+                FROM clientes c
+                JOIN remitos r ON r.cliente_id = c.id
+                WHERE c.activo = true AND r.estado NOT IN ('cancelado', 'anulado')
+                GROUP BY c.id, c.razon_social
+                HAVING (CURRENT_DATE - MAX(r.fecha)::date) >= 20
+                ORDER BY dias_inactivo DESC
+                LIMIT 3
+            `).catch(() => []);
+
+            const hayAlertas = criticos.length > 0 || clientesInactivos.length > 0;
+            if (hayAlertas) {
+                const alertaPayload = {
+                    tipo: 'sentry_autonomo',
+                    timestamp: new Date().toISOString(),
+                    quiebres_stock: criticos.map(c => ({
+                        producto: c.nombre,
+                        stock: c.stock_actual,
+                        unidad: c.unidad,
+                        dias_restantes: c.dias_restantes
+                    })),
+                    clientes_inactivos: clientesInactivos.map(ci => ({
+                        cliente: ci.razon_social,
+                        dias_inactivo: ci.dias_inactivo
+                    }))
+                };
+
+                // Persistir en memoria extendida de Postgres
+                await db.run(`
+                    INSERT INTO agente_memoria (clave, contenido, updated_at)
+                    VALUES ($1, $2, NOW())
+                    ON CONFLICT (clave) DO UPDATE SET contenido = $2, updated_at = NOW()
+                `, ['jarvis_sentry_ultimo_escaneo', JSON.stringify(alertaPayload)]).catch(() => {});
+
+                // Notificar en tiempo real por Socket.io a terminales conectadas
+                const io = getIO ? getIO() : null;
+                if (io) {
+                    io.emit('jarvis:alerta_proactiva', alertaPayload);
+                }
+                console.log(`🛡️ [J.A.R.V.I.S. Sentry Daemon] Escaneo completado: ${criticos.length} quiebres de stock, ${clientesInactivos.length} clientes inactivos.`);
+            }
+        } catch (errSentry) {
+            console.error('[J.A.R.V.I.S. Sentry Daemon Error]:', errSentry.message);
+        }
+    }
+
+    setTimeout(ejecutarSentryJarvis, 10000);
+    setInterval(ejecutarSentryJarvis, 20 * 60 * 1000);
+
+    console.log('⏰ Schedulers de Reporte Matutino (8:00 AM), Sync Sheets y J.A.R.V.I.S. Sentry Daemon (24/7) inicializados.');
 }
 
 async function start() {
