@@ -424,9 +424,94 @@ class JarvisService {
             };
         }
 
-        // Respuesta genérica de bienvenida y guía de voz
+        // 7. Preguntas sobre Depósito / Kanban / Pedidos pendientes de armado
+        if (texto.includes('deposito') || texto.includes('depósito') || texto.includes('preparar') || texto.includes('armar') || texto.includes('kanban') || texto.includes('pendiente')) {
+            const remitosPendientes = await db.all(`
+                SELECT r.id, r.numero, r.fecha, r.total, r.estado, c.razon_social as cliente
+                FROM remitos r
+                JOIN clientes c ON c.id = r.cliente_id
+                WHERE r.estado IN ('PENDIENTE_PREPARACION', 'EN_PREPARACION')
+                ORDER BY r.id ASC
+                LIMIT 5
+            `);
+
+            if (remitosPendientes.length === 0) {
+                return {
+                    respuesta: `Todo bajo control en depósito, jefe. No tenemos remitos pendientes de armado en este momento. Las líneas de preparación están al día.`,
+                    accion_sugerida: 'Ver Depósito (Kanban)'
+                };
+            }
+
+            const lista = remitosPendientes.map(r => `Remito ${r.numero} para ${r.cliente} (${r.estado})`).join(', ');
+            return {
+                respuesta: `Actualmente hay ${remitosPendientes.length} órdenes en preparación física en el depósito: ${lista}. ¿Desea que lo dirija al tablero Kanban?`,
+                datos: remitosPendientes,
+                accion_sugerida: 'Ver Depósito (Kanban)'
+            };
+        }
+
+        // 8. Quién eres / Personalidad
+        if (texto.includes('quien sos') || texto.includes('quién sos') || texto.includes('que sos') || texto.includes('qué sos') || texto.includes('tu nombre') || texto.includes('como te llamas')) {
+            return {
+                respuesta: `Soy J.A.R.V.I.S., su asistente de inteligencia operacional en Distribuidora Mix Point. Mi procesador está sincronizado en tiempo real con la base de datos de stock, cuentas corrientes, ventas mayoristas y el depósito para que usted tome decisiones sin perder un segundo. Siempre a su servicio.`,
+                sugerencias: [
+                    '¿Cómo vienen las ventas de hoy?',
+                    '¿Qué stock crítico tenemos?',
+                    '¿Cuánto dinero nos deben?'
+                ]
+            };
+        }
+
+        // 9. Saludos y cortesía con carisma
+        if (texto.includes('hola') || texto.includes('buen dia') || texto.includes('buenos dias') || texto.includes('buenas tardes') || texto.includes('buenas noches')) {
+            const horas = new Date().getHours();
+            let saludoHora = 'Buen día';
+            if (horas >= 13 && horas < 20) saludoHora = 'Buenas tardes';
+            else if (horas >= 20 || horas < 6) saludoHora = 'Buenas noches';
+
+            return {
+                respuesta: `¡${saludoHora}! Sistemas operativos al 100% en Mix Point. Dígame qué necesita revisar: stock en depósito, facturación del día o cuentas corrientes.`,
+                sugerencias: [
+                    'Resumen de ventas de hoy',
+                    'Alertas de stock crítico',
+                    '¿Podemos elaborar 50 kg de mix?'
+                ]
+            };
+        }
+
+        // 10. Agradecimiento o elogio
+        if (texto.includes('gracias') || texto.includes('genio') || texto.includes('crack') || texto.includes('bien ahi') || texto.includes('excelente')) {
+            return {
+                respuesta: `Es un placer ser de utilidad. En Mix Point no dejamos nada al azar. Si requiere otro informe o simulación, acá estaré.`,
+                accion_sugerida: 'Ver Remitos'
+            };
+        }
+
+        // 11. Clientes más importantes o mayores compradores
+        if (texto.includes('mejor cliente') || texto.includes('mas compra') || texto.includes('más compra') || texto.includes('top cliente')) {
+            const topClientes = await db.all(`
+                SELECT c.razon_social as cliente, COUNT(r.id)::int as total_pedidos, COALESCE(SUM(r.total), 0) as total_comprado
+                FROM clientes c
+                JOIN remitos r ON r.cliente_id = c.id
+                WHERE r.estado NOT IN ('cancelado', 'anulado')
+                GROUP BY c.id, c.razon_social
+                ORDER BY total_comprado DESC
+                LIMIT 3
+            `);
+
+            if (topClientes.length > 0) {
+                const list = topClientes.map((c, i) => `#${i + 1} ${c.cliente} (${fmtDinero(c.total_comprado)})`).join(', ');
+                return {
+                    respuesta: `Nuestros clientes con mayor volumen histórico son: ${list}. Representan nuestros pilares de facturación.`,
+                    datos: topClientes,
+                    accion_sugerida: 'Ver Clientes'
+                };
+            }
+        }
+
+        // Respuesta genérica de bienvenida y guía con personalidad
         return {
-            respuesta: `Hola, soy Jarvis, el asistente de Mix Point. Puedo informarte sobre stock disponible, alertarte de productos críticos, consultar ventas de hoy, ver quién nos debe dinero o simular si alcanza la materia prima para elaborar mixes. ¿Qué te gustaría consultar?`,
+            respuesta: `Entendido. Mi núcleo está listo para consultar existencias de frutos secos, calcular quiebres de inventario, simular mezclas de producción, verificar deudas de clientes o monitorear el depósito. ¿Cuál es su orden?`,
             sugerencias: [
                 '¿Cuánto stock tenemos de almendras?',
                 '¿Quién nos debe más dinero?',
