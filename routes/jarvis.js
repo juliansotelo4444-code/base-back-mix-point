@@ -1,7 +1,6 @@
 const express = require('express');
 const { requireAuth } = require('../middleware/auth');
 const JarvisService = require('../services/jarvisService');
-const { PERSONALIDADES } = require('../services/personalidadesService');
 const MixPointMCPServer = require('../services/mcpServer');
 
 const router = express.Router();
@@ -10,36 +9,25 @@ router.use(requireAuth);
 const mcpServerInstance = new MixPointMCPServer();
 
 /**
- * Consulta conversacional con el Agente IA
- * Soporta personalidades: yoda, baymax, jarvis, wally, c3po
- * Conexión MCP de solo lectura y memoria extendida
+ * Consulta conversacional inteligente con J.A.R.V.I.S.
+ * Conexión MCP de solo lectura, memoria extendida y automatización de remitos.
  */
 router.post('/chat', async (req, res, next) => {
     try {
-        const { mensaje, personalidad = 'jarvis' } = req.body;
+        const { mensaje } = req.body;
         if (!mensaje || !mensaje.trim()) {
             return res.status(400).json({ error: 'El mensaje es requerido.' });
         }
 
-        const respuesta = await JarvisService.responderConsulta(mensaje, { personalidad, mcp: mcpServerInstance });
-        res.json({ ok: true, personalidad, ...respuesta });
+        const respuesta = await JarvisService.responderConsulta(mensaje, { mcp: mcpServerInstance });
+        res.json({ ok: true, ...respuesta });
     } catch (err) {
         next(err);
     }
 });
 
 /**
- * Endpoint para obtener el listado de personalidades disponibles
- */
-router.get('/personalidades', (req, res) => {
-    res.json({
-        ok: true,
-        personalidades: Object.values(PERSONALIDADES)
-    });
-});
-
-/**
- * Consulta de herramientas MCP de forma directa (protocolo MCP)
+ * Consulta de herramientas MCP directas
  */
 router.post('/mcp/call-tool', async (req, res, next) => {
     try {
@@ -92,11 +80,11 @@ router.get('/sugerencias', (req, res) => {
     res.json({
         sugerencias: [
             'Generar remito automático para el pedido MP-1001',
+            '¿Qué productos tienen predicción de quiebre de stock?',
+            'Monitorear alertas críticas del sistema',
             '¿Cuánto stock tenemos de almendras y nueces?',
-            'Analizar alertas críticas y quiebres de stock',
-            'Consultar memoria del negocio y clientes morosos',
             '¿Quiénes son nuestros mayores deudores?',
-            '¿Podemos elaborar 50 kg de Mix Tropical?'
+            'Resumen de facturación de hoy'
         ]
     });
 });

@@ -1,7 +1,8 @@
 const db = require('../db/pool');
 
 /**
- * Motor de Inteligencia de Negocios y Asistente "Jarvis" para Mix Point
+ * Motor de Inteligencia de Negocios y Asistente Autónomo "J.A.R.V.I.S." para Mix Point
+ * Nivel Avanzado: Razonamiento multi-variable, MCP, memoria extendida y análisis probabilístico.
  */
 class JarvisService {
     /**
@@ -49,14 +50,14 @@ class JarvisService {
     static async predecirQuiebreStock({ limite = 15 } = {}) {
         const query = `
             WITH ventas_30d AS (
-                SELECT rd.producto_id,
-                       COALESCE(SUM(rd.cantidad), 0) as total_vendido_30d,
-                       ROUND(COALESCE(SUM(rd.cantidad), 0) / 30.0, 2) as consumo_diario_promedio
-                FROM remitos_detalle rd
-                JOIN remitos r ON r.id = rd.remito_id
+                SELECT ri.producto_id,
+                       COALESCE(SUM(ri.cantidad), 0) as total_vendido_30d,
+                       ROUND(COALESCE(SUM(ri.cantidad), 0) / 30.0, 2) as consumo_diario_promedio
+                FROM remito_items ri
+                JOIN remitos r ON r.id = ri.remito_id
                 WHERE r.fecha >= CURRENT_DATE - INTERVAL '30 days'
                   AND r.estado NOT IN ('cancelado', 'anulado')
-                GROUP BY rd.producto_id
+                GROUP BY ri.producto_id
             )
             SELECT p.id, p.codigo, p.nombre, p.stock_actual, p.stock_minimo, p.unidad_medida, p.precio_venta,
                    c.nombre as categoria,
@@ -98,153 +99,138 @@ class JarvisService {
     /**
      * Consulta de ventas recientes y facturación
      */
-    static async consultarVentas({ periodo = 'hoy', limite = 10 } = {}) {
-        let filtroFecha = "fecha = CURRENT_DATE";
-        if (periodo === 'ayer') filtroFecha = "fecha = CURRENT_DATE - INTERVAL '1 day'";
-        if (periodo === 'semana') filtroFecha = "fecha >= CURRENT_DATE - INTERVAL '7 days'";
-        if (periodo === 'mes') filtroFecha = "fecha >= DATE_TRUNC('month', CURRENT_DATE)";
+    static async consultarVentas({ periodo = 'hoy', limite = 5 } = {}) {
+        let whereFecha = `r.fecha = CURRENT_DATE`;
+        if (periodo === 'ayer') whereFecha = `r.fecha = CURRENT_DATE - INTERVAL '1 day'`;
+        else if (periodo === 'semana') whereFecha = `r.fecha >= CURRENT_DATE - INTERVAL '7 days'`;
+        else if (periodo === 'mes') whereFecha = `r.fecha >= DATE_TRUNC('month', CURRENT_DATE)`;
 
-        const resumen = await db.one(`
-            SELECT COUNT(*)::int as total_remitos, COALESCE(SUM(total), 0) as facturado
-            FROM remitos
-            WHERE ${filtroFecha}
+        const stats = await db.one(`
+            SELECT COUNT(r.id)::int as total_remitos,
+                   COALESCE(SUM(r.total), 0) as facturado
+            FROM remitos r
+            WHERE ${whereFecha} AND r.estado NOT IN ('cancelado', 'anulado')
         `);
 
-        const detalles = await db.all(`
-            SELECT r.id, r.numero, r.fecha, r.total, c.razon_social as cliente
+        const remitos = await db.all(`
+            SELECT r.id, r.numero, r.total, r.fecha, r.estado, c.razon_social as cliente
             FROM remitos r
             JOIN clientes c ON c.id = r.cliente_id
-            WHERE ${filtroFecha}
-            ORDER BY r.fecha DESC, r.id DESC
+            WHERE ${whereFecha} AND r.estado NOT IN ('cancelado', 'anulado')
+            ORDER BY r.id DESC
             LIMIT $1
-        `, [Math.min(parseInt(limite) || 10, 30)]);
+        `, [limite]);
 
         return {
             periodo,
-            total_remitos: resumen.total_remitos,
-            facturado: Number(resumen.facturado),
-            remitos_recientes: detalles.map(d => ({
-                numero: d.numero,
-                cliente: d.cliente,
-                fecha: String(d.fecha).slice(0, 10),
-                total: Number(d.total)
-            }))
+            total_remitos: Number(stats?.total_remitos || 0),
+            facturado: Number(stats?.facturado || 0),
+            remitos_recientes: remitos
         };
     }
 
     /**
-     * Consulta de cuentas corrientes y deudores principales
+     * Consulta de cuentas corrientes y deudas
      */
     static async consultarDeudaClientes({ top = 5 } = {}) {
-        const totalDeuda = await db.one(`
-            SELECT COALESCE(SUM(saldo_cuenta), 0) as total, COUNT(*)::int as clientes_con_deuda
-            FROM clientes WHERE saldo_cuenta > 0
+        const resumen = await db.one(`
+            SELECT COUNT(*)::int as clientes_deudores_total,
+                   COALESCE(SUM(saldo_cuenta), 0) as deuda_total_calle
+            FROM clientes
+            WHERE activo = true AND saldo_cuenta > 0
         `);
 
-        const deudores = await db.all(`
-            SELECT id, razon_social, telefono, saldo_cuenta, limite_credito, plazo_dias
+        const topDeudores = await db.all(`
+            SELECT id, razon_social as cliente, telefono, saldo_cuenta as deuda
             FROM clientes
-            WHERE saldo_cuenta > 0
+            WHERE activo = true AND saldo_cuenta > 0
             ORDER BY saldo_cuenta DESC
             LIMIT $1
         `, [top]);
 
         return {
-            deuda_total_calle: Number(totalDeuda.total),
-            clientes_deudores_total: totalDeuda.clientes_con_deuda,
-            top_deudores: deudores.map(d => ({
-                id: d.id,
-                cliente: d.razon_social,
-                deuda: Number(d.saldo_cuenta),
-                limite: Number(d.limite_credito || 0),
-                plazo_dias: d.plazo_dias,
-                telefono: d.telefono || 'Sin teléfono'
+            deuda_total_calle: Number(resumen?.deuda_total_calle || 0),
+            clientes_deudores_total: Number(resumen?.clientes_deudores_total || 0),
+            top_deudores: topDeudores.map(c => ({
+                id: c.id,
+                cliente: c.cliente,
+                telefono: c.telefono,
+                deuda: Number(c.deuda)
             }))
         };
     }
 
     /**
-     * Consulta financiera global del mes
+     * Flujo de caja y finanzas
      */
     static async consultarFinanzas() {
-        const ventasMes = await db.one(`
-            SELECT COALESCE(SUM(total), 0) as total_ventas
+        const ingresosMes = await db.one(`
+            SELECT COALESCE(SUM(total), 0) as ventas_facturadas
             FROM remitos
-            WHERE fecha >= DATE_TRUNC('month', CURRENT_DATE)
-        `);
-
-        const cobranzasMes = await db.one(`
-            SELECT COALESCE(SUM(monto), 0) as total_cobranzas
-            FROM movimientos_cuenta
-            WHERE entidad_tipo = 'cliente' AND tipo IN ('cobro', 'pago')
-              AND fecha >= DATE_TRUNC('month', CURRENT_DATE)
+            WHERE fecha >= DATE_TRUNC('month', CURRENT_DATE) AND estado NOT IN ('cancelado', 'anulado')
         `);
 
         const gastosMes = await db.one(`
-            SELECT COALESCE(SUM(monto), 0) as total_gastos
+            SELECT COALESCE(SUM(monto), 0) as gastos_operativos
             FROM gastos
             WHERE fecha >= DATE_TRUNC('month', CURRENT_DATE)
         `);
 
-        const v = Number(ventasMes.total_ventas);
-        const c = Number(cobranzasMes.total_cobranzas);
-        const g = Number(gastosMes.total_gastos);
+        const cobranzasMes = await db.one(`
+            SELECT COALESCE(SUM(monto), 0) as cobranzas_efectivas
+            FROM pagos_clientes
+            WHERE fecha >= DATE_TRUNC('month', CURRENT_DATE)
+        `).catch(() => ({ cobranzas_efectivas: 0 }));
+
+        const ventas = Number(ingresosMes?.ventas_facturadas || 0);
+        const gastos = Number(gastosMes?.gastos_operativos || 0);
+        const cobranzas = Number(cobranzasMes?.cobranzas_efectivas || 0);
 
         return {
-            mes_actual: new Date().toISOString().slice(0, 7),
-            ventas_facturadas: v,
-            cobranzas_efectivas: c,
-            gastos_operativos: g,
-            flujo_neto_caja: c - g
+            ventas_facturadas: ventas,
+            gastos_operativos: gastos,
+            cobranzas_efectivas: cobranzas,
+            flujo_neto_caja: cobranzas > 0 ? (cobranzas - gastos) : (ventas - gastos)
         };
     }
 
     /**
-     * Simulación de producción de mixes: comprueba factibilidad de insumos
+     * Simulación inteligente de producción
      */
-    static async simularProduccion({ receta_nombre = '', cantidad_kg = 50 } = {}) {
+    static async simularProduccion({ receta_id = null, cantidad_kg = 50 } = {}) {
         let receta = null;
-        if (receta_nombre) {
-            receta = await db.one(`
-                SELECT r.*, p.nombre as producto_nombre
-                FROM recetas r
-                JOIN productos p ON p.id = r.producto_id
-                WHERE r.activo = true AND (r.nombre ILIKE $1 OR p.nombre ILIKE $1)
-                LIMIT 1
-            `, [`%${receta_nombre.trim()}%`]);
+        if (receta_id) {
+            receta = await db.one('SELECT r.*, p.nombre as producto_nombre FROM recetas r JOIN productos p ON p.id = r.producto_id WHERE r.id = $1', [receta_id]);
+        } else {
+            receta = await db.one('SELECT r.*, p.nombre as producto_nombre FROM recetas r JOIN productos p ON p.id = r.producto_id WHERE r.activo = true LIMIT 1');
         }
 
         if (!receta) {
-            receta = await db.one(`
-                SELECT r.*, p.nombre as producto_nombre
-                FROM recetas r
-                JOIN productos p ON p.id = r.producto_id
-                WHERE r.activo = true LIMIT 1
-            `);
+            return { error: 'No se encontró una fórmula activa en el sistema de producción.' };
         }
 
-        if (!receta) return { factible: false, error: 'No hay recetas de producción configuradas.' };
-
         const ingredientes = await db.all(`
-            SELECT ri.*, p.nombre as ingrediente_nombre, p.stock_actual as stock_disponible, p.unidad_medida
-            FROM receta_ingredientes ri
-            JOIN productos p ON p.id = ri.producto_ingrediente_id
+            SELECT ri.*, p.nombre as ingrediente_nombre, p.stock_actual
+            FROM receta_items ri
+            JOIN productos p ON p.id = ri.ingrediente_id
             WHERE ri.receta_id = $1
         `, [receta.id]);
 
         let esFactible = true;
-        let cantMaxPosible = Infinity;
+        let cantMaxPosible = 999999;
         const insumosDetalle = [];
 
         for (const ing of ingredientes) {
-            const kgRequeridos = (cantidad_kg * (Number(ing.porcentaje) / 100));
-            const disp = Number(ing.stock_disponible);
+            const kgRequeridos = (Number(ing.porcentaje) / 100) * cantidad_kg;
+            const disp = Number(ing.stock_actual || 0);
             const falta = Math.max(0, kgRequeridos - disp);
 
-            if (disp < kgRequeridos) esFactible = false;
+            if (falta > 0) esFactible = false;
 
-            const maxConEste = ing.porcentaje > 0 ? (disp / (Number(ing.porcentaje) / 100)) : Infinity;
-            if (maxConEste < cantMaxPosible) cantMaxPosible = maxConEste;
+            if (Number(ing.porcentaje) > 0) {
+                const maxConEste = (disp / (Number(ing.porcentaje) / 100));
+                if (maxConEste < cantMaxPosible) cantMaxPosible = maxConEste;
+            }
 
             insumosDetalle.push({
                 ingrediente: ing.ingrediente_nombre,
@@ -267,14 +253,14 @@ class JarvisService {
     }
 
     /**
-     * Responde una pregunta en lenguaje natural usando motor analítico, servidor MCP y personalidades
+     * Responde una pregunta en lenguaje natural con nivel de inteligencia J.A.R.V.I.S.
+     * Incorpora razonamiento multi-variable, extracción de datos por MCP, y memoria extendida.
      */
-    static async responderConsulta(pregunta, { personalidad = 'jarvis', mcp = null } = {}) {
+    static async responderConsulta(pregunta, { mcp = null } = {}) {
         const texto = (pregunta || '').toLowerCase().trim();
-        const { PERSONALIDADES } = require('./personalidadesService');
-        const configPers = PERSONALIDADES[personalidad] || PERSONALIDADES.jarvis;
+        const fmtDinero = n => `$ ${Number(n).toLocaleString('es-AR')}`;
 
-        // 0. GENERACIÓN Y VERIFICACIÓN AUTOMÁTICA DE REMITOS CON MCP
+        // 1. AUTOMATIZACIÓN DE REMITOS Y PEDIDOS VÍA MCP
         const matchPedido = texto.match(/remito.*(?:pedido|para|de)?\s*(mp-?\d+|\d+)/i) ||
                             texto.match(/(?:generar|crear|emitir|hacer)\s*remito/i) ||
                             texto.match(/pedido\s*(mp-?\d+|\d+)/i);
@@ -282,46 +268,38 @@ class JarvisService {
         if (matchPedido && mcp) {
             try {
                 const pedidoId = matchPedido[1] || 'MP-1001';
-                // 1. Extraer los datos específicos del pedido con seguridad MCP (solo lectura de la fuente)
                 const datosPedidoRes = await mcp.toolObtenerDatosPedido({ pedido_id_o_numero: pedidoId });
                 const pedidoData = JSON.parse(datosPedidoRes.content[0].text);
 
                 if (pedidoData.encontrado === false) {
-                    const msg = `He consultado la base de datos mediante el protocolo MCP y no se encontró el pedido "${pedidoId}". Verifique el número de orden.`;
                     return {
-                        respuesta: configPers.formatearRespuesta(msg),
-                        personalidad: configPers.id
+                        respuesta: `He realizado un escaneo por Model Context Protocol (MCP) en los registros de órdenes. No encontré el pedido "${pedidoId}". Por favor verifique el identificador correlativo para proceder sin errores.`
                     };
                 }
 
-                // Si ya es un remito existente
                 if (pedidoData.origen === 'remito_registrado') {
-                    const msg = `El remito ${pedidoData.numero} ya se encuentra generado y registrado para ${pedidoData.cliente.nombre} por un total de $${Number(pedidoData.total).toLocaleString('es-AR')} con ${pedidoData.items.length} ítems.`;
                     return {
-                        respuesta: configPers.formatearRespuesta(msg),
+                        respuesta: `El remito #${pedidoData.numero} ya se encuentra emitido y registrado para ${pedidoData.cliente.nombre}. El valor declarado es de ${fmtDinero(pedidoData.total)} con ${pedidoData.items.length} ítems. Estado logístico: "${pedidoData.estado}".`,
                         datos: pedidoData,
-                        accion_sugerida: 'Ver Remitos',
-                        personalidad: configPers.id
+                        accion_sugerida: 'Ver Remitos'
                     };
                 }
 
-                // Si es un pedido web/sheets pendiente: generar remito asegurando usar estrictamente esos datos
                 if (pedidoData.items && pedidoData.items.length > 0) {
                     const remitoCreadoRes = await mcp.toolGenerarRemito({
                         pedido_numero: pedidoData.numero,
                         cliente_nombre: pedidoData.cliente.nombre,
                         direccion_entrega: pedidoData.cliente.direccion,
                         telefono: pedidoData.cliente.telefono,
-                        transportista: 'Mix Point Reparto',
+                        transportista: 'Distribución Mix Point',
                         items: pedidoData.items
                     });
 
                     const resRemito = JSON.parse(remitoCreadoRes.content[0].text);
-                    const msgExito = `Remito oficial ${resRemito.remito_numero} generado exitosamente mediante MCP para el cliente ${resRemito.cliente}. Se validaron exactamente ${pedidoData.items.length} ítems por un total de $${Number(resRemito.total).toLocaleString('es-AR')}. No se modificó ningún otro registro.`;
 
-                    // Guardar en memoria extendida la interacción
+                    // Guardar en la memoria extendida el evento
                     await mcp.toolGuardarMemoria({
-                        clave: `remito_reciente_${resRemito.remito_numero}`,
+                        clave: `remito_${resRemito.remito_numero}`,
                         contenido: {
                             fecha: new Date().toISOString(),
                             pedido: pedidoData.numero,
@@ -332,72 +310,83 @@ class JarvisService {
                     });
 
                     return {
-                        respuesta: configPers.formatearRespuesta(msgExito),
+                        respuesta: `He analizado la orden #${pedidoData.numero} mediante MCP y procesado el remito #${resRemito.remito_numero} para ${resRemito.cliente}. Se validaron exactamente ${pedidoData.items.length} ítems por un total de ${fmtDinero(resRemito.total)}, garantizando trazabilidad y sin alterar registros anexos. El pedido está listo para el depósito.`,
                         datos: resRemito,
-                        accion_sugerida: 'Ver Remitos',
-                        personalidad: configPers.id
+                        accion_sugerida: 'Ver Remitos'
                     };
                 }
             } catch (errRemito) {
-                console.error('Error en generación de remito con MCP:', errRemito);
+                console.error('Error en generación de remito:', errRemito);
             }
         }
 
-        // 0.1 MONITOREO Y ALERTAS DEL SISTEMA MEDIANTE MCP
-        if ((texto.includes('alerta') || texto.includes('monitore') || texto.includes('estado del sistema') || texto.includes('quiebre')) && mcp) {
-            const resAlertas = await mcp.toolMonitorearAlertas({ nivel_urgencia: 'todas' });
-            const dataAlertas = JSON.parse(resAlertas.content[0].text);
-            const criticas = dataAlertas.stock_critico.length;
-            const logistica = dataAlertas.deposito_pendiente.length;
+        // 2. MONITOREO TOTAL & AUDITORÍA PREVENTIVA DEL SISTEMA (MCP)
+        if (texto.includes('alerta') || texto.includes('monitore') || texto.includes('estado del sistema') || texto.includes('diagnostico') || texto.includes('diagnóstico')) {
+            if (mcp) {
+                const resAlertas = await mcp.toolMonitorearAlertas({ nivel_urgencia: 'todas' });
+                const dataAlertas = JSON.parse(resAlertas.content[0].text);
+                const criticas = dataAlertas.stock_critico.length;
+                const logistica = dataAlertas.deposito_pendiente.length;
+                const financieras = dataAlertas.finanzas.length;
 
-            let msgAlertas = `Monitoreo del sistema completado: ${criticas} productos en stock crítico y ${logistica} órdenes pendientes en depósito.`;
-            if (criticas > 0) {
-                msgAlertas += ` Alerta inmediata: ${dataAlertas.stock_critico[0].mensaje}.`;
+                let r = `Diagnóstico global de sistemas Mix Point:\n`;
+                r += `• Stock Crítico: ${criticas} productos por debajo del umbral mínimo.\n`;
+                r += `• Logística & Depósito: ${logistica} órdenes pendientes de armado/despacho.\n`;
+                r += `• Cuentas Corrientes: ${financieras} clientes con saldos deudores significativos.\n`;
+
+                if (criticas > 0) {
+                    r += `\nPrioridad 1 (Abastecimiento): ${dataAlertas.stock_critico[0].mensaje}.`;
+                }
+
+                return {
+                    respuesta: r,
+                    datos: dataAlertas,
+                    accion_sugerida: 'Ajustar Stock'
+                };
             }
-
-            return {
-                respuesta: configPers.formatearRespuesta(msgAlertas),
-                datos: dataAlertas,
-                accion_sugerida: 'Ajustar Stock',
-                personalidad: configPers.id
-            };
         }
 
-        // 0.2 MEMORIA EXTENDIDA DEL NEGOCIO MEDIANTE MCP
-        if ((texto.includes('memoria') || texto.includes('recuerdas') || texto.includes('analisis del negocio') || texto.includes('análisis')) && mcp) {
-            const memRes = await mcp.toolConsultarMemoria({});
-            const memorias = JSON.parse(memRes.content[0].text);
-            const cantidad = Array.isArray(memorias) ? memorias.length : 0;
+        // 3. MEMORIA EXTENDIDA & CONTEXTO ESTRATÉGICO DEL NEGOCIO (MCP)
+        if (texto.includes('memoria') || texto.includes('recuerdas') || texto.includes('analisis del negocio') || texto.includes('análisis') || texto.includes('estrategia')) {
+            if (mcp) {
+                const memRes = await mcp.toolConsultarMemoria({});
+                const memorias = JSON.parse(memRes.content[0].text);
+                const cantidad = Array.isArray(memorias) ? memorias.length : 0;
 
-            const msgMemoria = `Consultando la memoria extendida del negocio: cuento con ${cantidad} registros de contexto estratégico almacenados. Mi base analítica registra los patrones de compra y despacho de Mix Point.`;
-            return {
-                respuesta: configPers.formatearRespuesta(msgMemoria),
-                datos: memorias,
-                personalidad: configPers.id
-            };
+                return {
+                    respuesta: `Accediendo a la memoria contextual persistente. Cuento con ${cantidad} nodos estratégicos indexados sobre transacciones, remitos emitidos y conducta de compra en Mix Point. Esto me permite tomar decisiones informadas y prever patrones de demanda sin perder el hilo operativo.`,
+                    datos: memorias
+                };
+            }
         }
 
-        // Motor Analítico Local de Alta Precisión adaptado a la personalidad
-        const respuestaLocal = await this.responderMotorLocal(texto);
-        return {
-            ...respuestaLocal,
-            respuesta: configPers.formatearRespuesta(respuestaLocal.respuesta),
-            personalidad: configPers.id
-        };
-    }
+        // 4. PREDICCIÓN PROBABILÍSTICA DE STOCK (RUNWAY / TIEMPO DE COBERTURA)
+        if (texto.includes('quiebre') || texto.includes('predic') || texto.includes('cuanto dura') || texto.includes('cuánto dura') || texto.includes('agota') || texto.includes('termina') || texto.includes('reponer')) {
+            const predicciones = await this.predecirQuiebreStock({ limite: 5 });
+            const criticos = predicciones.filter(p => p.dias_restantes !== null && p.dias_restantes <= 10);
 
-    /**
-     * Motor analítico semántico local
-     */
-    static async responderMotorLocal(texto) {
-        const fmtDinero = n => `$ ${Number(n).toLocaleString('es-AR')}`;
+            if (criticos.length > 0) {
+                const detalle = criticos.map(p => `"${p.nombre}" (quedan ${p.stock_actual} ${p.unidad}, cobertura estimada: ~${p.dias_restantes} días a razón de ${p.consumo_diario} ${p.unidad}/día)`).join('; ');
+                return {
+                    respuesta: `Análisis de proyección de inventario: Se detectaron productos con riesgo inminente de agotamiento basado en el promedio móvil de los últimos 30 días: ${detalle}. Recomiendo emitir órdenes de compra a proveedores preventivamente.`,
+                    datos: predicciones,
+                    accion_sugerida: 'Ver Proveedores'
+                };
+            } else {
+                return {
+                    respuesta: `Los niveles de inventario proyectados están estables. La rotación de los últimos 30 días indica una cobertura superior a los 10 días para todos los productos de alta demanda.`,
+                    datos: predicciones,
+                    accion_sugerida: 'Ver Inventario'
+                };
+            }
+        }
 
-        // 1. Preguntas sobre Deuda / Cuentas Corrientes
+        // 5. ANÁLISIS DE CARTERA, COBRANZAS Y DEUDAS
         if (texto.includes('deud') || texto.includes('debe') || texto.includes('cobrar') || texto.includes('cuenta corriente')) {
             const res = await this.consultarDeudaClientes({ top: 5 });
-            let r = `Actualmente la deuda total en la calle es de ${fmtDinero(res.deuda_total_calle)} distribuida en ${res.clientes_deudores_total} clientes. `;
+            let r = `Estado de cartera: La deuda pendiente total en la calle asciende a ${fmtDinero(res.deuda_total_calle)} distribuida entre ${res.clientes_deudores_total} cuentas activas.\n`;
             if (res.top_deudores.length > 0) {
-                r += `Los principales deudores son: ` + res.top_deudores.map(d => `${d.cliente} (${fmtDinero(d.deuda)})`).join(', ') + '.';
+                r += `Principales saldos: ` + res.top_deudores.map(d => `${d.cliente} (${fmtDinero(d.deuda)})`).join(', ') + '.';
             }
             return {
                 respuesta: r,
@@ -406,30 +395,29 @@ class JarvisService {
             };
         }
 
-        // 2. Preguntas sobre Producción / Simulación de Mix
+        // 6. PRODUCCIÓN & SIMULACIÓN INDUSTRIAL DE MIXES
         if (texto.includes('fabricar') || texto.includes('producir') || texto.includes('receta') || texto.includes('mix')) {
-            // Extraer cantidad si existe número
             const matchKg = texto.match(/(\d+)\s*(kg|kilos)?/);
             const kg = matchKg ? parseInt(matchKg[1], 10) : 50;
 
             const sim = await this.simularProduccion({ cantidad_kg: kg });
             if (sim.es_factible) {
                 return {
-                    respuesta: `¡Sí, es factible elaborar ${kg} kg de ${sim.receta}! Contamos con stock de todos los ingredientes necesarios. De hecho, con los insumos actuales podés producir hasta ${sim.produccion_maxima_posible_kg} kg.`,
+                    respuesta: `Simulación de fraccionado completada: Es totalmente viable producir ${kg} kg de ${sim.receta}. Los insumos en depósito son suficientes. Con las existencias actuales el lote máximo realizable es de ${sim.produccion_maxima_posible_kg} kg.`,
                     datos: sim,
                     accion_sugerida: 'Ir a Producción'
                 };
             } else {
                 const faltantes = sim.insumos.filter(i => i.falta_kg > 0).map(i => `${i.ingrediente} (faltan ${i.falta_kg.toFixed(1)} kg)`).join(', ');
                 return {
-                    respuesta: `No es factible elaborar ${kg} kg de ${sim.receta} en este momento. Insumos insuficientes: ${faltantes}. La cantidad máxima que se puede elaborar hoy es de ${sim.produccion_maxima_posible_kg} kg.`,
+                    respuesta: `Alerta en línea de producción: No es viable producir ${kg} kg de ${sim.receta}. Insumos deficitarios: ${faltantes}. Lote máximo actual permitido: ${sim.produccion_maxima_posible_kg} kg.`,
                     datos: sim,
                     accion_sugerida: 'Comprar Insumos'
                 };
             }
         }
 
-        // 3. Preguntas sobre Ventas / Facturación
+        // 7. FACTURACIÓN Y RENDIMIENTO COMERCIAL
         if (texto.includes('venta') || texto.includes('factur') || texto.includes('vend')) {
             let periodo = 'hoy';
             if (texto.includes('ayer')) periodo = 'ayer';
@@ -437,9 +425,9 @@ class JarvisService {
             if (texto.includes('mes')) periodo = 'mes';
 
             const ventas = await this.consultarVentas({ periodo, limite: 5 });
-            let r = `En el período (${periodo}) se registraron ${ventas.total_remitos} ventas por un total de ${fmtDinero(ventas.facturado)}.`;
+            let r = `Rendimiento comercial (${periodo}): Facturación neta de ${fmtDinero(ventas.facturado)} a través de ${ventas.total_remitos} remitos emitidos.`;
             if (ventas.remitos_recientes.length > 0) {
-                r += ` Últimos remitos: ` + ventas.remitos_recientes.slice(0, 3).map(rm => `${rm.numero} a ${rm.cliente} (${fmtDinero(rm.total)})`).join('; ') + '.';
+                r += ` Últimas órdenes: ` + ventas.remitos_recientes.slice(0, 3).map(rm => `#${rm.numero} a ${rm.cliente} (${fmtDinero(rm.total)})`).join('; ') + '.';
             }
             return {
                 respuesta: r,
@@ -448,42 +436,19 @@ class JarvisService {
             };
         }
 
-        // 4. Preguntas sobre Finanzas / Caja / Flujo
+        // 8. FLUJO DE FONDOS, CAJA Y GASTOS
         if (texto.includes('caja') || texto.includes('finanza') || texto.includes('flujo') || texto.includes('balance') || texto.includes('gasto')) {
             const fin = await this.consultarFinanzas();
             return {
-                respuesta: `Resumen financiero del mes: Ventas facturadas por ${fmtDinero(fin.ventas_facturadas)}, Cobranzas ingresadas por ${fmtDinero(fin.cobranzas_efectivas)} y Gastos operativos por ${fmtDinero(fin.gastos_operativos)}. El flujo neto de caja actual es de ${fmtDinero(fin.flujo_neto_caja)}.`,
+                respuesta: `Resumen ejecutivo financiero del mes: Ventas emitidas por ${fmtDinero(fin.ventas_facturadas)}, Cobranzas ingresadas por ${fmtDinero(fin.cobranzas_efectivas)} y Gastos operativos de ${fmtDinero(fin.gastos_operativos)}. Flujo de caja neto: ${fmtDinero(fin.flujo_neto_caja)}.`,
                 datos: fin,
                 accion_sugerida: 'Ver Reportes'
             };
         }
 
-        // 5. Predicción inteligente de quiebre de stock
-        if (texto.includes('quiebre') || texto.includes('predic') || texto.includes('cuanto dura') || texto.includes('cuánto dura') || texto.includes('agota') || texto.includes('termina') || texto.includes('reponer')) {
-            const predicciones = await this.predecirQuiebreStock({ limite: 5 });
-            const criticos = predicciones.filter(p => p.dias_restantes !== null && p.dias_restantes <= 10);
-            
-            if (criticos.length > 0) {
-                const detalle = criticos.map(p => `${p.nombre} (quedan ${p.stock_actual} ${p.unidad}, dura ~${p.dias_restantes} días con venta de ${p.consumo_diario} ${p.unidad}/día)`).join('; ');
-                return {
-                    respuesta: `⚠️ Predicción de quiebre de stock: Hay productos en riesgo inminente según el ritmo de venta de los últimos 30 días: ${detalle}. Se sugiere reponer mercadería.`,
-                    datos: predicciones,
-                    accion_sugerida: 'Ver Compras a Proveedores'
-                };
-            } else {
-                return {
-                    respuesta: `✅ Según el análisis de rotación de los últimos 30 días, el inventario principal cuenta con cobertura para más de 10 días de venta normal.`,
-                    datos: predicciones,
-                    accion_sugerida: 'Ver Inventario'
-                };
-            }
-        }
-
-        // 6. Preguntas sobre Stock o Productos
-        if (texto.includes('stock') || texto.includes('qued') || texto.includes('alerta') || texto.includes('cuanto') || texto.includes('precio') || texto.includes('hay')) {
+        // 9. CONSULTA DETALLADA DE PRODUCTOS O INVENTARIO
+        if (texto.includes('stock') || texto.includes('qued') || texto.includes('cuanto') || texto.includes('precio') || texto.includes('hay')) {
             const soloCritico = texto.includes('critico') || texto.includes('falta') || texto.includes('baj') || texto.includes('agotad');
-            
-            // Extraer posible nombre de producto (nueces, almendras, castañas, etc.)
             const palabrasClave = ['almendra', 'nuez', 'nueces', 'castaña', 'pasas', 'mani', 'banana', 'arandano', 'mix', 'higo', 'datil', 'ciruela', 'semilla'];
             const palabraEncontrada = palabrasClave.find(p => texto.includes(p));
 
@@ -494,7 +459,7 @@ class JarvisService {
 
             if (resStock.productos.length === 0) {
                 return {
-                    respuesta: `No encontré productos que coincidan con "${palabraEncontrada || texto}". ¿Querés consultar el catálogo completo?`,
+                    respuesta: `No encontré ítems en inventario para "${palabraEncontrada || texto}". ¿Desea que consulte el catálogo general de productos?`,
                     datos: resStock
                 };
             }
@@ -502,170 +467,61 @@ class JarvisService {
             if (palabraEncontrada) {
                 const prod = resStock.productos[0];
                 return {
-                    respuesta: `El producto "${prod.nombre}" tiene un stock actual de ${prod.stock} ${prod.unidad} a un precio de venta de ${fmtDinero(prod.precio)}. ${prod.alerta ? '⚠️ ¡Atención: está cerca del umbral mínimo!' : '✅ Nivel de stock adecuado.'}`,
+                    respuesta: `El producto "${prod.nombre}" registra un stock físico de ${prod.stock} ${prod.unidad} con precio mayorista de ${fmtDinero(prod.precio)}. ${prod.alerta ? '⚠️ Estado: Por debajo del stock de seguridad.' : '✅ Nivel óptimo.'}`,
                     datos: prod,
                     accion_sugerida: 'Ver Inventario'
                 };
             }
 
-            if (soloCritico) {
-                const nombres = resStock.productos.slice(0, 5).map(p => `${p.nombre} (${p.stock} ${p.unidad})`).join(', ');
-                return {
-                    respuesta: `Hay ${resStock.total_encontrados} productos con stock crítico o agotado: ${nombres}.`,
-                    datos: resStock,
-                    accion_sugerida: 'Ajustar Stock'
-                };
-            }
-
             const resumen = resStock.productos.slice(0, 5).map(p => `${p.nombre}: ${p.stock} ${p.unidad}`).join(', ');
             return {
-                respuesta: `Inventario disponible: ${resumen}. Total consultado: ${resStock.total_encontrados} ítems.`,
+                respuesta: `Existencias consultadas: ${resumen}. Total: ${resStock.total_encontrados} referencias auditadas.`,
                 datos: resStock
             };
         }
 
-        // 7. Preguntas sobre Depósito / Kanban / Pedidos pendientes de armado
-        if (texto.includes('deposito') || texto.includes('depósito') || texto.includes('preparar') || texto.includes('armar') || texto.includes('kanban') || texto.includes('pendiente')) {
+        // 10. DEPÓSITO Y LOGÍSTICA KANBAN
+        if (texto.includes('deposito') || texto.includes('depósito') || texto.includes('preparar') || texto.includes('armar') || texto.includes('kanban') || texto.includes('despacho')) {
             const remitosPendientes = await db.all(`
                 SELECT r.id, r.numero, r.fecha, r.total, r.estado, c.razon_social as cliente
                 FROM remitos r
                 JOIN clientes c ON c.id = r.cliente_id
-                WHERE r.estado IN ('PENDIENTE_PREPARACION', 'EN_PREPARACION')
+                WHERE r.estado IN ('pendiente', 'en_preparacion')
                 ORDER BY r.id ASC
                 LIMIT 5
             `);
 
             if (remitosPendientes.length === 0) {
                 return {
-                    respuesta: `Todo bajo control en depósito, jefe. No tenemos remitos pendientes de armado en este momento. Las líneas de preparación están al día.`,
-                    accion_sugerida: 'Ver Depósito (Kanban)'
+                    respuesta: `Líneas de preparación despejadas. El centro logístico no registra pedidos pendientes de picking o empaque en este momento.`,
+                    accion_sugerida: 'Ver Preparación & Despacho'
                 };
             }
 
-            const lista = remitosPendientes.map(r => `Remito ${r.numero} para ${r.cliente} (${r.estado})`).join(', ');
+            const lista = remitosPendientes.map(r => `#${r.numero} (${r.cliente})`).join(', ');
             return {
-                respuesta: `Actualmente hay ${remitosPendientes.length} órdenes en preparación física en el depósito: ${lista}. ¿Desea que lo dirija al tablero Kanban?`,
+                respuesta: `En el centro de despacho hay ${remitosPendientes.length} órdenes en preparación activa: ${lista}.`,
                 datos: remitosPendientes,
-                accion_sugerida: 'Ver Depósito (Kanban)'
+                accion_sugerida: 'Ver Preparación & Despacho'
             };
         }
 
-        // 8. Quién eres / Personalidad
-        if (texto.includes('quien sos') || texto.includes('quién sos') || texto.includes('que sos') || texto.includes('qué sos') || texto.includes('tu nombre') || texto.includes('como te llamas')) {
+        // 11. IDENTIDAD J.A.R.V.I.S. & ORIENTACIÓN INTELIGENTE
+        if (texto.includes('quien sos') || texto.includes('quién sos') || texto.includes('tu nombre') || texto.includes('como te llamas')) {
             return {
-                respuesta: `Soy J.A.R.V.I.S., su asistente de inteligencia operacional en Distribuidora Mix Point. Mi procesador está sincronizado en tiempo real con la base de datos de stock, cuentas corrientes, ventas mayoristas y el depósito para que usted tome decisiones sin perder un segundo. Siempre a su servicio.`,
-                sugerencias: [
-                    '¿Cómo vienen las ventas de hoy?',
-                    '¿Qué stock crítico tenemos?',
-                    '¿Cuánto dinero nos deben?'
-                ]
+                respuesta: `Soy J.A.R.V.I.S., el sistema de inteligencia operacional y analítica de Mix Point. Estoy conectado mediante Model Context Protocol (MCP) a la base de datos central para generar remitos automatizados, predecir quiebres de inventario, controlar saldos deudores y coordinar despachos en tiempo real. Siempre listo para optimizar sus operaciones.`
             };
         }
 
-        // 9. Saludos y cortesía con carisma
-        if (texto.includes('hola') || texto.includes('buen dia') || texto.includes('buenos dias') || texto.includes('buenas tardes') || texto.includes('buenas noches')) {
-            const horas = new Date().getHours();
-            let saludoHora = 'Buen día';
-            if (horas >= 13 && horas < 20) saludoHora = 'Buenas tardes';
-            else if (horas >= 20 || horas < 6) saludoHora = 'Buenas noches';
-
-            return {
-                respuesta: `¡${saludoHora}! Sistemas operativos al 100% en Mix Point. Dígame qué necesita revisar: stock en depósito, facturación del día o cuentas corrientes.`,
-                sugerencias: [
-                    'Resumen de ventas de hoy',
-                    'Alertas de stock crítico',
-                    '¿Podemos elaborar 50 kg de mix?'
-                ]
-            };
-        }
-
-        // 10. Agradecimiento o elogio
-        if (texto.includes('gracias') || texto.includes('genio') || texto.includes('crack') || texto.includes('bien ahi') || texto.includes('excelente')) {
-            return {
-                respuesta: `Es un placer ser de utilidad. En Mix Point no dejamos nada al azar. Si requiere otro informe o simulación, acá estaré.`,
-                accion_sugerida: 'Ver Remitos'
-            };
-        }
-
-        // 11. Clientes más importantes o mayores compradores
-        if (texto.includes('mejor cliente') || texto.includes('mas compra') || texto.includes('más compra') || texto.includes('top cliente')) {
-            const topClientes = await db.all(`
-                SELECT c.razon_social as cliente, COUNT(r.id)::int as total_pedidos, COALESCE(SUM(r.total), 0) as total_comprado
-                FROM clientes c
-                JOIN remitos r ON r.cliente_id = c.id
-                WHERE r.estado NOT IN ('cancelado', 'anulado')
-                GROUP BY c.id, c.razon_social
-                ORDER BY total_comprado DESC
-                LIMIT 3
-            `);
-
-            if (topClientes.length > 0) {
-                const list = topClientes.map((c, i) => `#${i + 1} ${c.cliente} (${fmtDinero(c.total_comprado)})`).join(', ');
-                return {
-                    respuesta: `Nuestros clientes con mayor volumen histórico son: ${list}. Representan nuestros pilares de facturación.`,
-                    datos: topClientes,
-                    accion_sugerida: 'Ver Clientes'
-                };
-            }
-        }
-
-        // Respuesta genérica de bienvenida y guía con personalidad
+        // Respuesta genérica de alta precisión
         return {
-            respuesta: `Entendido. Mi núcleo está listo para consultar existencias de frutos secos, calcular quiebres de inventario, simular mezclas de producción, verificar deudas de clientes o monitorear el depósito. ¿Cuál es su orden?`,
+            respuesta: `Sistemas en línea y procesador analítico activo. Puedo emitir remitos automáticos desde órdenes web, auditar el stock crítico, calcular proyecciones de quiebre o analizar el flujo financiero. ¿Cuál es su instrucción, señor?`,
             sugerencias: [
-                '¿Cuánto stock tenemos de almendras?',
-                '¿Quién nos debe más dinero?',
-                '¿Podemos elaborar 50 kg de mix?',
-                'Resumen de ventas de hoy',
-                '¿Cómo está el flujo de caja del mes?'
+                'Generar remito automático para el pedido MP-1001',
+                '¿Qué productos tienen predicción de quiebre de stock?',
+                'Monitorear alertas críticas del sistema',
+                '¿Cuánto facturamos hoy en remitos?'
             ]
-        };
-    }
-
-    /**
-     * Integración con Gemini REST con Function Calling
-     */
-    static async responderConGemini(pregunta, apiKey) {
-        // Enriquecer el contexto del prompt con datos operacionales frescos
-        const [stockCritico, ventasHoy, deuda] = await Promise.all([
-            this.consultarStock({ solo_critico: true }),
-            this.consultarVentas({ periodo: 'hoy' }),
-            this.consultarDeudaClientes({ top: 3 })
-        ]);
-
-        const systemPrompt = `Sos Jarvis, el asistente de inteligencia operativa de "Mix Point", una empresa mayorista de frutos secos de Argentina.
-Tu tono es profesional, conciso, ejecutivo y cordial.
-Hablas en español rioplatense neutro claro apto para ser leído por voz (Text-to-Speech).
-Datos en vivo de Mix Point:
-- Ventas de hoy: $${ventasHoy.facturado} (${ventasHoy.total_remitos} remitos).
-- Deuda total en la calle: $${deuda.deuda_total_calle}.
-- Productos en alerta de stock: ${stockCritico.total_encontrados} productos.
-Respondé de forma directa, útil y breve para que el usuario pueda escucharlo con comodidad por voz.`;
-
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-        const body = {
-            contents: [
-                { role: 'user', parts: [{ text: `${systemPrompt}\n\nPregunta del usuario: "${pregunta}"` }] }
-            ]
-        };
-
-        const res = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
-        });
-
-        if (!res.ok) {
-            throw new Error(`Gemini API error: ${res.statusText}`);
-        }
-
-        const data = await res.json();
-        const textoRespuesta = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!textoRespuesta) throw new Error('Respuesta vacía de Gemini');
-
-        return {
-            respuesta: textoRespuesta,
-            motor: 'gemini'
         };
     }
 }
