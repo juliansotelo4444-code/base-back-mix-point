@@ -362,6 +362,7 @@ ALTER TABLE remitos ADD COLUMN IF NOT EXISTS peso_kg NUMERIC NOT NULL DEFAULT 0;
 ALTER TABLE remitos ADD COLUMN IF NOT EXISTS valor_declarado NUMERIC NOT NULL DEFAULT 0;
 ALTER TABLE remitos ADD COLUMN IF NOT EXISTS datos_despacho JSONB DEFAULT '{}'::jsonb;
 ALTER TABLE remitos ADD COLUMN IF NOT EXISTS operario_asignado_id INTEGER REFERENCES usuarios(id);
+ALTER TABLE remitos ADD COLUMN IF NOT EXISTS estado_pago TEXT NOT NULL DEFAULT 'pendiente';
 
 -- ---------------------------------------------------------
 -- HISTORIAL DE ACTIVIDAD (AUDIT LOGS)

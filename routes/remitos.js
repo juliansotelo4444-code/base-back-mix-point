@@ -22,13 +22,14 @@ router.use(requireAuth);
 
 router.get('/', async (req, res, next) => {
     try {
-        const { cliente_id, desde, hasta, estado } = req.query;
+        const { cliente_id, desde, hasta, estado, estado_pago } = req.query;
         let sql = `
             SELECT r.*, c.razon_social as cliente_nombre, c.telefono as cliente_telefono,
-                   EXISTS (
+                   COALESCE(r.estado_pago, 'pendiente') as estado_pago,
+                   (r.estado_pago = 'pagado' OR EXISTS (
                        SELECT 1 FROM conciliaciones_bancarias cb 
                        WHERE cb.remito_id = r.id AND cb.estado = 'conciliado'
-                   ) as pago_validado
+                   )) as pago_validado
             FROM remitos r
             JOIN clientes c ON c.id = r.cliente_id
             WHERE 1=1
@@ -38,6 +39,7 @@ router.get('/', async (req, res, next) => {
         if (desde) { params.push(desde); sql += ` AND r.fecha >= $${params.length}`; }
         if (hasta) { params.push(hasta); sql += ` AND r.fecha <= $${params.length}`; }
         if (estado) { params.push(estado); sql += ` AND r.estado = $${params.length}`; }
+        if (estado_pago) { params.push(estado_pago); sql += ` AND r.estado_pago = $${params.length}`; }
         sql += ' ORDER BY r.fecha DESC, r.id DESC';
 
         res.json(await db.all(sql, params));
@@ -50,10 +52,11 @@ router.get('/:id', async (req, res, next) => {
             SELECT r.*, c.razon_social as cliente_nombre, c.cuit as cliente_cuit,
                    c.condicion_iva as cliente_condicion_iva, c.direccion as cliente_direccion,
                    c.localidad as cliente_localidad, c.telefono as cliente_telefono, c.email as cliente_email,
-                   EXISTS (
+                   COALESCE(r.estado_pago, 'pendiente') as estado_pago,
+                   (r.estado_pago = 'pagado' OR EXISTS (
                        SELECT 1 FROM conciliaciones_bancarias cb 
                        WHERE cb.remito_id = r.id AND cb.estado = 'conciliado'
-                   ) as pago_validado
+                   )) as pago_validado
             FROM remitos r
             JOIN clientes c ON c.id = r.cliente_id WHERE r.id = $1
         `, [req.params.id]);
@@ -610,6 +613,68 @@ router.put('/:id/estado', async (req, res, next) => {
             numero: remito.numero,
             estado_anterior: estadoPrevio,
             nuevo_estado: estado
+        });
+
+        res.json(actualizado);
+    } catch (err) { next(err); }
+});
+
+/**
+ * Actualizar estado de pago del remito (pendiente, pagado, parcial, en_revision, cuenta_corriente)
+ */
+router.put('/:id/estado-pago', async (req, res, next) => {
+    try {
+        const { estado_pago, metodo_pago, comprobante_nro, observaciones } = req.body;
+        const estadosValidos = ['pendiente', 'pagado', 'parcial', 'en_revision', 'cuenta_corriente', 'bonificado'];
+        if (!estadosValidos.includes(estado_pago)) {
+            return res.status(400).json({ error: `Estado de pago inválido. Permitidos: ${estadosValidos.join(', ')}` });
+        }
+
+        const remito = await db.one('SELECT * FROM remitos WHERE id = $1', [req.params.id]);
+        if (!remito) return res.status(404).json({ error: 'Remito no encontrado.' });
+
+        const estadoPagoAnterior = remito.estado_pago || 'pendiente';
+
+        await db.transaction(async (tx) => {
+            await tx.run(`
+                UPDATE remitos 
+                SET estado_pago = $1
+                WHERE id = $2
+            `, [estado_pago, req.params.id]);
+
+            // Si pasa a pagado manualmente, si no existe conciliación previa, registrar movimiento contable si se desea
+            await AuditService.registrar({
+                usuario_id: req.usuario.id,
+                accion: 'CAMBIO_ESTADO_PAGO_REMITO',
+                entidad: 'remitos',
+                entidad_id: remito.id,
+                detalles: {
+                    numero: remito.numero,
+                    estado_pago_anterior: estadoPagoAnterior,
+                    nuevo_estado_pago: estado_pago,
+                    metodo_pago: metodo_pago || null,
+                    comprobante_nro: comprobante_nro || null,
+                    observaciones: observaciones || null
+                },
+                ip_origen: AuditService.extraerIp(req)
+            }, tx);
+        });
+
+        const actualizado = await db.one(`
+            SELECT r.*, c.razon_social as cliente_nombre, c.telefono as cliente_telefono,
+                   (r.estado_pago = 'pagado' OR EXISTS (
+                       SELECT 1 FROM conciliaciones_bancarias cb 
+                       WHERE cb.remito_id = r.id AND cb.estado = 'conciliado'
+                   )) as pago_validado
+            FROM remitos r
+            JOIN clientes c ON c.id = r.cliente_id
+            WHERE r.id = $1
+        `, [req.params.id]);
+
+        emitirEventoDeposito('remito:pago_cambiado', {
+            id: remito.id,
+            numero: remito.numero,
+            estado_pago: estado_pago
         });
 
         res.json(actualizado);
