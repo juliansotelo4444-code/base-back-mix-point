@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
     password_hash   TEXT NOT NULL,
     rol             TEXT NOT NULL CHECK (rol IN ('admin','ventas','deposito','administracion')) DEFAULT 'ventas',
     activo          BOOLEAN NOT NULL DEFAULT TRUE,
+    permisos        JSONB DEFAULT '[]'::jsonb,
     preferencias    JSONB DEFAULT '{}'::jsonb,
     created_at      TIMESTAMP NOT NULL DEFAULT NOW()
 );

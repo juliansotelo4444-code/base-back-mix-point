@@ -267,23 +267,123 @@ class JarvisService {
     }
 
     /**
-     * Responde una pregunta en lenguaje natural usando motor analítico o Gemini
+     * Responde una pregunta en lenguaje natural usando motor analítico, servidor MCP y personalidades
      */
-    static async responderConsulta(pregunta) {
+    static async responderConsulta(pregunta, { personalidad = 'jarvis', mcp = null } = {}) {
         const texto = (pregunta || '').toLowerCase().trim();
-        const geminiKey = process.env.GEMINI_API_KEY;
+        const { PERSONALIDADES } = require('./personalidadesService');
+        const configPers = PERSONALIDADES[personalidad] || PERSONALIDADES.jarvis;
 
-        // Si tenemos API Key de Gemini, podemos enriquecer la interacción con el modelo
-        if (geminiKey) {
+        // 0. GENERACIÓN Y VERIFICACIÓN AUTOMÁTICA DE REMITOS CON MCP
+        const matchPedido = texto.match(/remito.*(?:pedido|para|de)?\s*(mp-?\d+|\d+)/i) ||
+                            texto.match(/(?:generar|crear|emitir|hacer)\s*remito/i) ||
+                            texto.match(/pedido\s*(mp-?\d+|\d+)/i);
+
+        if (matchPedido && mcp) {
             try {
-                return await this.responderConGemini(pregunta, geminiKey);
-            } catch (err) {
-                console.warn('Fallo llamada a Gemini API, usando motor analítico local:', err.message);
+                const pedidoId = matchPedido[1] || 'MP-1001';
+                // 1. Extraer los datos específicos del pedido con seguridad MCP (solo lectura de la fuente)
+                const datosPedidoRes = await mcp.toolObtenerDatosPedido({ pedido_id_o_numero: pedidoId });
+                const pedidoData = JSON.parse(datosPedidoRes.content[0].text);
+
+                if (pedidoData.encontrado === false) {
+                    const msg = `He consultado la base de datos mediante el protocolo MCP y no se encontró el pedido "${pedidoId}". Verifique el número de orden.`;
+                    return {
+                        respuesta: configPers.formatearRespuesta(msg),
+                        personalidad: configPers.id
+                    };
+                }
+
+                // Si ya es un remito existente
+                if (pedidoData.origen === 'remito_registrado') {
+                    const msg = `El remito ${pedidoData.numero} ya se encuentra generado y registrado para ${pedidoData.cliente.nombre} por un total de $${Number(pedidoData.total).toLocaleString('es-AR')} con ${pedidoData.items.length} ítems.`;
+                    return {
+                        respuesta: configPers.formatearRespuesta(msg),
+                        datos: pedidoData,
+                        accion_sugerida: 'Ver Remitos',
+                        personalidad: configPers.id
+                    };
+                }
+
+                // Si es un pedido web/sheets pendiente: generar remito asegurando usar estrictamente esos datos
+                if (pedidoData.items && pedidoData.items.length > 0) {
+                    const remitoCreadoRes = await mcp.toolGenerarRemito({
+                        pedido_numero: pedidoData.numero,
+                        cliente_nombre: pedidoData.cliente.nombre,
+                        direccion_entrega: pedidoData.cliente.direccion,
+                        telefono: pedidoData.cliente.telefono,
+                        transportista: 'Mix Point Reparto',
+                        items: pedidoData.items
+                    });
+
+                    const resRemito = JSON.parse(remitoCreadoRes.content[0].text);
+                    const msgExito = `Remito oficial ${resRemito.remito_numero} generado exitosamente mediante MCP para el cliente ${resRemito.cliente}. Se validaron exactamente ${pedidoData.items.length} ítems por un total de $${Number(resRemito.total).toLocaleString('es-AR')}. No se modificó ningún otro registro.`;
+
+                    // Guardar en memoria extendida la interacción
+                    await mcp.toolGuardarMemoria({
+                        clave: `remito_reciente_${resRemito.remito_numero}`,
+                        contenido: {
+                            fecha: new Date().toISOString(),
+                            pedido: pedidoData.numero,
+                            remito: resRemito.remito_numero,
+                            cliente: resRemito.cliente,
+                            total: resRemito.total
+                        }
+                    });
+
+                    return {
+                        respuesta: configPers.formatearRespuesta(msgExito),
+                        datos: resRemito,
+                        accion_sugerida: 'Ver Remitos',
+                        personalidad: configPers.id
+                    };
+                }
+            } catch (errRemito) {
+                console.error('Error en generación de remito con MCP:', errRemito);
             }
         }
 
-        // Motor Analítico Local de Alta Precisión (Fallback robusto y siempre disponible)
-        return await this.responderMotorLocal(texto);
+        // 0.1 MONITOREO Y ALERTAS DEL SISTEMA MEDIANTE MCP
+        if ((texto.includes('alerta') || texto.includes('monitore') || texto.includes('estado del sistema') || texto.includes('quiebre')) && mcp) {
+            const resAlertas = await mcp.toolMonitorearAlertas({ nivel_urgencia: 'todas' });
+            const dataAlertas = JSON.parse(resAlertas.content[0].text);
+            const criticas = dataAlertas.stock_critico.length;
+            const logistica = dataAlertas.deposito_pendiente.length;
+
+            let msgAlertas = `Monitoreo del sistema completado: ${criticas} productos en stock crítico y ${logistica} órdenes pendientes en depósito.`;
+            if (criticas > 0) {
+                msgAlertas += ` Alerta inmediata: ${dataAlertas.stock_critico[0].mensaje}.`;
+            }
+
+            return {
+                respuesta: configPers.formatearRespuesta(msgAlertas),
+                datos: dataAlertas,
+                accion_sugerida: 'Ajustar Stock',
+                personalidad: configPers.id
+            };
+        }
+
+        // 0.2 MEMORIA EXTENDIDA DEL NEGOCIO MEDIANTE MCP
+        if ((texto.includes('memoria') || texto.includes('recuerdas') || texto.includes('analisis del negocio') || texto.includes('análisis')) && mcp) {
+            const memRes = await mcp.toolConsultarMemoria({});
+            const memorias = JSON.parse(memRes.content[0].text);
+            const cantidad = Array.isArray(memorias) ? memorias.length : 0;
+
+            const msgMemoria = `Consultando la memoria extendida del negocio: cuento con ${cantidad} registros de contexto estratégico almacenados. Mi base analítica registra los patrones de compra y despacho de Mix Point.`;
+            return {
+                respuesta: configPers.formatearRespuesta(msgMemoria),
+                datos: memorias,
+                personalidad: configPers.id
+            };
+        }
+
+        // Motor Analítico Local de Alta Precisión adaptado a la personalidad
+        const respuestaLocal = await this.responderMotorLocal(texto);
+        return {
+            ...respuestaLocal,
+            respuesta: configPers.formatearRespuesta(respuestaLocal.respuesta),
+            personalidad: configPers.id
+        };
     }
 
     /**

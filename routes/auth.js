@@ -36,6 +36,7 @@ router.post('/login', async (req, res, next) => {
                 nombre: usuario.nombre,
                 email: usuario.email,
                 rol: usuario.rol,
+                permisos: usuario.permisos || [],
                 preferencias: usuario.preferencias || {}
             },
             expires_in: 3600
@@ -45,9 +46,15 @@ router.post('/login', async (req, res, next) => {
 
 router.get('/me', requireAuth, async (req, res, next) => {
     try {
-        const usuario = await db.one('SELECT id, nombre, email, rol, preferencias FROM usuarios WHERE id = $1', [req.usuario.id]);
+        const usuario = await db.one('SELECT id, nombre, email, rol, permisos, preferencias FROM usuarios WHERE id = $1', [req.usuario.id]);
         if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
-        res.json({ usuario: { ...usuario, preferencias: usuario.preferencias || {} } });
+        res.json({
+            usuario: {
+                ...usuario,
+                permisos: usuario.permisos || [],
+                preferencias: usuario.preferencias || {}
+            }
+        });
     } catch (err) {
         next(err);
     }

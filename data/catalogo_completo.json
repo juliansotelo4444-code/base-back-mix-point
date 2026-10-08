@@ -90,15 +90,15 @@
       "descripcion": "",
       "categoria": "Frutos Secos",
       "pagina": 3,
-      "precio_venta": 14900.0,
-      "precio_5kg": 14900.0,
-      "precio_10kg": 13900.0,
+      "precio_venta": 14900,
+      "precio_5kg": 14900,
+      "precio_10kg": 13900,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 14900.0,
-        "x5kg": 14900.0,
-        "x10kg": 13900.0
+        "x1kg": 14900,
+        "x5kg": 14900,
+        "x10kg": 13900
       },
       "imagen": "/catalogo/productos/nueces_mariposa_chandler_extra_light_2026_19.jpeg",
       "unidad_medida": "kg"
@@ -110,14 +110,14 @@
       "descripcion": "",
       "categoria": "Frutos Secos",
       "pagina": 3,
-      "precio_venta": 8280.0,
-      "precio_5kg": 7560.0,
+      "precio_venta": 8280,
+      "precio_5kg": 7560,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 8280.0,
-        "x5kg": 7560.0
+        "x1kg": 8280,
+        "x5kg": 7560
       },
       "imagen": "/catalogo/productos/nuez_con_cascara_25.jpeg",
       "unidad_medida": "kg"
@@ -129,15 +129,15 @@
       "descripcion": "",
       "categoria": "Frutos Secos",
       "pagina": 3,
-      "precio_venta": 16500.0,
-      "precio_5kg": 16500.0,
-      "precio_10kg": 15000.0,
+      "precio_venta": 16500,
+      "precio_5kg": 16500,
+      "precio_10kg": 15000,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 16500.0,
-        "x5kg": 16500.0,
-        "x10kg": 15000.0
+        "x1kg": 16500,
+        "x5kg": 16500,
+        "x10kg": 15000
       },
       "imagen": "/catalogo/productos/castanas_de_caju_w4_31.jpeg",
       "unidad_medida": "kg"
@@ -149,15 +149,15 @@
       "descripcion": "",
       "categoria": "Frutos Secos",
       "pagina": 3,
-      "precio_venta": 8640.0,
-      "precio_5kg": 7680.0,
-      "precio_10kg": 6960.0,
+      "precio_venta": 8640,
+      "precio_5kg": 7680,
+      "precio_10kg": 6960,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 8640.0,
-        "x5kg": 7680.0,
-        "x10kg": 6960.0
+        "x1kg": 8640,
+        "x5kg": 7680,
+        "x10kg": 6960
       },
       "imagen": "/catalogo/productos/pasas_de_uva_jumbo_37.jpeg",
       "unidad_medida": "kg"
@@ -169,15 +169,15 @@
       "descripcion": "",
       "categoria": "Frutos Secos",
       "pagina": 3,
-      "precio_venta": 9600.0,
-      "precio_5kg": 8160.0,
-      "precio_10kg": 8040.0,
+      "precio_venta": 9600,
+      "precio_5kg": 8160,
+      "precio_10kg": 8040,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 9600.0,
-        "x5kg": 8160.0,
-        "x10kg": 8040.0
+        "x1kg": 9600,
+        "x5kg": 8160,
+        "x10kg": 8040
       },
       "imagen": "/catalogo/productos/ciruela_sin_carozo_dagen_43.jpeg",
       "unidad_medida": "kg"
@@ -189,14 +189,14 @@
       "descripcion": "",
       "categoria": "Frutos Secos",
       "pagina": 3,
-      "precio_venta": 13800.0,
-      "precio_5kg": 12240.0,
+      "precio_venta": 13800,
+      "precio_5kg": 12240,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 13800.0,
-        "x5kg": 12240.0
+        "x1kg": 13800,
+        "x5kg": 12240
       },
       "imagen": "/catalogo/productos/banana_chips_desecada_47.jpeg",
       "unidad_medida": "kg"
@@ -208,15 +208,15 @@
       "descripcion": "",
       "categoria": "Frutos Secos",
       "pagina": 3,
-      "precio_venta": 14900.0,
-      "precio_5kg": 14900.0,
-      "precio_10kg": 13900.0,
+      "precio_venta": 14900,
+      "precio_5kg": 14900,
+      "precio_10kg": 13900,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 14900.0,
-        "x5kg": 14900.0,
-        "x10kg": 13900.0
+        "x1kg": 14900,
+        "x5kg": 14900,
+        "x10kg": 13900
       },
       "imagen": "/catalogo/productos/nueces_mariposa_light_21.jpeg",
       "unidad_medida": "kg"
@@ -228,15 +228,15 @@
       "descripcion": "",
       "categoria": "Frutos Secos",
       "pagina": 3,
-      "precio_venta": 18900.0,
-      "precio_5kg": 18900.0,
-      "precio_10kg": 17900.0,
+      "precio_venta": 18900,
+      "precio_5kg": 18900,
+      "precio_10kg": 17900,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 18900.0,
-        "x5kg": 18900.0,
-        "x10kg": 17900.0
+        "x1kg": 18900,
+        "x5kg": 18900,
+        "x10kg": 17900
       },
       "imagen": "/catalogo/productos/almendras_guara_nacionales_27.jpeg",
       "unidad_medida": "kg"
@@ -248,15 +248,15 @@
       "descripcion": "",
       "categoria": "Frutos Secos",
       "pagina": 3,
-      "precio_venta": 31900.0,
-      "precio_5kg": 31900.0,
-      "precio_10kg": 28800.0,
+      "precio_venta": 31900,
+      "precio_5kg": 31900,
+      "precio_10kg": 28800,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 31900.0,
-        "x5kg": 31900.0,
-        "x10kg": 28800.0
+        "x1kg": 31900,
+        "x5kg": 31900,
+        "x10kg": 28800
       },
       "imagen": "/catalogo/productos/avellanas_33.jpeg",
       "unidad_medida": "kg"
@@ -268,15 +268,15 @@
       "descripcion": "",
       "categoria": "Frutos Secos",
       "pagina": 3,
-      "precio_venta": 4800.0,
-      "precio_5kg": 4500.0,
-      "precio_10kg": 4300.0,
+      "precio_venta": 4800,
+      "precio_5kg": 4500,
+      "precio_10kg": 4300,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 4800.0,
-        "x5kg": 4500.0,
-        "x10kg": 4300.0
+        "x1kg": 4800,
+        "x5kg": 4500,
+        "x10kg": 4300
       },
       "imagen": "/catalogo/productos/pasas_de_uva_flame_39.jpeg",
       "unidad_medida": "kg"
@@ -288,13 +288,13 @@
       "descripcion": "",
       "categoria": "Frutos Secos",
       "pagina": 3,
-      "precio_venta": 16000.0,
+      "precio_venta": 16000,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 16000.0
+        "x1kg": 16000
       },
       "imagen": "/catalogo/productos/ciruela_sin_carozo_dagen_43.jpeg",
       "unidad_medida": "kg"
@@ -306,14 +306,14 @@
       "descripcion": "",
       "categoria": "Frutos Secos",
       "pagina": 3,
-      "precio_venta": 9360.0,
-      "precio_5kg": 8640.0,
+      "precio_venta": 9360,
+      "precio_5kg": 8640,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 9360.0,
-        "x5kg": 8640.0
+        "x1kg": 9360,
+        "x5kg": 8640
       },
       "imagen": "/catalogo/productos/datiles_49.jpeg",
       "unidad_medida": "kg"
@@ -325,15 +325,15 @@
       "descripcion": "",
       "categoria": "Frutos Secos",
       "pagina": 3,
-      "precio_venta": 19200.0,
-      "precio_5kg": 16800.0,
-      "precio_10kg": 16800.0,
+      "precio_venta": 19200,
+      "precio_5kg": 16800,
+      "precio_10kg": 16800,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 19200.0,
-        "x5kg": 16800.0,
-        "x10kg": 16800.0
+        "x1kg": 19200,
+        "x5kg": 16800,
+        "x10kg": 16800
       },
       "imagen": "/catalogo/productos/nuez_cuarto_extra_light_23.jpeg",
       "unidad_medida": "kg"
@@ -345,15 +345,15 @@
       "descripcion": "",
       "categoria": "Frutos Secos",
       "pagina": 3,
-      "precio_venta": 26400.0,
-      "precio_5kg": 24000.0,
-      "precio_10kg": 22200.0,
+      "precio_venta": 26400,
+      "precio_5kg": 24000,
+      "precio_10kg": 22200,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 26400.0,
-        "x5kg": 24000.0,
-        "x10kg": 22200.0
+        "x1kg": 26400,
+        "x5kg": 24000,
+        "x10kg": 22200
       },
       "imagen": "/catalogo/productos/almendras_non_pareil_chilenas_29.jpeg",
       "unidad_medida": "kg"
@@ -365,15 +365,15 @@
       "descripcion": "",
       "categoria": "Frutos Secos",
       "pagina": 3,
-      "precio_venta": 44400.0,
-      "precio_5kg": 42000.0,
-      "precio_10kg": 38400.0,
+      "precio_venta": 44400,
+      "precio_5kg": 42000,
+      "precio_10kg": 38400,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 44400.0,
-        "x5kg": 42000.0,
-        "x10kg": 38400.0
+        "x1kg": 44400,
+        "x5kg": 42000,
+        "x10kg": 38400
       },
       "imagen": "/catalogo/productos/pistacho_35.jpeg",
       "unidad_medida": "kg"
@@ -385,15 +385,15 @@
       "descripcion": "",
       "categoria": "Frutos Secos",
       "pagina": 3,
-      "precio_venta": 8280.0,
-      "precio_5kg": 7475.0,
-      "precio_10kg": 3720.0,
+      "precio_venta": 8280,
+      "precio_5kg": 7475,
+      "precio_10kg": 3720,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 8280.0,
-        "x5kg": 7475.0,
-        "x10kg": 3720.0
+        "x1kg": 8280,
+        "x5kg": 7475,
+        "x10kg": 3720
       },
       "imagen": "/catalogo/productos/pasas_de_uva_rubias_41.jpeg",
       "unidad_medida": "kg"
@@ -405,15 +405,15 @@
       "descripcion": "",
       "categoria": "Frutos Secos",
       "pagina": 3,
-      "precio_venta": 16800.0,
-      "precio_5kg": 16200.0,
-      "precio_10kg": 15480.0,
+      "precio_venta": 16800,
+      "precio_5kg": 16200,
+      "precio_10kg": 15480,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 16800.0,
-        "x5kg": 16200.0,
-        "x10kg": 15480.0
+        "x1kg": 16800,
+        "x5kg": 16200,
+        "x10kg": 15480
       },
       "imagen": "/catalogo/productos/arandanos_45.jpeg",
       "unidad_medida": "kg"
@@ -425,13 +425,13 @@
       "descripcion": "",
       "categoria": "Frutos Secos",
       "pagina": 3,
-      "precio_venta": 15000.0,
+      "precio_venta": 15000,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 15000.0
+        "x1kg": 15000
       },
       "imagen": "/catalogo/productos/higos_negros_51.jpeg",
       "unidad_medida": "kg"
@@ -443,13 +443,13 @@
       "descripcion": "",
       "categoria": "Frutos Secos",
       "pagina": 4,
-      "precio_venta": 3000.0,
+      "precio_venta": 3000,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 3000.0
+        "x1kg": 3000
       },
       "imagen": "/catalogo/productos/pasta_de_mani_entrenuts_53.jpeg",
       "unidad_medida": "kg"
@@ -461,15 +461,15 @@
       "descripcion": "",
       "categoria": "Frutos Secos",
       "pagina": 4,
-      "precio_venta": 36500.0,
+      "precio_venta": 36500,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 36500.0
+        "x1kg": 36500
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/castanas_de_para_20.svg",
       "unidad_medida": "kg"
     },
     {
@@ -479,15 +479,15 @@
       "descripcion": "Arandanos, almendras, caju, nuez",
       "categoria": "Mixes",
       "pagina": 5,
-      "precio_venta": 19800.0,
-      "precio_5kg": 19200.0,
-      "precio_10kg": 18240.0,
+      "precio_venta": 19800,
+      "precio_5kg": 19200,
+      "precio_10kg": 18240,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 19800.0,
-        "x5kg": 19200.0,
-        "x10kg": 18240.0
+        "x1kg": 19800,
+        "x5kg": 19200,
+        "x10kg": 18240
       },
       "imagen": "/catalogo/productos/mix_patagonia_65.jpeg",
       "unidad_medida": "kg"
@@ -499,15 +499,15 @@
       "descripcion": "Nuez, castañas, almendras, avellanas",
       "categoria": "Mixes",
       "pagina": 5,
-      "precio_venta": 17900.0,
-      "precio_5kg": 17000.0,
-      "precio_10kg": 16500.0,
+      "precio_venta": 17900,
+      "precio_5kg": 17000,
+      "precio_10kg": 16500,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 17900.0,
-        "x5kg": 17000.0,
-        "x10kg": 16500.0
+        "x1kg": 17900,
+        "x5kg": 17000,
+        "x10kg": 16500
       },
       "imagen": "/catalogo/productos/mix_premium_71.jpeg",
       "unidad_medida": "kg"
@@ -519,15 +519,15 @@
       "descripcion": "Pasas, maní, nuez, almendras, caju",
       "categoria": "Mixes",
       "pagina": 5,
-      "precio_venta": 6900.0,
-      "precio_5kg": 6900.0,
-      "precio_10kg": 6700.0,
+      "precio_venta": 6900,
+      "precio_5kg": 6900,
+      "precio_10kg": 6700,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 6900.0,
-        "x5kg": 6900.0,
-        "x10kg": 6700.0
+        "x1kg": 6900,
+        "x5kg": 6900,
+        "x10kg": 6700
       },
       "imagen": "/catalogo/productos/mix_economico_77.jpeg",
       "unidad_medida": "kg"
@@ -539,15 +539,15 @@
       "descripcion": "Almendra, nuez, pasas, castaña",
       "categoria": "Mixes",
       "pagina": 5,
-      "precio_venta": 15600.0,
-      "precio_5kg": 15000.0,
-      "precio_10kg": 14800.0,
+      "precio_venta": 15600,
+      "precio_5kg": 15000,
+      "precio_10kg": 14800,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 15600.0,
-        "x5kg": 15000.0,
-        "x10kg": 14800.0
+        "x1kg": 15600,
+        "x5kg": 15000,
+        "x10kg": 14800
       },
       "imagen": "/catalogo/productos/mix_frutas_sin_mani_67.jpeg",
       "unidad_medida": "kg"
@@ -559,15 +559,15 @@
       "descripcion": "Bananáa, nuez, almendras, pasas, maní",
       "categoria": "Mixes",
       "pagina": 5,
-      "precio_venta": 8160.0,
-      "precio_5kg": 7800.0,
-      "precio_10kg": 7440.0,
+      "precio_venta": 8160,
+      "precio_5kg": 7800,
+      "precio_10kg": 7440,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 8160.0,
-        "x5kg": 7800.0,
-        "x10kg": 7440.0
+        "x1kg": 8160,
+        "x5kg": 7800,
+        "x10kg": 7440
       },
       "imagen": "/catalogo/productos/mix_banana_73.jpeg",
       "unidad_medida": "kg"
@@ -579,15 +579,15 @@
       "descripcion": "Maiz frito, maní salado, girasol, semilla zapallo, maní chino",
       "categoria": "Mixes",
       "pagina": 5,
-      "precio_venta": 7440.0,
-      "precio_5kg": 6840.0,
-      "precio_10kg": 6600.0,
+      "precio_venta": 7440,
+      "precio_5kg": 6840,
+      "precio_10kg": 6600,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 7440.0,
-        "x5kg": 6840.0,
-        "x10kg": 6600.0
+        "x1kg": 7440,
+        "x5kg": 6840,
+        "x10kg": 6600
       },
       "imagen": "/catalogo/productos/mix_cervecero_79.jpeg",
       "unidad_medida": "kg"
@@ -599,15 +599,15 @@
       "descripcion": "Nuez, maní, almendra, castaña",
       "categoria": "Mixes",
       "pagina": 5,
-      "precio_venta": 13900.0,
-      "precio_5kg": 13900.0,
-      "precio_10kg": 13400.0,
+      "precio_venta": 13900,
+      "precio_5kg": 13900,
+      "precio_10kg": 13400,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 13900.0,
-        "x5kg": 13900.0,
-        "x10kg": 13400.0
+        "x1kg": 13900,
+        "x5kg": 13900,
+        "x10kg": 13400
       },
       "imagen": "/catalogo/productos/mix_sin_pasas_69.jpeg",
       "unidad_medida": "kg"
@@ -619,14 +619,14 @@
       "descripcion": "Bananáa, pasas, papaya, ananáá cubos, nuez",
       "categoria": "Mixes",
       "pagina": 5,
-      "precio_venta": 15480.0,
-      "precio_5kg": 15000.0,
+      "precio_venta": 15480,
+      "precio_5kg": 15000,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 15480.0,
-        "x5kg": 15000.0
+        "x1kg": 15480,
+        "x5kg": 15000
       },
       "imagen": "/catalogo/productos/mix_tropical_75.jpeg",
       "unidad_medida": "kg"
@@ -638,13 +638,13 @@
       "descripcion": "",
       "categoria": "Cereales",
       "pagina": 6,
-      "precio_venta": 7800.0,
+      "precio_venta": 7800,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 7800.0
+        "x1kg": 7800
       },
       "imagen": "/catalogo/productos/almohaditas_frutilla_86.jpeg",
       "unidad_medida": "kg"
@@ -656,13 +656,13 @@
       "descripcion": "",
       "categoria": "Cereales",
       "pagina": 6,
-      "precio_venta": 8400.0,
+      "precio_venta": 8400,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 8400.0
+        "x1kg": 8400
       },
       "imagen": "/catalogo/productos/almohaditas_frutilla_86.jpeg",
       "unidad_medida": "kg"
@@ -674,13 +674,13 @@
       "descripcion": "",
       "categoria": "Cereales",
       "pagina": 6,
-      "precio_venta": 6600.0,
+      "precio_venta": 6600,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 6600.0
+        "x1kg": 6600
       },
       "imagen": "/catalogo/productos/bolita_chocolate_92.jpeg",
       "unidad_medida": "kg"
@@ -692,13 +692,13 @@
       "descripcion": "",
       "categoria": "Cereales",
       "pagina": 6,
-      "precio_venta": 4800.0,
+      "precio_venta": 4800,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 4800.0
+        "x1kg": 4800
       },
       "imagen": "/catalogo/productos/copos_sin_azucar_96.jpeg",
       "unidad_medida": "kg"
@@ -710,13 +710,13 @@
       "descripcion": "Por 500gr",
       "categoria": "Cereales",
       "pagina": 6,
-      "precio_venta": 1050.0,
+      "precio_venta": 1050,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 1050.0
+        "x1kg": 1050
       },
       "imagen": "/catalogo/productos/sal_marina_fina_102.jpeg",
       "unidad_medida": "kg"
@@ -728,14 +728,14 @@
       "descripcion": "",
       "categoria": "Cereales",
       "pagina": 6,
-      "precio_venta": 17135.0,
-      "precio_5kg": 10560.0,
+      "precio_venta": 17135,
+      "precio_5kg": 10560,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 17135.0,
-        "x5kg": 10560.0
+        "x1kg": 17135,
+        "x5kg": 10560
       },
       "imagen": "/catalogo/productos/tomates_secos_108.jpeg",
       "unidad_medida": "kg"
@@ -747,13 +747,13 @@
       "descripcion": "",
       "categoria": "Cereales",
       "pagina": 6,
-      "precio_venta": 7800.0,
+      "precio_venta": 7800,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 7800.0
+        "x1kg": 7800
       },
       "imagen": "/catalogo/productos/almohaditas_frutilla_86.jpeg",
       "unidad_medida": "kg"
@@ -765,13 +765,13 @@
       "descripcion": "",
       "categoria": "Cereales",
       "pagina": 6,
-      "precio_venta": 5900.0,
+      "precio_venta": 5900,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 5900.0
+        "x1kg": 5900
       },
       "imagen": "/catalogo/productos/quinoa_pop_inflada_88.jpeg",
       "unidad_medida": "kg"
@@ -783,13 +783,13 @@
       "descripcion": "",
       "categoria": "Cereales",
       "pagina": 6,
-      "precio_venta": 4800.0,
+      "precio_venta": 4800,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 4800.0
+        "x1kg": 4800
       },
       "imagen": "/catalogo/productos/fibra_de_salvado_94.jpeg",
       "unidad_medida": "kg"
@@ -801,15 +801,15 @@
       "descripcion": "",
       "categoria": "Cereales",
       "pagina": 6,
-      "precio_venta": 4800.0,
+      "precio_venta": 4800,
       "precio_5kg": 0,
-      "precio_10kg": 3800.0,
+      "precio_10kg": 3800,
       "precio_25kg": 0,
-      "precio_30kg": 33350.0,
+      "precio_30kg": 33350,
       "escalas": {
-        "x1kg": 4800.0,
-        "x10kg": 3800.0,
-        "x30kg": 33350.0
+        "x1kg": 4800,
+        "x10kg": 3800,
+        "x30kg": 33350
       },
       "imagen": "/catalogo/productos/fibra_de_salvado_94.jpeg",
       "unidad_medida": "kg"
@@ -821,13 +821,13 @@
       "descripcion": "",
       "categoria": "Cereales",
       "pagina": 6,
-      "precio_venta": 3795.0,
+      "precio_venta": 3795,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 3795.0
+        "x1kg": 3795
       },
       "imagen": "/catalogo/productos/bicarbonato_98.jpeg",
       "unidad_medida": "kg"
@@ -839,13 +839,13 @@
       "descripcion": "",
       "categoria": "Cereales",
       "pagina": 6,
-      "precio_venta": 7800.0,
+      "precio_venta": 7800,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 7800.0
+        "x1kg": 7800
       },
       "imagen": "/catalogo/productos/almohaditas_frutilla_86.jpeg",
       "unidad_medida": "kg"
@@ -857,13 +857,13 @@
       "descripcion": "",
       "categoria": "Cereales",
       "pagina": 6,
-      "precio_venta": 6000.0,
+      "precio_venta": 6000,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 6000.0
+        "x1kg": 6000
       },
       "imagen": "/catalogo/productos/arito_frutal_90.jpeg",
       "unidad_medida": "kg"
@@ -875,13 +875,13 @@
       "descripcion": "",
       "categoria": "Cereales",
       "pagina": 6,
-      "precio_venta": 5400.0,
+      "precio_venta": 5400,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 5400.0
+        "x1kg": 5400
       },
       "imagen": "/catalogo/productos/copos_sin_azucar_96.jpeg",
       "unidad_medida": "kg"
@@ -893,14 +893,14 @@
       "descripcion": "",
       "categoria": "Cereales",
       "pagina": 6,
-      "precio_venta": 3000.0,
-      "precio_5kg": 2520.0,
+      "precio_venta": 3000,
+      "precio_5kg": 2520,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 3000.0,
-        "x5kg": 2520.0
+        "x1kg": 3000,
+        "x5kg": 2520
       },
       "imagen": "/catalogo/productos/sal_de_himalaya_100.jpeg",
       "unidad_medida": "kg"
@@ -912,13 +912,13 @@
       "descripcion": "",
       "categoria": "Cereales",
       "pagina": 6,
-      "precio_venta": 22000.0,
+      "precio_venta": 22000,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 22000.0
+        "x1kg": 22000
       },
       "imagen": "/catalogo/productos/gelatina_sin_sabor_mayana_106.jpeg",
       "unidad_medida": "kg"
@@ -930,13 +930,13 @@
       "descripcion": "",
       "categoria": "Repostería",
       "pagina": 7,
-      "precio_venta": 11520.0,
+      "precio_venta": 11520,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 11520.0
+        "x1kg": 11520
       },
       "imagen": "/catalogo/productos/chips_chocolate_negro_115.jpeg",
       "unidad_medida": "kg"
@@ -948,14 +948,14 @@
       "descripcion": "",
       "categoria": "Repostería",
       "pagina": 7,
-      "precio_venta": 13200.0,
-      "precio_5kg": 12240.0,
+      "precio_venta": 13200,
+      "precio_5kg": 12240,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 13200.0,
-        "x5kg": 12240.0
+        "x1kg": 13200,
+        "x5kg": 12240
       },
       "imagen": "/catalogo/productos/mani_con_chocolate_119.jpeg",
       "unidad_medida": "kg"
@@ -967,14 +967,14 @@
       "descripcion": "",
       "categoria": "Repostería",
       "pagina": 7,
-      "precio_venta": 15840.0,
-      "precio_5kg": 14400.0,
+      "precio_venta": 15840,
+      "precio_5kg": 14400,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 15840.0,
-        "x5kg": 14400.0
+        "x1kg": 15840,
+        "x5kg": 14400
       },
       "imagen": "/catalogo/productos/rocklets_aguila_125.jpeg",
       "unidad_medida": "kg"
@@ -986,13 +986,13 @@
       "descripcion": "",
       "categoria": "Repostería",
       "pagina": 7,
-      "precio_venta": 11520.0,
+      "precio_venta": 11520,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 11520.0
+        "x1kg": 11520
       },
       "imagen": "/catalogo/productos/chips_chocolate_negro_115.jpeg",
       "unidad_medida": "kg"
@@ -1004,14 +1004,14 @@
       "descripcion": "",
       "categoria": "Repostería",
       "pagina": 7,
-      "precio_venta": 30000.0,
-      "precio_5kg": 27600.0,
+      "precio_venta": 30000,
+      "precio_5kg": 27600,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 30000.0,
-        "x5kg": 27600.0
+        "x1kg": 30000,
+        "x5kg": 27600
       },
       "imagen": "/catalogo/productos/almendras_con_chocolate_121.jpeg",
       "unidad_medida": "kg"
@@ -1023,14 +1023,14 @@
       "descripcion": "",
       "categoria": "Repostería",
       "pagina": 7,
-      "precio_venta": 9360.0,
-      "precio_5kg": 8640.0,
+      "precio_venta": 9360,
+      "precio_5kg": 8640,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 9360.0,
-        "x5kg": 8640.0
+        "x1kg": 9360,
+        "x5kg": 8640
       },
       "imagen": "/catalogo/productos/coco_rallado_127.jpeg",
       "unidad_medida": "kg"
@@ -1042,13 +1042,13 @@
       "descripcion": "",
       "categoria": "Repostería",
       "pagina": 7,
-      "precio_venta": 15000.0,
+      "precio_venta": 15000,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 15000.0
+        "x1kg": 15000
       },
       "imagen": "/catalogo/productos/cacao_alcalino_117.jpeg",
       "unidad_medida": "kg"
@@ -1060,14 +1060,14 @@
       "descripcion": "",
       "categoria": "Repostería",
       "pagina": 7,
-      "precio_venta": 10320.0,
-      "precio_5kg": 9120.0,
+      "precio_venta": 10320,
+      "precio_5kg": 9120,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 10320.0,
-        "x5kg": 9120.0
+        "x1kg": 10320,
+        "x5kg": 9120
       },
       "imagen": "/catalogo/productos/cacao_alcalino_117.jpeg",
       "unidad_medida": "kg"
@@ -1079,14 +1079,14 @@
       "descripcion": "",
       "categoria": "Repostería",
       "pagina": 7,
-      "precio_venta": 21120.0,
-      "precio_5kg": 19920.0,
+      "precio_venta": 21120,
+      "precio_5kg": 19920,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 21120.0,
-        "x5kg": 19920.0
+        "x1kg": 21120,
+        "x5kg": 19920
       },
       "imagen": "/catalogo/productos/pasas_con_chocolate_123.jpeg",
       "unidad_medida": "kg"
@@ -1098,14 +1098,14 @@
       "descripcion": "",
       "categoria": "Repostería",
       "pagina": 7,
-      "precio_venta": 7500.0,
-      "precio_5kg": 7200.0,
+      "precio_venta": 7500,
+      "precio_5kg": 7200,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 7500.0,
-        "x5kg": 7200.0
+        "x1kg": 7500,
+        "x5kg": 7200
       },
       "imagen": "/catalogo/productos/polvo_para_hornear_129.jpeg",
       "unidad_medida": "kg"
@@ -1117,13 +1117,13 @@
       "descripcion": "12 sobres por 10gr",
       "categoria": "Repostería",
       "pagina": 7,
-      "precio_venta": 23800.0,
+      "precio_venta": 23800,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 23800.0
+        "x1kg": 23800
       },
       "imagen": "/catalogo/productos/polvo_para_hornear_129.jpeg",
       "unidad_medida": "kg"
@@ -1135,16 +1135,16 @@
       "descripcion": "",
       "categoria": "Snacks",
       "pagina": 8,
-      "precio_venta": 3000.0,
-      "precio_5kg": 3000.0,
-      "precio_10kg": 2760.0,
-      "precio_25kg": 2500.0,
+      "precio_venta": 3000,
+      "precio_5kg": 3000,
+      "precio_10kg": 2760,
+      "precio_25kg": 2500,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 3000.0,
-        "x5kg": 3000.0,
-        "x10kg": 2760.0,
-        "x25kg": 2500.0
+        "x1kg": 3000,
+        "x5kg": 3000,
+        "x10kg": 2760,
+        "x25kg": 2500
       },
       "imagen": "/catalogo/productos/mani_salado_pelado_138.jpeg",
       "unidad_medida": "kg"
@@ -1156,14 +1156,14 @@
       "descripcion": "",
       "categoria": "Snacks",
       "pagina": 8,
-      "precio_venta": 5400.0,
-      "precio_5kg": 4500.0,
+      "precio_venta": 5400,
+      "precio_5kg": 4500,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 5400.0,
-        "x5kg": 4500.0
+        "x1kg": 5400,
+        "x5kg": 4500
       },
       "imagen": "/catalogo/productos/mani_de_vaina_142.jpeg",
       "unidad_medida": "kg"
@@ -1175,16 +1175,16 @@
       "descripcion": "",
       "categoria": "Snacks",
       "pagina": 8,
-      "precio_venta": 4800.0,
-      "precio_5kg": 3600.0,
-      "precio_10kg": 3360.0,
-      "precio_25kg": 3000.0,
+      "precio_venta": 4800,
+      "precio_5kg": 3600,
+      "precio_10kg": 3360,
+      "precio_25kg": 3000,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 4800.0,
-        "x5kg": 3600.0,
-        "x10kg": 3360.0,
-        "x25kg": 3000.0
+        "x1kg": 4800,
+        "x5kg": 3600,
+        "x10kg": 3360,
+        "x25kg": 3000
       },
       "imagen": "/catalogo/productos/palito_salado_148.jpeg",
       "unidad_medida": "kg"
@@ -1196,16 +1196,16 @@
       "descripcion": "",
       "categoria": "Snacks",
       "pagina": 8,
-      "precio_venta": 3000.0,
-      "precio_5kg": 3000.0,
-      "precio_10kg": 2760.0,
-      "precio_25kg": 2500.0,
+      "precio_venta": 3000,
+      "precio_5kg": 3000,
+      "precio_10kg": 2760,
+      "precio_25kg": 2500,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 3000.0,
-        "x5kg": 3000.0,
-        "x10kg": 2760.0,
-        "x25kg": 2500.0
+        "x1kg": 3000,
+        "x5kg": 3000,
+        "x10kg": 2760,
+        "x25kg": 2500
       },
       "imagen": "/catalogo/productos/mani_salado_pelado_138.jpeg",
       "unidad_medida": "kg"
@@ -1217,14 +1217,14 @@
       "descripcion": "",
       "categoria": "Snacks",
       "pagina": 8,
-      "precio_venta": 11880.0,
-      "precio_5kg": 10800.0,
+      "precio_venta": 11880,
+      "precio_5kg": 10800,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 11880.0,
-        "x5kg": 10800.0
+        "x1kg": 11880,
+        "x5kg": 10800
       },
       "imagen": "/catalogo/productos/maiz_frito_salado_144.jpeg",
       "unidad_medida": "kg"
@@ -1236,14 +1236,14 @@
       "descripcion": "",
       "categoria": "Snacks",
       "pagina": 8,
-      "precio_venta": 4320.0,
-      "precio_5kg": 3800.0,
+      "precio_venta": 4320,
+      "precio_5kg": 3800,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 4320.0,
-        "x5kg": 3800.0
+        "x1kg": 4320,
+        "x5kg": 3800
       },
       "imagen": "/catalogo/productos/tutuca_150.jpeg",
       "unidad_medida": "kg"
@@ -1255,14 +1255,14 @@
       "descripcion": "",
       "categoria": "Snacks",
       "pagina": 8,
-      "precio_venta": 5400.0,
-      "precio_5kg": 4560.0,
+      "precio_venta": 5400,
+      "precio_5kg": 4560,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 5400.0,
-        "x5kg": 4560.0
+        "x1kg": 5400,
+        "x5kg": 4560
       },
       "imagen": "/catalogo/productos/mani_saborizado_mani_chino_140.jpeg",
       "unidad_medida": "kg"
@@ -1274,14 +1274,14 @@
       "descripcion": "",
       "categoria": "Snacks",
       "pagina": 8,
-      "precio_venta": 5400.0,
-      "precio_5kg": 3960.0,
+      "precio_venta": 5400,
+      "precio_5kg": 3960,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 5400.0,
-        "x5kg": 3960.0
+        "x1kg": 5400,
+        "x5kg": 3960
       },
       "imagen": "/catalogo/productos/garrapinadas_146.jpeg",
       "unidad_medida": "kg"
@@ -1293,14 +1293,14 @@
       "descripcion": "",
       "categoria": "Legumbres",
       "pagina": 9,
-      "precio_venta": 3000.0,
-      "precio_5kg": 2640.0,
+      "precio_venta": 3000,
+      "precio_5kg": 2640,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 3000.0,
-        "x5kg": 2640.0
+        "x1kg": 3000,
+        "x5kg": 2640
       },
       "imagen": "/catalogo/productos/lenteja_157.jpeg",
       "unidad_medida": "kg"
@@ -1312,15 +1312,15 @@
       "descripcion": "",
       "categoria": "Legumbres",
       "pagina": 9,
-      "precio_venta": 2400.0,
-      "precio_5kg": 1944.0,
+      "precio_venta": 2400,
+      "precio_5kg": 1944,
       "precio_10kg": 0,
-      "precio_25kg": 1415.0,
+      "precio_25kg": 1415,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 2400.0,
-        "x5kg": 1944.0,
-        "x25kg": 1415.0
+        "x1kg": 2400,
+        "x5kg": 1944,
+        "x25kg": 1415
       },
       "imagen": "/catalogo/productos/arroz_integral_163.jpeg",
       "unidad_medida": "kg"
@@ -1332,14 +1332,14 @@
       "descripcion": "",
       "categoria": "Legumbres",
       "pagina": 9,
-      "precio_venta": 4080.0,
-      "precio_5kg": 3648.0,
+      "precio_venta": 4080,
+      "precio_5kg": 3648,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 4080.0,
-        "x5kg": 3648.0
+        "x1kg": 4080,
+        "x5kg": 3648
       },
       "imagen": "/catalogo/productos/poroto_alubia_169.jpeg",
       "unidad_medida": "kg"
@@ -1351,14 +1351,14 @@
       "descripcion": "",
       "categoria": "Legumbres",
       "pagina": 9,
-      "precio_venta": 3480.0,
-      "precio_5kg": 3096.0,
+      "precio_venta": 3480,
+      "precio_5kg": 3096,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 3480.0,
-        "x5kg": 3096.0
+        "x1kg": 3480,
+        "x5kg": 3096
       },
       "imagen": "/catalogo/productos/poroto_aduki_175.jpeg",
       "unidad_medida": "kg"
@@ -1370,15 +1370,15 @@
       "descripcion": "",
       "categoria": "Legumbres",
       "pagina": 9,
-      "precio_venta": 1680.0,
-      "precio_5kg": 1392.0,
+      "precio_venta": 1680,
+      "precio_5kg": 1392,
       "precio_10kg": 0,
-      "precio_25kg": 1150.0,
+      "precio_25kg": 1150,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 1680.0,
-        "x5kg": 1392.0,
-        "x25kg": 1150.0
+        "x1kg": 1680,
+        "x5kg": 1392,
+        "x25kg": 1150
       },
       "imagen": "/catalogo/productos/pisingallo_181.jpeg",
       "unidad_medida": "kg"
@@ -1390,15 +1390,15 @@
       "descripcion": "",
       "categoria": "Legumbres",
       "pagina": 9,
-      "precio_venta": 3480.0,
-      "precio_5kg": 2880.0,
+      "precio_venta": 3480,
+      "precio_5kg": 2880,
       "precio_10kg": 0,
-      "precio_25kg": 2250.0,
+      "precio_25kg": 2250,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 3480.0,
-        "x5kg": 2880.0,
-        "x25kg": 2250.0
+        "x1kg": 3480,
+        "x5kg": 2880,
+        "x25kg": 2250
       },
       "imagen": "/catalogo/productos/lentejon_159.jpeg",
       "unidad_medida": "kg"
@@ -1410,15 +1410,15 @@
       "descripcion": "",
       "categoria": "Legumbres",
       "pagina": 9,
-      "precio_venta": 2400.0,
-      "precio_5kg": 2100.0,
+      "precio_venta": 2400,
+      "precio_5kg": 2100,
       "precio_10kg": 0,
-      "precio_25kg": 1500.0,
+      "precio_25kg": 1500,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 2400.0,
-        "x5kg": 2100.0,
-        "x25kg": 1500.0
+        "x1kg": 2400,
+        "x5kg": 2100,
+        "x25kg": 1500
       },
       "imagen": "/catalogo/productos/avena_instantanea_165.jpeg",
       "unidad_medida": "kg"
@@ -1430,13 +1430,13 @@
       "descripcion": "",
       "categoria": "Legumbres",
       "pagina": 9,
-      "precio_venta": 1560.0,
+      "precio_venta": 1560,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 1560.0
+        "x1kg": 1560
       },
       "imagen": "/catalogo/productos/poroto_soja_171.jpeg",
       "unidad_medida": "kg"
@@ -1448,14 +1448,14 @@
       "descripcion": "",
       "categoria": "Legumbres",
       "pagina": 9,
-      "precio_venta": 3000.0,
-      "precio_5kg": 2352.0,
+      "precio_venta": 3000,
+      "precio_5kg": 2352,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 3000.0,
-        "x5kg": 2352.0
+        "x1kg": 3000,
+        "x5kg": 2352
       },
       "imagen": "/catalogo/productos/poroto_negro_177.jpeg",
       "unidad_medida": "kg"
@@ -1467,15 +1467,15 @@
       "descripcion": "",
       "categoria": "Legumbres",
       "pagina": 9,
-      "precio_venta": 2640.0,
-      "precio_5kg": 2064.0,
+      "precio_venta": 2640,
+      "precio_5kg": 2064,
       "precio_10kg": 0,
-      "precio_25kg": 1650.0,
+      "precio_25kg": 1650,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 2640.0,
-        "x5kg": 2064.0,
-        "x25kg": 1650.0
+        "x1kg": 2640,
+        "x5kg": 2064,
+        "x25kg": 1650
       },
       "imagen": "/catalogo/productos/arroz_yamani_161.jpeg",
       "unidad_medida": "kg"
@@ -1487,15 +1487,15 @@
       "descripcion": "",
       "categoria": "Legumbres",
       "pagina": 9,
-      "precio_venta": 2640.0,
-      "precio_5kg": 2160.0,
+      "precio_venta": 2640,
+      "precio_5kg": 2160,
       "precio_10kg": 0,
-      "precio_25kg": 1415.0,
+      "precio_25kg": 1415,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 2640.0,
-        "x5kg": 2160.0,
-        "x25kg": 1415.0
+        "x1kg": 2640,
+        "x5kg": 2160,
+        "x25kg": 1415
       },
       "imagen": "/catalogo/productos/garbanzo_167.jpeg",
       "unidad_medida": "kg"
@@ -1507,14 +1507,14 @@
       "descripcion": "",
       "categoria": "Legumbres",
       "pagina": 9,
-      "precio_venta": 3120.0,
-      "precio_5kg": 2688.0,
+      "precio_venta": 3120,
+      "precio_5kg": 2688,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 3120.0,
-        "x5kg": 2688.0
+        "x1kg": 3120,
+        "x5kg": 2688
       },
       "imagen": "/catalogo/productos/poroto_colorado_173.jpeg",
       "unidad_medida": "kg"
@@ -1526,14 +1526,14 @@
       "descripcion": "",
       "categoria": "Legumbres",
       "pagina": 9,
-      "precio_venta": 6720.0,
-      "precio_5kg": 6480.0,
+      "precio_venta": 6720,
+      "precio_5kg": 6480,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 6720.0,
-        "x5kg": 6480.0
+        "x1kg": 6720,
+        "x5kg": 6480
       },
       "imagen": "/catalogo/productos/poroto_pallares_grande_179.jpeg",
       "unidad_medida": "kg"
@@ -1545,14 +1545,14 @@
       "descripcion": "",
       "categoria": "Condimentos",
       "pagina": 10,
-      "precio_venta": 7020.0,
-      "precio_5kg": 6600.0,
+      "precio_venta": 7020,
+      "precio_5kg": 6600,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 7020.0,
-        "x5kg": 6600.0
+        "x1kg": 7020,
+        "x5kg": 6600
       },
       "imagen": "/catalogo/productos/oregano_188.jpeg",
       "unidad_medida": "kg"
@@ -1564,14 +1564,14 @@
       "descripcion": "",
       "categoria": "Condimentos",
       "pagina": 10,
-      "precio_venta": 4200.0,
-      "precio_5kg": 3840.0,
+      "precio_venta": 4200,
+      "precio_5kg": 3840,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 4200.0,
-        "x5kg": 3840.0
+        "x1kg": 4200,
+        "x5kg": 3840
       },
       "imagen": "/catalogo/productos/pimenton_194.jpeg",
       "unidad_medida": "kg"
@@ -1583,14 +1583,14 @@
       "descripcion": "",
       "categoria": "Condimentos",
       "pagina": 10,
-      "precio_venta": 16680.0,
-      "precio_5kg": 16080.0,
+      "precio_venta": 16680,
+      "precio_5kg": 16080,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 16680.0,
-        "x5kg": 16080.0
+        "x1kg": 16680,
+        "x5kg": 16080
       },
       "imagen": "/catalogo/productos/pimienta_blanca_molida_200.jpeg",
       "unidad_medida": "kg"
@@ -1602,14 +1602,14 @@
       "descripcion": "",
       "categoria": "Condimentos",
       "pagina": 10,
-      "precio_venta": 9480.0,
-      "precio_5kg": 8880.0,
+      "precio_venta": 9480,
+      "precio_5kg": 8880,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 9480.0,
-        "x5kg": 8880.0
+        "x1kg": 9480,
+        "x5kg": 8880
       },
       "imagen": "/catalogo/productos/jengibre_en_polvo_206.jpeg",
       "unidad_medida": "kg"
@@ -1621,13 +1621,13 @@
       "descripcion": "",
       "categoria": "Condimentos",
       "pagina": 10,
-      "precio_venta": 3480.0,
+      "precio_venta": 3480,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 3480.0
+        "x1kg": 3480
       },
       "imagen": "/catalogo/productos/comino_212.jpeg",
       "unidad_medida": "kg"
@@ -1639,14 +1639,14 @@
       "descripcion": "",
       "categoria": "Condimentos",
       "pagina": 10,
-      "precio_venta": 10080.0,
-      "precio_5kg": 7600.0,
+      "precio_venta": 10080,
+      "precio_5kg": 7600,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 10080.0,
-        "x5kg": 7600.0
+        "x1kg": 10080,
+        "x5kg": 7600
       },
       "imagen": "/catalogo/productos/paprika_218.jpeg",
       "unidad_medida": "kg"
@@ -1658,14 +1658,14 @@
       "descripcion": "",
       "categoria": "Condimentos",
       "pagina": 10,
-      "precio_venta": 4500.0,
-      "precio_5kg": 4200.0,
+      "precio_venta": 4500,
+      "precio_5kg": 4200,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 4500.0,
-        "x5kg": 4200.0
+        "x1kg": 4500,
+        "x5kg": 4200
       },
       "imagen": "/catalogo/productos/provenzal_190.jpeg",
       "unidad_medida": "kg"
@@ -1677,14 +1677,14 @@
       "descripcion": "",
       "categoria": "Condimentos",
       "pagina": 10,
-      "precio_venta": 9750.0,
-      "precio_5kg": 9000.0,
+      "precio_venta": 9750,
+      "precio_5kg": 9000,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 9750.0,
-        "x5kg": 9000.0
+        "x1kg": 9750,
+        "x5kg": 9000
       },
       "imagen": "/catalogo/productos/pimenton_ahumado_196.jpeg",
       "unidad_medida": "kg"
@@ -1696,14 +1696,14 @@
       "descripcion": "",
       "categoria": "Condimentos",
       "pagina": 10,
-      "precio_venta": 8160.0,
-      "precio_5kg": 7440.0,
+      "precio_venta": 8160,
+      "precio_5kg": 7440,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 8160.0,
-        "x5kg": 7440.0
+        "x1kg": 8160,
+        "x5kg": 7440
       },
       "imagen": "/catalogo/productos/ajo_en_polvo_202.jpeg",
       "unidad_medida": "kg"
@@ -1715,14 +1715,14 @@
       "descripcion": "",
       "categoria": "Condimentos",
       "pagina": 10,
-      "precio_venta": 5280.0,
-      "precio_5kg": 4776.0,
+      "precio_venta": 5280,
+      "precio_5kg": 4776,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 5280.0,
-        "x5kg": 4776.0
+        "x1kg": 5280,
+        "x5kg": 4776
       },
       "imagen": "/catalogo/productos/chimichurri_208.jpeg",
       "unidad_medida": "kg"
@@ -1734,13 +1734,13 @@
       "descripcion": "",
       "categoria": "Condimentos",
       "pagina": 10,
-      "precio_venta": 3480.0,
+      "precio_venta": 3480,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 3480.0
+        "x1kg": 3480
       },
       "imagen": "/catalogo/productos/curcuma_214.jpeg",
       "unidad_medida": "kg"
@@ -1752,14 +1752,14 @@
       "descripcion": "",
       "categoria": "Condimentos",
       "pagina": 10,
-      "precio_venta": 11760.0,
-      "precio_5kg": 11040.0,
+      "precio_venta": 11760,
+      "precio_5kg": 11040,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 11760.0,
-        "x5kg": 11040.0
+        "x1kg": 11760,
+        "x5kg": 11040
       },
       "imagen": "/catalogo/productos/canela_en_polvo_220.jpeg",
       "unidad_medida": "kg"
@@ -1771,14 +1771,14 @@
       "descripcion": "",
       "categoria": "Condimentos",
       "pagina": 10,
-      "precio_venta": 4200.0,
-      "precio_5kg": 3840.0,
+      "precio_venta": 4200,
+      "precio_5kg": 3840,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 4200.0,
-        "x5kg": 3840.0
+        "x1kg": 4200,
+        "x5kg": 3840
       },
       "imagen": "/catalogo/productos/adobo_para_pizza_192.jpeg",
       "unidad_medida": "kg"
@@ -1790,13 +1790,13 @@
       "descripcion": "",
       "categoria": "Condimentos",
       "pagina": 10,
-      "precio_venta": 13440.0,
+      "precio_venta": 13440,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 13440.0
+        "x1kg": 13440
       },
       "imagen": "/catalogo/productos/pimienta_negra_molida_198.jpeg",
       "unidad_medida": "kg"
@@ -1808,14 +1808,14 @@
       "descripcion": "",
       "categoria": "Condimentos",
       "pagina": 10,
-      "precio_venta": 7680.0,
-      "precio_5kg": 7200.0,
+      "precio_venta": 7680,
+      "precio_5kg": 7200,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 7680.0,
-        "x5kg": 7200.0
+        "x1kg": 7680,
+        "x5kg": 7200
       },
       "imagen": "/catalogo/productos/aji_puro_204.jpeg",
       "unidad_medida": "kg"
@@ -1827,14 +1827,14 @@
       "descripcion": "",
       "categoria": "Condimentos",
       "pagina": 10,
-      "precio_venta": 12960.0,
-      "precio_5kg": 12000.0,
+      "precio_venta": 12960,
+      "precio_5kg": 12000,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 12960.0,
-        "x5kg": 12000.0
+        "x1kg": 12960,
+        "x5kg": 12000
       },
       "imagen": "/catalogo/productos/nuez_moscada_molida_210.jpeg",
       "unidad_medida": "kg"
@@ -1846,13 +1846,13 @@
       "descripcion": "",
       "categoria": "Condimentos",
       "pagina": 10,
-      "precio_venta": 17880.0,
+      "precio_venta": 17880,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 17880.0
+        "x1kg": 17880
       },
       "imagen": "/catalogo/productos/anis_en_grano_216.jpeg",
       "unidad_medida": "kg"
@@ -1864,14 +1864,14 @@
       "descripcion": "",
       "categoria": "Condimentos",
       "pagina": 10,
-      "precio_venta": 7440.0,
-      "precio_5kg": 7080.0,
+      "precio_venta": 7440,
+      "precio_5kg": 7080,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 7440.0,
-        "x5kg": 7080.0
+        "x1kg": 7440,
+        "x5kg": 7080
       },
       "imagen": "/catalogo/productos/curry_222.jpeg",
       "unidad_medida": "kg"
@@ -1883,14 +1883,14 @@
       "descripcion": "",
       "categoria": "Condimentos",
       "pagina": 11,
-      "precio_venta": 13920.0,
-      "precio_5kg": 12240.0,
+      "precio_venta": 13920,
+      "precio_5kg": 12240,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 13920.0,
-        "x5kg": 12240.0
+        "x1kg": 13920,
+        "x5kg": 12240
       },
       "imagen": "/catalogo/productos/ajo_triturado_224.jpeg",
       "unidad_medida": "kg"
@@ -1902,15 +1902,15 @@
       "descripcion": "",
       "categoria": "Condimentos",
       "pagina": 11,
-      "precio_venta": 26500.0,
+      "precio_venta": 26500,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 26500.0
+        "x1kg": 26500
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/pimienta_negra_en_granos_96.svg",
       "unidad_medida": "kg"
     },
     {
@@ -1920,15 +1920,15 @@
       "descripcion": "",
       "categoria": "Condimentos",
       "pagina": 11,
-      "precio_venta": 3620.0,
+      "precio_venta": 3620,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 3620.0
+        "x1kg": 3620
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/goma_xantica_40cc_procal_97.svg",
       "unidad_medida": "kg"
     },
     {
@@ -1938,15 +1938,15 @@
       "descripcion": "",
       "categoria": "Azúcares",
       "pagina": 12,
-      "precio_venta": 2880.0,
-      "precio_5kg": 2400.0,
-      "precio_10kg": 2160.0,
+      "precio_venta": 2880,
+      "precio_5kg": 2400,
+      "precio_10kg": 2160,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 2880.0,
-        "x5kg": 2400.0,
-        "x10kg": 2160.0
+        "x1kg": 2880,
+        "x5kg": 2400,
+        "x10kg": 2160
       },
       "imagen": "/catalogo/productos/azucar_impalpable_236.jpeg",
       "unidad_medida": "kg"
@@ -1958,15 +1958,15 @@
       "descripcion": "",
       "categoria": "Azúcares",
       "pagina": 12,
-      "precio_venta": 4800.0,
-      "precio_5kg": 4440.0,
-      "precio_10kg": 4080.0,
+      "precio_venta": 4800,
+      "precio_5kg": 4440,
+      "precio_10kg": 4080,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 4800.0,
-        "x5kg": 4440.0,
-        "x10kg": 4080.0
+        "x1kg": 4800,
+        "x5kg": 4440,
+        "x10kg": 4080
       },
       "imagen": "/catalogo/productos/azucar_mascabo_242.jpeg",
       "unidad_medida": "kg"
@@ -1978,15 +1978,15 @@
       "descripcion": "",
       "categoria": "Azúcares",
       "pagina": 12,
-      "precio_venta": 2880.0,
-      "precio_5kg": 2400.0,
-      "precio_10kg": 2160.0,
+      "precio_venta": 2880,
+      "precio_5kg": 2400,
+      "precio_10kg": 2160,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 2880.0,
-        "x5kg": 2400.0,
-        "x10kg": 2160.0
+        "x1kg": 2880,
+        "x5kg": 2400,
+        "x10kg": 2160
       },
       "imagen": "/catalogo/productos/azucar_negra_238.jpeg",
       "unidad_medida": "kg"
@@ -1998,15 +1998,15 @@
       "descripcion": "",
       "categoria": "Azúcares",
       "pagina": 12,
-      "precio_venta": 2880.0,
-      "precio_5kg": 2400.0,
-      "precio_10kg": 2160.0,
+      "precio_venta": 2880,
+      "precio_5kg": 2400,
+      "precio_10kg": 2160,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 2880.0,
-        "x5kg": 2400.0,
-        "x10kg": 2160.0
+        "x1kg": 2880,
+        "x5kg": 2400,
+        "x10kg": 2160
       },
       "imagen": "/catalogo/productos/azucar_rubia_240.jpeg",
       "unidad_medida": "kg"
@@ -2018,15 +2018,15 @@
       "descripcion": "",
       "categoria": "Harinas",
       "pagina": 13,
-      "precio_venta": 1680.0,
-      "precio_5kg": 1152.0,
-      "precio_10kg": 936.0,
+      "precio_venta": 1680,
+      "precio_5kg": 1152,
+      "precio_10kg": 936,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 1680.0,
-        "x5kg": 1152.0,
-        "x10kg": 936.0
+        "x1kg": 1680,
+        "x5kg": 1152,
+        "x10kg": 936
       },
       "imagen": "/catalogo/productos/harina_integral_249.jpeg",
       "unidad_medida": "kg"
@@ -2038,14 +2038,14 @@
       "descripcion": "",
       "categoria": "Harinas",
       "pagina": 13,
-      "precio_venta": 1800.0,
-      "precio_5kg": 1656.0,
+      "precio_venta": 1800,
+      "precio_5kg": 1656,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 1800.0,
-        "x5kg": 1656.0
+        "x1kg": 1800,
+        "x5kg": 1656
       },
       "imagen": "/catalogo/productos/harina_de_arroz_255.jpeg",
       "unidad_medida": "kg"
@@ -2057,14 +2057,14 @@
       "descripcion": "",
       "categoria": "Harinas",
       "pagina": 13,
-      "precio_venta": 1920.0,
-      "precio_5kg": 1416.0,
+      "precio_venta": 1920,
+      "precio_5kg": 1416,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 1920.0,
-        "x5kg": 1416.0
+        "x1kg": 1920,
+        "x5kg": 1416
       },
       "imagen": "/catalogo/productos/harina_de_centeno_261.jpeg",
       "unidad_medida": "kg"
@@ -2076,14 +2076,14 @@
       "descripcion": "",
       "categoria": "Harinas",
       "pagina": 13,
-      "precio_venta": 2400.0,
-      "precio_5kg": 2064.0,
+      "precio_venta": 2400,
+      "precio_5kg": 2064,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 2400.0,
-        "x5kg": 2064.0
+        "x1kg": 2400,
+        "x5kg": 2064
       },
       "imagen": "/catalogo/productos/harina_de_avena_267.jpeg",
       "unidad_medida": "kg"
@@ -2095,14 +2095,14 @@
       "descripcion": "",
       "categoria": "Harinas",
       "pagina": 13,
-      "precio_venta": 1800.0,
-      "precio_5kg": 1680.0,
+      "precio_venta": 1800,
+      "precio_5kg": 1680,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 1800.0,
-        "x5kg": 1680.0
+        "x1kg": 1800,
+        "x5kg": 1680
       },
       "imagen": "/catalogo/productos/semola_273.jpeg",
       "unidad_medida": "kg"
@@ -2114,15 +2114,15 @@
       "descripcion": "",
       "categoria": "Harinas",
       "pagina": 13,
-      "precio_venta": 3600.0,
-      "precio_5kg": 2400.0,
+      "precio_venta": 3600,
+      "precio_5kg": 2400,
       "precio_10kg": 0,
-      "precio_25kg": 1725.0,
+      "precio_25kg": 1725,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 3600.0,
-        "x5kg": 2400.0,
-        "x25kg": 1725.0
+        "x1kg": 3600,
+        "x5kg": 2400,
+        "x25kg": 1725
       },
       "imagen": "/catalogo/productos/harina_de_mandioca_279.jpeg",
       "unidad_medida": "kg"
@@ -2134,14 +2134,14 @@
       "descripcion": "",
       "categoria": "Harinas",
       "pagina": 13,
-      "precio_venta": 1800.0,
-      "precio_5kg": 1440.0,
+      "precio_venta": 1800,
+      "precio_5kg": 1440,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 1800.0,
-        "x5kg": 1440.0
+        "x1kg": 1800,
+        "x5kg": 1440
       },
       "imagen": "/catalogo/productos/harina_paraguaya_251.jpeg",
       "unidad_medida": "kg"
@@ -2153,13 +2153,13 @@
       "descripcion": "",
       "categoria": "Harinas",
       "pagina": 13,
-      "precio_venta": 900.0,
+      "precio_venta": 900,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 900.0
+        "x1kg": 900
       },
       "imagen": "/catalogo/productos/harina_glutinada_257.jpeg",
       "unidad_medida": "kg"
@@ -2171,15 +2171,15 @@
       "descripcion": "",
       "categoria": "Harinas",
       "pagina": 13,
-      "precio_venta": 5040.0,
-      "precio_5kg": 4800.0,
-      "precio_10kg": 4320.0,
+      "precio_venta": 5040,
+      "precio_5kg": 4800,
+      "precio_10kg": 4320,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 5040.0,
-        "x5kg": 4800.0,
-        "x10kg": 4320.0
+        "x1kg": 5040,
+        "x5kg": 4800,
+        "x10kg": 4320
       },
       "imagen": "/catalogo/productos/harina_de_almendras_263.jpeg",
       "unidad_medida": "kg"
@@ -2191,14 +2191,14 @@
       "descripcion": "",
       "categoria": "Harinas",
       "pagina": 13,
-      "precio_venta": 2640.0,
-      "precio_5kg": 2040.0,
+      "precio_venta": 2640,
+      "precio_5kg": 2040,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 2640.0,
-        "x5kg": 2040.0
+        "x1kg": 2640,
+        "x5kg": 2040
       },
       "imagen": "/catalogo/productos/soja_texturizada_269.jpeg",
       "unidad_medida": "kg"
@@ -2210,14 +2210,14 @@
       "descripcion": "",
       "categoria": "Harinas",
       "pagina": 13,
-      "precio_venta": 1800.0,
-      "precio_5kg": 1296.0,
+      "precio_venta": 1800,
+      "precio_5kg": 1296,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 1800.0,
-        "x5kg": 1296.0
+        "x1kg": 1800,
+        "x5kg": 1296
       },
       "imagen": "/catalogo/productos/semolin_275.jpeg",
       "unidad_medida": "kg"
@@ -2229,13 +2229,13 @@
       "descripcion": "",
       "categoria": "Harinas",
       "pagina": 13,
-      "precio_venta": 5880.0,
+      "precio_venta": 5880,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 5880.0
+        "x1kg": 5880
       },
       "imagen": "/catalogo/productos/cascarilla_281.jpeg",
       "unidad_medida": "kg"
@@ -2247,14 +2247,14 @@
       "descripcion": "",
       "categoria": "Harinas",
       "pagina": 13,
-      "precio_venta": 1188.0,
-      "precio_5kg": 1056.0,
+      "precio_venta": 1188,
+      "precio_5kg": 1056,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 1188.0,
-        "x5kg": 1056.0
+        "x1kg": 1188,
+        "x5kg": 1056
       },
       "imagen": "/catalogo/productos/harina_de_soja_253.jpeg",
       "unidad_medida": "kg"
@@ -2266,15 +2266,15 @@
       "descripcion": "",
       "categoria": "Harinas",
       "pagina": 13,
-      "precio_venta": 1680.0,
-      "precio_5kg": 1300.0,
-      "precio_10kg": 1100.0,
+      "precio_venta": 1680,
+      "precio_5kg": 1300,
+      "precio_10kg": 1100,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 1680.0,
-        "x5kg": 1300.0,
-        "x10kg": 1100.0
+        "x1kg": 1680,
+        "x5kg": 1300,
+        "x10kg": 1100
       },
       "imagen": "/catalogo/productos/harina_de_garbanzo_259.jpeg",
       "unidad_medida": "kg"
@@ -2286,14 +2286,14 @@
       "descripcion": "",
       "categoria": "Harinas",
       "pagina": 13,
-      "precio_venta": 4920.0,
-      "precio_5kg": 4680.0,
+      "precio_venta": 4920,
+      "precio_5kg": 4680,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 4920.0,
-        "x5kg": 4680.0
+        "x1kg": 4920,
+        "x5kg": 4680
       },
       "imagen": "/catalogo/productos/harina_de_coco_265.jpeg",
       "unidad_medida": "kg"
@@ -2305,14 +2305,14 @@
       "descripcion": "",
       "categoria": "Harinas",
       "pagina": 13,
-      "precio_venta": 1820.0,
-      "precio_5kg": 1800.0,
+      "precio_venta": 1820,
+      "precio_5kg": 1800,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 1820.0,
-        "x5kg": 1800.0
+        "x1kg": 1820,
+        "x5kg": 1800
       },
       "imagen": "/catalogo/productos/salvado_de_trigo_finogrueso_271.jpeg",
       "unidad_medida": "kg"
@@ -2324,15 +2324,15 @@
       "descripcion": "",
       "categoria": "Harinas",
       "pagina": 13,
-      "precio_venta": 3000.0,
-      "precio_5kg": 2136.0,
+      "precio_venta": 3000,
+      "precio_5kg": 2136,
       "precio_10kg": 0,
-      "precio_25kg": 1495.0,
+      "precio_25kg": 1495,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 3000.0,
-        "x5kg": 2136.0,
-        "x25kg": 1495.0
+        "x1kg": 3000,
+        "x5kg": 2136,
+        "x25kg": 1495
       },
       "imagen": "/catalogo/productos/maizena_277.jpeg",
       "unidad_medida": "kg"
@@ -2344,13 +2344,13 @@
       "descripcion": "",
       "categoria": "Semillas",
       "pagina": 14,
-      "precio_venta": 17400.0,
+      "precio_venta": 17400,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 17400.0
+        "x1kg": 17400
       },
       "imagen": "/catalogo/productos/semilla_amapola_288.jpeg",
       "unidad_medida": "kg"
@@ -2362,14 +2362,14 @@
       "descripcion": "",
       "categoria": "Semillas",
       "pagina": 14,
-      "precio_venta": 4320.0,
-      "precio_5kg": 3960.0,
+      "precio_venta": 4320,
+      "precio_5kg": 3960,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 4320.0,
-        "x5kg": 3960.0
+        "x1kg": 4320,
+        "x5kg": 3960
       },
       "imagen": "/catalogo/productos/semilla_de_sesamo_integral_294.jpeg",
       "unidad_medida": "kg"
@@ -2381,14 +2381,14 @@
       "descripcion": "",
       "categoria": "Semillas",
       "pagina": 14,
-      "precio_venta": 11040.0,
-      "precio_5kg": 10080.0,
+      "precio_venta": 11040,
+      "precio_5kg": 10080,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 11040.0,
-        "x5kg": 10080.0
+        "x1kg": 11040,
+        "x5kg": 10080
       },
       "imagen": "/catalogo/productos/semilla_de_quinoa_300.jpeg",
       "unidad_medida": "kg"
@@ -2400,15 +2400,15 @@
       "descripcion": "Girasol, lino, sesamo integral, chía",
       "categoria": "Semillas",
       "pagina": 14,
-      "precio_venta": 4500.0,
-      "precio_5kg": 4000.0,
-      "precio_10kg": 3000.0,
+      "precio_venta": 4500,
+      "precio_5kg": 4000,
+      "precio_10kg": 3000,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 4500.0,
-        "x5kg": 4000.0,
-        "x10kg": 3000.0
+        "x1kg": 4500,
+        "x5kg": 4000,
+        "x10kg": 3000
       },
       "imagen": "/catalogo/productos/mix_de_semillas_306.jpeg",
       "unidad_medida": "kg"
@@ -2420,14 +2420,14 @@
       "descripcion": "",
       "categoria": "Semillas",
       "pagina": 14,
-      "precio_venta": 15000.0,
-      "precio_5kg": 14400.0,
+      "precio_venta": 15000,
+      "precio_5kg": 14400,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 15000.0,
-        "x5kg": 14400.0
+        "x1kg": 15000,
+        "x5kg": 14400
       },
       "imagen": "/catalogo/productos/semilla_zapallo_290.jpeg",
       "unidad_medida": "kg"
@@ -2439,14 +2439,14 @@
       "descripcion": "",
       "categoria": "Semillas",
       "pagina": 14,
-      "precio_venta": 10680.0,
-      "precio_5kg": 9480.0,
+      "precio_venta": 10680,
+      "precio_5kg": 9480,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 10680.0,
-        "x5kg": 9480.0
+        "x1kg": 10680,
+        "x5kg": 9480
       },
       "imagen": "/catalogo/productos/semilla_zapallo_290.jpeg",
       "unidad_medida": "kg"
@@ -2458,14 +2458,14 @@
       "descripcion": "",
       "categoria": "Semillas",
       "pagina": 14,
-      "precio_venta": 3840.0,
-      "precio_5kg": 2880.0,
+      "precio_venta": 3840,
+      "precio_5kg": 2880,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 3840.0,
-        "x5kg": 2880.0
+        "x1kg": 3840,
+        "x5kg": 2880
       },
       "imagen": "/catalogo/productos/semilla_de_lino_296.jpeg",
       "unidad_medida": "kg"
@@ -2477,14 +2477,14 @@
       "descripcion": "",
       "categoria": "Semillas",
       "pagina": 14,
-      "precio_venta": 8880.0,
-      "precio_5kg": 7440.0,
+      "precio_venta": 8880,
+      "precio_5kg": 7440,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 8880.0,
-        "x5kg": 7440.0
+        "x1kg": 8880,
+        "x5kg": 7440
       },
       "imagen": "/catalogo/productos/semilla_de_sesamo_blanco_292.jpeg",
       "unidad_medida": "kg"
@@ -2496,14 +2496,14 @@
       "descripcion": "",
       "categoria": "Semillas",
       "pagina": 14,
-      "precio_venta": 9120.0,
-      "precio_5kg": 8160.0,
+      "precio_venta": 9120,
+      "precio_5kg": 8160,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 9120.0,
-        "x5kg": 8160.0
+        "x1kg": 9120,
+        "x5kg": 8160
       },
       "imagen": "/catalogo/productos/semilla_de_chia_298.jpeg",
       "unidad_medida": "kg"
@@ -2515,14 +2515,14 @@
       "descripcion": "",
       "categoria": "Semillas",
       "pagina": 14,
-      "precio_venta": 4560.0,
-      "precio_5kg": 3840.0,
+      "precio_venta": 4560,
+      "precio_5kg": 3840,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 4560.0,
-        "x5kg": 3840.0
+        "x1kg": 4560,
+        "x5kg": 3840
       },
       "imagen": "/catalogo/productos/girasol_pelado_304.jpeg",
       "unidad_medida": "kg"
@@ -2534,13 +2534,13 @@
       "descripcion": "Chocolate, bananáa, cookies, frutilla, ddl, coco — Caja x20 uni",
       "categoria": "Suplementos",
       "pagina": 15,
-      "precio_venta": 1980.0,
+      "precio_venta": 1980,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 1980.0
+        "x1kg": 1980
       },
       "imagen": "/catalogo/productos/barritas_proteicas_iron_bar_313.jpeg",
       "unidad_medida": "kg"
@@ -2552,14 +2552,14 @@
       "descripcion": "",
       "categoria": "Suplementos",
       "pagina": 15,
-      "precio_venta": 960.0,
-      "precio_5kg": 840.0,
+      "precio_venta": 960,
+      "precio_5kg": 840,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 960.0,
-        "x5kg": 840.0
+        "x1kg": 960,
+        "x5kg": 840
       },
       "imagen": "/catalogo/productos/barritas_proteicas_iron_bar_313.jpeg",
       "unidad_medida": "kg"
@@ -2571,14 +2571,14 @@
       "descripcion": "",
       "categoria": "Suplementos",
       "pagina": 15,
-      "precio_venta": 17900.0,
-      "precio_5kg": 16500.0,
+      "precio_venta": 17900,
+      "precio_5kg": 16500,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 17900.0,
-        "x5kg": 16500.0
+        "x1kg": 17900,
+        "x5kg": 16500
       },
       "imagen": "/catalogo/productos/flor_de_jamaica_hibiscus_325.jpeg",
       "unidad_medida": "kg"
@@ -2590,13 +2590,13 @@
       "descripcion": "",
       "categoria": "Suplementos",
       "pagina": 15,
-      "precio_venta": 10500.0,
+      "precio_venta": 10500,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 10500.0
+        "x1kg": 10500
       },
       "imagen": "/catalogo/productos/flor_de_jamaica_hibiscus_325.jpeg",
       "unidad_medida": "kg"
@@ -2608,14 +2608,14 @@
       "descripcion": "",
       "categoria": "Suplementos",
       "pagina": 15,
-      "precio_venta": 960.0,
-      "precio_5kg": 840.0,
+      "precio_venta": 960,
+      "precio_5kg": 840,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 960.0,
-        "x5kg": 840.0
+        "x1kg": 960,
+        "x5kg": 840
       },
       "imagen": "/catalogo/productos/colageno_hidrolizado_315.jpeg",
       "unidad_medida": "kg"
@@ -2627,14 +2627,14 @@
       "descripcion": "x 500 gramos",
       "categoria": "Suplementos",
       "pagina": 15,
-      "precio_venta": 2900.0,
-      "precio_5kg": 2040.0,
+      "precio_venta": 2900,
+      "precio_5kg": 2040,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 2900.0,
-        "x5kg": 2040.0
+        "x1kg": 2900,
+        "x5kg": 2040
       },
       "imagen": "/catalogo/productos/maca_en_polvo_321.jpeg",
       "unidad_medida": "kg"
@@ -2646,13 +2646,13 @@
       "descripcion": "",
       "categoria": "Suplementos",
       "pagina": 15,
-      "precio_venta": 16900.0,
+      "precio_venta": 16900,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 16900.0
+        "x1kg": 16900
       },
       "imagen": "/catalogo/productos/maca_en_polvo_321.jpeg",
       "unidad_medida": "kg"
@@ -2664,14 +2664,14 @@
       "descripcion": "",
       "categoria": "Suplementos",
       "pagina": 15,
-      "precio_venta": 960.0,
-      "precio_5kg": 840.0,
+      "precio_venta": 960,
+      "precio_5kg": 840,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 960.0,
-        "x5kg": 840.0
+        "x1kg": 960,
+        "x5kg": 840
       },
       "imagen": "/catalogo/productos/harina_de_coca_317.jpeg",
       "unidad_medida": "kg"
@@ -2683,14 +2683,14 @@
       "descripcion": "30 ml",
       "categoria": "Suplementos",
       "pagina": 15,
-      "precio_venta": 8280.0,
-      "precio_5kg": 7800.0,
+      "precio_venta": 8280,
+      "precio_5kg": 7800,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 8280.0,
-        "x5kg": 7800.0
+        "x1kg": 8280,
+        "x5kg": 7800
       },
       "imagen": "/catalogo/productos/aceite_de_cannabis_323.jpeg",
       "unidad_medida": "kg"
@@ -2702,13 +2702,13 @@
       "descripcion": "",
       "categoria": "Suplementos",
       "pagina": 15,
-      "precio_venta": 5700.0,
+      "precio_venta": 5700,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 5700.0
+        "x1kg": 5700
       },
       "imagen": "/catalogo/productos/aceite_de_cannabis_323.jpeg",
       "unidad_medida": "kg"
@@ -2720,14 +2720,14 @@
       "descripcion": "",
       "categoria": "Aceites",
       "pagina": 16,
-      "precio_venta": 6600.0,
-      "precio_5kg": 6240.0,
+      "precio_venta": 6600,
+      "precio_5kg": 6240,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 6600.0,
-        "x5kg": 6240.0
+        "x1kg": 6600,
+        "x5kg": 6240
       },
       "imagen": "/catalogo/productos/aceite_de_coco_332.jpeg",
       "unidad_medida": "kg"
@@ -2739,14 +2739,14 @@
       "descripcion": "x30cc — Bio Nativa",
       "categoria": "Aceites",
       "pagina": 16,
-      "precio_venta": 7680.0,
-      "precio_5kg": 7080.0,
+      "precio_venta": 7680,
+      "precio_5kg": 7080,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 7680.0,
-        "x5kg": 7080.0
+        "x1kg": 7680,
+        "x5kg": 7080
       },
       "imagen": "/catalogo/productos/aceite_de_oregano_336.jpeg",
       "unidad_medida": "kg"
@@ -2758,14 +2758,14 @@
       "descripcion": "x250cc — Bio Nativa",
       "categoria": "Aceites",
       "pagina": 16,
-      "precio_venta": 9000.0,
-      "precio_5kg": 8640.0,
+      "precio_venta": 9000,
+      "precio_5kg": 8640,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 9000.0,
-        "x5kg": 8640.0
+        "x1kg": 9000,
+        "x5kg": 8640
       },
       "imagen": "/catalogo/productos/aceite_de_almendra_342.jpeg",
       "unidad_medida": "kg"
@@ -2777,14 +2777,14 @@
       "descripcion": "x250cc — Bio Nativa",
       "categoria": "Aceites",
       "pagina": 16,
-      "precio_venta": 12600.0,
-      "precio_5kg": 11760.0,
+      "precio_venta": 12600,
+      "precio_5kg": 11760,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 12600.0,
-        "x5kg": 11760.0
+        "x1kg": 12600,
+        "x5kg": 11760
       },
       "imagen": "/catalogo/productos/aceite_de_almendra_342.jpeg",
       "unidad_medida": "kg"
@@ -2796,14 +2796,14 @@
       "descripcion": "x30cc — Bio Nativa",
       "categoria": "Aceites",
       "pagina": 16,
-      "precio_venta": 9840.0,
-      "precio_5kg": 9360.0,
+      "precio_venta": 9840,
+      "precio_5kg": 9360,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 9840.0,
-        "x5kg": 9360.0
+        "x1kg": 9840,
+        "x5kg": 9360
       },
       "imagen": "/catalogo/productos/aceite_de_rosa_mosqueta_346.jpeg",
       "unidad_medida": "kg"
@@ -2815,14 +2815,14 @@
       "descripcion": "",
       "categoria": "Aceites",
       "pagina": 16,
-      "precio_venta": 10080.0,
-      "precio_5kg": 9360.0,
+      "precio_venta": 10080,
+      "precio_5kg": 9360,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 10080.0,
-        "x5kg": 9360.0
+        "x1kg": 10080,
+        "x5kg": 9360
       },
       "imagen": "/catalogo/productos/aceite_de_oliva_x_2lt_334.jpeg",
       "unidad_medida": "kg"
@@ -2834,14 +2834,14 @@
       "descripcion": "x250cc — Bio Nativa",
       "categoria": "Aceites",
       "pagina": 16,
-      "precio_venta": 9840.0,
-      "precio_5kg": 9360.0,
+      "precio_venta": 9840,
+      "precio_5kg": 9360,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 9840.0,
-        "x5kg": 9360.0
+        "x1kg": 9840,
+        "x5kg": 9360
       },
       "imagen": "/catalogo/productos/aceite_de_chia_338.jpeg",
       "unidad_medida": "kg"
@@ -2853,14 +2853,14 @@
       "descripcion": "x100cc — Bio Nativa",
       "categoria": "Aceites",
       "pagina": 16,
-      "precio_venta": 7080.0,
-      "precio_5kg": 6600.0,
+      "precio_venta": 7080,
+      "precio_5kg": 6600,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 7080.0,
-        "x5kg": 6600.0
+        "x1kg": 7080,
+        "x5kg": 6600
       },
       "imagen": "/catalogo/productos/aceite_de_jojoba_344.jpeg",
       "unidad_medida": "kg"
@@ -2872,13 +2872,13 @@
       "descripcion": "x360cc — Bio Nativa",
       "categoria": "Aceites",
       "pagina": 16,
-      "precio_venta": 10320.0,
+      "precio_venta": 10320,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 10320.0
+        "x1kg": 10320
       },
       "imagen": "/catalogo/productos/aceite_de_coco_332.jpeg",
       "unidad_medida": "kg"
@@ -2890,14 +2890,14 @@
       "descripcion": "x250cc — Bio Nativa",
       "categoria": "Aceites",
       "pagina": 16,
-      "precio_venta": 6840.0,
-      "precio_5kg": 6480.0,
+      "precio_venta": 6840,
+      "precio_5kg": 6480,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 6840.0,
-        "x5kg": 6480.0
+        "x1kg": 6840,
+        "x5kg": 6480
       },
       "imagen": "/catalogo/productos/aceite_de_sesamo_348.jpeg",
       "unidad_medida": "kg"
@@ -2909,14 +2909,14 @@
       "descripcion": "",
       "categoria": "Aceites",
       "pagina": 16,
-      "precio_venta": 5880.0,
-      "precio_5kg": 5520.0,
+      "precio_venta": 5880,
+      "precio_5kg": 5520,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 5880.0,
-        "x5kg": 5520.0
+        "x1kg": 5880,
+        "x5kg": 5520
       },
       "imagen": "/catalogo/productos/aceite_de_oliva_x_2lt_334.jpeg",
       "unidad_medida": "kg"
@@ -2928,14 +2928,14 @@
       "descripcion": "x250cc — Bio Nativa",
       "categoria": "Aceites",
       "pagina": 16,
-      "precio_venta": 6960.0,
-      "precio_5kg": 6480.0,
+      "precio_venta": 6960,
+      "precio_5kg": 6480,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 6960.0,
-        "x5kg": 6480.0
+        "x1kg": 6960,
+        "x5kg": 6480
       },
       "imagen": "/catalogo/productos/aceite_de_lino_340.jpeg",
       "unidad_medida": "kg"
@@ -2947,14 +2947,14 @@
       "descripcion": "x100cc — Bio Nativa",
       "categoria": "Aceites",
       "pagina": 16,
-      "precio_venta": 5880.0,
-      "precio_5kg": 5400.0,
+      "precio_venta": 5880,
+      "precio_5kg": 5400,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 5880.0,
-        "x5kg": 5400.0
+        "x1kg": 5880,
+        "x5kg": 5400
       },
       "imagen": "/catalogo/productos/aceite_de_lino_340.jpeg",
       "unidad_medida": "kg"
@@ -2966,13 +2966,13 @@
       "descripcion": "x30cc — Bio Nativa",
       "categoria": "Aceites",
       "pagina": 16,
-      "precio_venta": 7440.0,
+      "precio_venta": 7440,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 7440.0
+        "x1kg": 7440
       },
       "imagen": "/catalogo/productos/aceite_de_coco_332.jpeg",
       "unidad_medida": "kg"
@@ -2984,13 +2984,13 @@
       "descripcion": "",
       "categoria": "Otros",
       "pagina": 17,
-      "precio_venta": 5400.0,
+      "precio_venta": 5400,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 5400.0
+        "x1kg": 5400
       },
       "imagen": "/catalogo/productos/miel_pura_x_1kg_355.jpeg",
       "unidad_medida": "kg"
@@ -3002,13 +3002,13 @@
       "descripcion": "",
       "categoria": "Otros",
       "pagina": 17,
-      "precio_venta": 21467.0,
+      "precio_venta": 21467,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 21467.0
+        "x1kg": 21467
       },
       "imagen": "/catalogo/productos/eritritol_stevia_325gr_kony_357.jpeg",
       "unidad_medida": "kg"
@@ -3020,13 +3020,13 @@
       "descripcion": "",
       "categoria": "Otros",
       "pagina": 17,
-      "precio_venta": 7699.0,
+      "precio_venta": 7699,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 7699.0
+        "x1kg": 7699
       },
       "imagen": "/catalogo/productos/eritritol_200gr_oh_yeah_359.jpeg",
       "unidad_medida": "kg"
@@ -3038,13 +3038,13 @@
       "descripcion": "Colonial por 10 unidades",
       "categoria": "Chocolates sin TACC",
       "pagina": 18,
-      "precio_venta": 30960.0,
+      "precio_venta": 30960,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 30960.0
+        "x1kg": 30960
       },
       "imagen": "/catalogo/productos/chocolate_barra_al_70_con_stevia_366.jpeg",
       "unidad_medida": "kg"
@@ -3056,13 +3056,13 @@
       "descripcion": "Colonial por 10 unidades",
       "categoria": "Chocolates sin TACC",
       "pagina": 18,
-      "precio_venta": 28680.0,
+      "precio_venta": 28680,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 28680.0
+        "x1kg": 28680
       },
       "imagen": "/catalogo/productos/chocolate_barra_al_70_con_stevia_366.jpeg",
       "unidad_medida": "kg"
@@ -3074,13 +3074,13 @@
       "descripcion": "Colonial por 10 unidades",
       "categoria": "Chocolates sin TACC",
       "pagina": 18,
-      "precio_venta": 11280.0,
+      "precio_venta": 11280,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 11280.0
+        "x1kg": 11280
       },
       "imagen": "/catalogo/productos/chocolate_barra_al_70_con_stevia_366.jpeg",
       "unidad_medida": "kg"
@@ -3092,13 +3092,13 @@
       "descripcion": "",
       "categoria": "Chocolates sin TACC",
       "pagina": 18,
-      "precio_venta": 33600.0,
+      "precio_venta": 33600,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 33600.0
+        "x1kg": 33600
       },
       "imagen": "/catalogo/productos/pasas_con_chocolate_123.jpeg",
       "unidad_medida": "kg"
@@ -3110,13 +3110,13 @@
       "descripcion": "Colonial por 10 unidades",
       "categoria": "Chocolates sin TACC",
       "pagina": 18,
-      "precio_venta": 39600.0,
+      "precio_venta": 39600,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 39600.0
+        "x1kg": 39600
       },
       "imagen": "/catalogo/productos/chocolate_barra_al_70_con_stevia_366.jpeg",
       "unidad_medida": "kg"
@@ -3128,13 +3128,13 @@
       "descripcion": "Colonial por 10 unidades",
       "categoria": "Chocolates sin TACC",
       "pagina": 18,
-      "precio_venta": 21840.0,
+      "precio_venta": 21840,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 21840.0
+        "x1kg": 21840
       },
       "imagen": "/catalogo/productos/chocolate_barra_al_70_con_stevia_366.jpeg",
       "unidad_medida": "kg"
@@ -3146,13 +3146,13 @@
       "descripcion": "Colonial por 10 unidades",
       "categoria": "Chocolates sin TACC",
       "pagina": 18,
-      "precio_venta": 11940.0,
+      "precio_venta": 11940,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 11940.0
+        "x1kg": 11940
       },
       "imagen": "/catalogo/productos/chocolate_barra_al_70_con_stevia_366.jpeg",
       "unidad_medida": "kg"
@@ -3164,13 +3164,13 @@
       "descripcion": "Colonial por 10 unidades",
       "categoria": "Chocolates sin TACC",
       "pagina": 18,
-      "precio_venta": 35040.0,
+      "precio_venta": 35040,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 35040.0
+        "x1kg": 35040
       },
       "imagen": "/catalogo/productos/chocolate_barra_al_70_con_stevia_366.jpeg",
       "unidad_medida": "kg"
@@ -3182,13 +3182,13 @@
       "descripcion": "Colonial por 10 unidades",
       "categoria": "Chocolates sin TACC",
       "pagina": 18,
-      "precio_venta": 12720.0,
+      "precio_venta": 12720,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 12720.0
+        "x1kg": 12720
       },
       "imagen": "/catalogo/productos/chocolate_barra_al_70_con_stevia_366.jpeg",
       "unidad_medida": "kg"
@@ -3200,13 +3200,13 @@
       "descripcion": "",
       "categoria": "Chocolates sin TACC",
       "pagina": 18,
-      "precio_venta": 21360.0,
+      "precio_venta": 21360,
       "precio_5kg": 0,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 21360.0
+        "x1kg": 21360
       },
       "imagen": "/catalogo/productos/pasas_con_chocolate_123.jpeg",
       "unidad_medida": "kg"
@@ -3218,16 +3218,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 19,
-      "precio_venta": 26045.0,
-      "precio_5kg": 21704.0,
+      "precio_venta": 26045,
+      "precio_5kg": 21704,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 26045.0,
-        "x5kg": 21704.0
+        "x1kg": 26045,
+        "x5kg": 21704
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/gingko_biloba_x_1kg_166.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3237,16 +3237,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 19,
-      "precio_venta": 5861.0,
-      "precio_5kg": 4884.0,
+      "precio_venta": 5861,
+      "precio_5kg": 4884,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 5861.0,
-        "x5kg": 4884.0
+        "x1kg": 5861,
+        "x5kg": 4884
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/sem_x_1kg_167.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3256,16 +3256,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 19,
-      "precio_venta": 43352.0,
-      "precio_5kg": 36127.0,
+      "precio_venta": 43352,
+      "precio_5kg": 36127,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 43352.0,
-        "x5kg": 36127.0
+        "x1kg": 43352,
+        "x5kg": 36127
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/graviola_x_1kg_168.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3275,16 +3275,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 19,
-      "precio_venta": 34454.0,
-      "precio_5kg": 28712.0,
+      "precio_venta": 34454,
+      "precio_5kg": 28712,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 34454.0,
-        "x5kg": 28712.0
+        "x1kg": 34454,
+        "x5kg": 28712
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/sandalo_169.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3294,16 +3294,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 19,
-      "precio_venta": 71218.0,
-      "precio_5kg": 59348.0,
+      "precio_venta": 71218,
+      "precio_5kg": 59348,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 71218.0,
-        "x5kg": 59348.0
+        "x1kg": 71218,
+        "x5kg": 59348
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/valeriana_170.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3313,16 +3313,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 19,
-      "precio_venta": 52410.0,
-      "precio_5kg": 43675.0,
+      "precio_venta": 52410,
+      "precio_5kg": 43675,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 52410.0,
-        "x5kg": 43675.0
+        "x1kg": 52410,
+        "x5kg": 43675
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/hammamelis_171.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3332,16 +3332,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 19,
-      "precio_venta": 39960.0,
-      "precio_5kg": 33300.0,
+      "precio_venta": 39960,
+      "precio_5kg": 33300,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 39960.0,
-        "x5kg": 33300.0
+        "x1kg": 39960,
+        "x5kg": 33300
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/moringa_x_1kg_172.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3351,16 +3351,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 19,
-      "precio_venta": 63202.0,
-      "precio_5kg": 52668.0,
+      "precio_venta": 63202,
+      "precio_5kg": 52668,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 63202.0,
-        "x5kg": 52668.0
+        "x1kg": 63202,
+        "x5kg": 52668
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/cascara_sagrada_x_1kg_173.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3370,16 +3370,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 19,
-      "precio_venta": 27000.0,
-      "precio_5kg": 22500.0,
+      "precio_venta": 27000,
+      "precio_5kg": 22500,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 27000.0,
-        "x5kg": 22500.0
+        "x1kg": 27000,
+        "x5kg": 22500
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/manzanilla_174.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3389,16 +3389,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 19,
-      "precio_venta": 106560.0,
-      "precio_5kg": 88800.0,
+      "precio_venta": 106560,
+      "precio_5kg": 88800,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 106560.0,
-        "x5kg": 88800.0
+        "x1kg": 106560,
+        "x5kg": 88800
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/siempre_viva_175.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3408,16 +3408,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 19,
-      "precio_venta": 29837.0,
-      "precio_5kg": 24864.0,
+      "precio_venta": 29837,
+      "precio_5kg": 24864,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 29837.0,
-        "x5kg": 24864.0
+        "x1kg": 29837,
+        "x5kg": 24864
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/cedron_176.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3427,16 +3427,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 19,
-      "precio_venta": 6026.0,
-      "precio_5kg": 5022.0,
+      "precio_venta": 6026,
+      "precio_5kg": 5022,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 6026.0,
-        "x5kg": 5022.0
+        "x1kg": 6026,
+        "x5kg": 5022
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/higuera_tinta_60_cc_177.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3446,16 +3446,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 19,
-      "precio_venta": 42166.0,
-      "precio_5kg": 35138.0,
+      "precio_venta": 42166,
+      "precio_5kg": 35138,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 42166.0,
-        "x5kg": 35138.0
+        "x1kg": 42166,
+        "x5kg": 35138
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/rosa_mosqueta_x_1kg_178.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3465,16 +3465,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 19,
-      "precio_venta": 12815.0,
-      "precio_5kg": 10679.0,
+      "precio_venta": 12815,
+      "precio_5kg": 10679,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 12815.0,
-        "x5kg": 10679.0
+        "x1kg": 12815,
+        "x5kg": 10679
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/castanas_de_la_india_x_1kg_179.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3484,16 +3484,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 19,
-      "precio_venta": 68020.0,
-      "precio_5kg": 56683.0,
+      "precio_venta": 68020,
+      "precio_5kg": 56683,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 68020.0,
-        "x5kg": 56683.0
+        "x1kg": 68020,
+        "x5kg": 56683
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/petalo_de_rosas_180.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3503,16 +3503,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 19,
-      "precio_venta": 86598.0,
-      "precio_5kg": 72165.0,
+      "precio_venta": 86598,
+      "precio_5kg": 72165,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 86598.0,
-        "x5kg": 72165.0
+        "x1kg": 86598,
+        "x5kg": 72165
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/flor_de_tilo_181.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3522,16 +3522,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 19,
-      "precio_venta": 19536.0,
-      "precio_5kg": 16280.0,
+      "precio_venta": 19536,
+      "precio_5kg": 16280,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 19536.0,
-        "x5kg": 16280.0
+        "x1kg": 19536,
+        "x5kg": 16280
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/laurel_182.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3541,16 +3541,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 19,
-      "precio_venta": 9588.0,
-      "precio_5kg": 7990.0,
+      "precio_venta": 9588,
+      "precio_5kg": 7990,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 9588.0,
-        "x5kg": 7990.0
+        "x1kg": 9588,
+        "x5kg": 7990
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/malva_183.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3560,16 +3560,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 20,
-      "precio_venta": 23024.0,
-      "precio_5kg": 19187.0,
+      "precio_venta": 23024,
+      "precio_5kg": 19187,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 23024.0,
-        "x5kg": 19187.0
+        "x1kg": 23024,
+        "x5kg": 19187
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/melisa_184.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3579,16 +3579,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 20,
-      "precio_venta": 13741.0,
-      "precio_5kg": 11451.0,
+      "precio_venta": 13741,
+      "precio_5kg": 11451,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 13741.0,
-        "x5kg": 11451.0
+        "x1kg": 13741,
+        "x5kg": 11451
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/menta_185.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3598,16 +3598,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 20,
-      "precio_venta": 16284.0,
-      "precio_5kg": 13570.0,
+      "precio_venta": 16284,
+      "precio_5kg": 13570,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 16284.0,
-        "x5kg": 13570.0
+        "x1kg": 16284,
+        "x5kg": 13570
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/salvia_186.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3617,16 +3617,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 20,
-      "precio_venta": 29268.0,
-      "precio_5kg": 24390.0,
+      "precio_venta": 29268,
+      "precio_5kg": 24390,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 29268.0,
-        "x5kg": 24390.0
+        "x1kg": 29268,
+        "x5kg": 24390
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/peperina_187.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3636,16 +3636,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 20,
-      "precio_venta": 10680.0,
-      "precio_5kg": 8900.0,
+      "precio_venta": 10680,
+      "precio_5kg": 8900,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 10680.0,
-        "x5kg": 8900.0
+        "x1kg": 10680,
+        "x5kg": 8900
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/te_rojo_188.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3655,16 +3655,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 20,
-      "precio_venta": 11940.0,
-      "precio_5kg": 9950.0,
+      "precio_venta": 11940,
+      "precio_5kg": 9950,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 11940.0,
-        "x5kg": 9950.0
+        "x1kg": 11940,
+        "x5kg": 9950
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/pesuna_de_vaca_189.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3674,16 +3674,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 20,
-      "precio_venta": 12974.0,
-      "precio_5kg": 10812.0,
+      "precio_venta": 12974,
+      "precio_5kg": 10812,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 12974.0,
-        "x5kg": 10812.0
+        "x1kg": 12974,
+        "x5kg": 10812
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/ajenjo_190.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3693,16 +3693,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 20,
-      "precio_venta": 10200.0,
-      "precio_5kg": 8500.0,
+      "precio_venta": 10200,
+      "precio_5kg": 8500,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 10200.0,
-        "x5kg": 8500.0
+        "x1kg": 10200,
+        "x5kg": 8500
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/lapacho_191.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3712,16 +3712,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 20,
-      "precio_venta": 8466.0,
-      "precio_5kg": 7055.0,
+      "precio_venta": 8466,
+      "precio_5kg": 7055,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 8466.0,
-        "x5kg": 7055.0
+        "x1kg": 8466,
+        "x5kg": 7055
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/muna_muna_192.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3731,16 +3731,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 20,
-      "precio_venta": 15902.0,
-      "precio_5kg": 13252.0,
+      "precio_venta": 15902,
+      "precio_5kg": 13252,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 15902.0,
-        "x5kg": 13252.0
+        "x1kg": 15902,
+        "x5kg": 13252
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/poleo_193.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3750,16 +3750,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 20,
-      "precio_venta": 10657.0,
-      "precio_5kg": 8881.0,
+      "precio_venta": 10657,
+      "precio_5kg": 8881,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 10657.0,
-        "x5kg": 8881.0
+        "x1kg": 10657,
+        "x5kg": 8881
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/pasionaria_194.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3769,16 +3769,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 20,
-      "precio_venta": 9840.0,
-      "precio_5kg": 8200.0,
+      "precio_venta": 9840,
+      "precio_5kg": 8200,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 9840.0,
-        "x5kg": 8200.0
+        "x1kg": 9840,
+        "x5kg": 8200
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/te_verde_195.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3788,16 +3788,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 20,
-      "precio_venta": 2292.0,
-      "precio_5kg": 1910.0,
+      "precio_venta": 2292,
+      "precio_5kg": 1910,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 2292.0,
-        "x5kg": 1910.0
+        "x1kg": 2292,
+        "x5kg": 1910
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/rompe_piedra_50grs_196.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3807,16 +3807,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 20,
-      "precio_venta": 7961.0,
-      "precio_5kg": 6634.0,
+      "precio_venta": 7961,
+      "precio_5kg": 6634,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 7961.0,
-        "x5kg": 6634.0
+        "x1kg": 7961,
+        "x5kg": 6634
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/alcachofa_197.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3826,16 +3826,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 20,
-      "precio_venta": 6026.0,
-      "precio_5kg": 5022.0,
+      "precio_venta": 6026,
+      "precio_5kg": 5022,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 6026.0,
-        "x5kg": 5022.0
+        "x1kg": 6026,
+        "x5kg": 5022
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/llanten_tinta_60_cc_198.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3845,16 +3845,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 20,
-      "precio_venta": 7548.0,
-      "precio_5kg": 6290.0,
+      "precio_venta": 7548,
+      "precio_5kg": 6290,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 7548.0,
-        "x5kg": 6290.0
+        "x1kg": 7548,
+        "x5kg": 6290
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/ortiga_199.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3864,16 +3864,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 20,
-      "precio_venta": 4723.0,
-      "precio_5kg": 3936.0,
+      "precio_venta": 4723,
+      "precio_5kg": 3936,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 4723.0,
-        "x5kg": 3936.0
+        "x1kg": 4723,
+        "x5kg": 3936
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/romero_titura_50cc_200.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3883,16 +3883,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 20,
-      "precio_venta": 9132.0,
-      "precio_5kg": 7610.0,
+      "precio_venta": 9132,
+      "precio_5kg": 7610,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 9132.0,
-        "x5kg": 7610.0
+        "x1kg": 9132,
+        "x5kg": 7610
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/te_negro_201.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3902,16 +3902,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 20,
-      "precio_venta": 14690.0,
-      "precio_5kg": 12242.0,
+      "precio_venta": 14690,
+      "precio_5kg": 12242,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 14690.0,
-        "x5kg": 12242.0
+        "x1kg": 14690,
+        "x5kg": 12242
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/marcela_202.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3921,16 +3921,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 20,
-      "precio_venta": 6026.0,
-      "precio_5kg": 5022.0,
+      "precio_venta": 6026,
+      "precio_5kg": 5022,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 6026.0,
-        "x5kg": 5022.0
+        "x1kg": 6026,
+        "x5kg": 5022
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/rompe_piedra_tintura_60cc_203.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3940,16 +3940,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 20,
-      "precio_venta": 15860.0,
-      "precio_5kg": 13217.0,
+      "precio_venta": 15860,
+      "precio_5kg": 13217,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 15860.0,
-        "x5kg": 13217.0
+        "x1kg": 15860,
+        "x5kg": 13217
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/amargon_204.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3959,16 +3959,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 21,
-      "precio_venta": 11890.0,
-      "precio_5kg": 9908.0,
+      "precio_venta": 11890,
+      "precio_5kg": 9908,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 11890.0,
-        "x5kg": 9908.0
+        "x1kg": 11890,
+        "x5kg": 9908
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/ambay_205.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3978,16 +3978,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 21,
-      "precio_venta": 7038.0,
-      "precio_5kg": 5865.0,
+      "precio_venta": 7038,
+      "precio_5kg": 5865,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 7038.0,
-        "x5kg": 5865.0
+        "x1kg": 7038,
+        "x5kg": 5865
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/carqueja_206.svg",
       "unidad_medida": "kg"
     },
     {
@@ -3997,16 +3997,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 21,
-      "precio_venta": 6026.0,
-      "precio_5kg": 5022.0,
+      "precio_venta": 6026,
+      "precio_5kg": 5022,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 6026.0,
-        "x5kg": 5022.0
+        "x1kg": 6026,
+        "x5kg": 5022
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/chanar_titntura_60cc_207.svg",
       "unidad_medida": "kg"
     },
     {
@@ -4016,16 +4016,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 21,
-      "precio_venta": 6528.0,
-      "precio_5kg": 5440.0,
+      "precio_venta": 6528,
+      "precio_5kg": 5440,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 6528.0,
-        "x5kg": 5440.0
+        "x1kg": 6528,
+        "x5kg": 5440
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/espina_colorada_208.svg",
       "unidad_medida": "kg"
     },
     {
@@ -4035,16 +4035,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 21,
-      "precio_venta": 11911.0,
-      "precio_5kg": 9926.0,
+      "precio_venta": 11911,
+      "precio_5kg": 9926,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 11911.0,
-        "x5kg": 9926.0
+        "x1kg": 11911,
+        "x5kg": 9926
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/eucalipto_209.svg",
       "unidad_medida": "kg"
     },
     {
@@ -4054,16 +4054,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 21,
-      "precio_venta": 3982.0,
-      "precio_5kg": 3318.0,
+      "precio_venta": 3982,
+      "precio_5kg": 3318,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 3982.0,
-        "x5kg": 3318.0
+        "x1kg": 3982,
+        "x5kg": 3318
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/palo_amarillo_210.svg",
       "unidad_medida": "kg"
     },
     {
@@ -4073,16 +4073,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 21,
-      "precio_venta": 30000.0,
-      "precio_5kg": 25000.0,
+      "precio_venta": 30000,
+      "precio_5kg": 25000,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 30000.0,
-        "x5kg": 25000.0
+        "x1kg": 30000,
+        "x5kg": 25000
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/hierbabuena_211.svg",
       "unidad_medida": "kg"
     },
     {
@@ -4092,16 +4092,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 21,
-      "precio_venta": 7200.0,
-      "precio_5kg": 6000.0,
+      "precio_venta": 7200,
+      "precio_5kg": 6000,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 7200.0,
-        "x5kg": 6000.0
+        "x1kg": 7200,
+        "x5kg": 6000
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/burrito_212.svg",
       "unidad_medida": "kg"
     },
     {
@@ -4111,16 +4111,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 21,
-      "precio_venta": 4380.0,
-      "precio_5kg": 3650.0,
+      "precio_venta": 4380,
+      "precio_5kg": 3650,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 4380.0,
-        "x5kg": 3650.0
+        "x1kg": 4380,
+        "x5kg": 3650
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/cola_de_caballo_213.svg",
       "unidad_medida": "kg"
     },
     {
@@ -4130,16 +4130,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 21,
-      "precio_venta": 21013.0,
-      "precio_5kg": 17511.0,
+      "precio_venta": 21013,
+      "precio_5kg": 17511,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 21013.0,
-        "x5kg": 17511.0
+        "x1kg": 21013,
+        "x5kg": 17511
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/calendula_214.svg",
       "unidad_medida": "kg"
     },
     {
@@ -4149,16 +4149,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 21,
-      "precio_venta": 2292.0,
-      "precio_5kg": 1910.0,
+      "precio_venta": 2292,
+      "precio_5kg": 1910,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 2292.0,
-        "x5kg": 1910.0
+        "x1kg": 2292,
+        "x5kg": 1910
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/doradilla_40grs_215.svg",
       "unidad_medida": "kg"
     },
     {
@@ -4168,16 +4168,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 21,
-      "precio_venta": 74592.0,
-      "precio_5kg": 62160.0,
+      "precio_venta": 74592,
+      "precio_5kg": 62160,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 74592.0,
-        "x5kg": 62160.0
+        "x1kg": 74592,
+        "x5kg": 62160
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/cardo_mariano_216.svg",
       "unidad_medida": "kg"
     },
     {
@@ -4187,16 +4187,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 21,
-      "precio_venta": 13260.0,
-      "precio_5kg": 11050.0,
+      "precio_venta": 13260,
+      "precio_5kg": 11050,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 13260.0,
-        "x5kg": 11050.0
+        "x1kg": 13260,
+        "x5kg": 11050
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/salvia_blanca_217.svg",
       "unidad_medida": "kg"
     },
     {
@@ -4206,16 +4206,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 21,
-      "precio_venta": 760.0,
-      "precio_5kg": 633.0,
+      "precio_venta": 760,
+      "precio_5kg": 633,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 760.0,
-        "x5kg": 633.0
+        "x1kg": 760,
+        "x5kg": 633
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/yerba_de_pollo_25grs_218.svg",
       "unidad_medida": "kg"
     },
     {
@@ -4225,16 +4225,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 21,
-      "precio_venta": 15984.0,
-      "precio_5kg": 13320.0,
+      "precio_venta": 15984,
+      "precio_5kg": 13320,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 15984.0,
-        "x5kg": 13320.0
+        "x1kg": 15984,
+        "x5kg": 13320
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/boldo_219.svg",
       "unidad_medida": "kg"
     },
     {
@@ -4244,16 +4244,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 21,
-      "precio_venta": 17442.0,
-      "precio_5kg": 14535.0,
+      "precio_venta": 17442,
+      "precio_5kg": 14535,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 17442.0,
-        "x5kg": 14535.0
+        "x1kg": 17442,
+        "x5kg": 14535
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/cola_de_quirquincho_220.svg",
       "unidad_medida": "kg"
     },
     {
@@ -4263,16 +4263,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 21,
-      "precio_venta": 4716.0,
-      "precio_5kg": 3930.0,
+      "precio_venta": 4716,
+      "precio_5kg": 3930,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 4716.0,
-        "x5kg": 3930.0
+        "x1kg": 4716,
+        "x5kg": 3930
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/diente_de_leon_tintutara_60cc_221.svg",
       "unidad_medida": "kg"
     },
     {
@@ -4282,16 +4282,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 21,
-      "precio_venta": 25200.0,
-      "precio_5kg": 21000.0,
+      "precio_venta": 25200,
+      "precio_5kg": 21000,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 25200.0,
-        "x5kg": 21000.0
+        "x1kg": 25200,
+        "x5kg": 21000
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/estigma_de_maiz_222.svg",
       "unidad_medida": "kg"
     },
     {
@@ -4301,16 +4301,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 21,
-      "precio_venta": 20893.0,
-      "precio_5kg": 17411.0,
+      "precio_venta": 20893,
+      "precio_5kg": 17411,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 20893.0,
-        "x5kg": 17411.0
+        "x1kg": 20893,
+        "x5kg": 17411
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/hisopo_223.svg",
       "unidad_medida": "kg"
     },
     {
@@ -4320,16 +4320,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 21,
-      "precio_venta": 86610.0,
-      "precio_5kg": 72175.0,
+      "precio_venta": 86610,
+      "precio_5kg": 72175,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 86610.0,
-        "x5kg": 72175.0
+        "x1kg": 86610,
+        "x5kg": 72175
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/tilo_224.svg",
       "unidad_medida": "kg"
     },
     {
@@ -4339,16 +4339,16 @@
       "descripcion": "",
       "categoria": "Herboristería",
       "pagina": 21,
-      "precio_venta": 27362.0,
-      "precio_5kg": 22802.0,
+      "precio_venta": 27362,
+      "precio_5kg": 22802,
       "precio_10kg": 0,
       "precio_25kg": 0,
       "precio_30kg": 0,
       "escalas": {
-        "x1kg": 27362.0,
-        "x5kg": 22802.0
+        "x1kg": 27362,
+        "x5kg": 22802
       },
-      "imagen": null,
+      "imagen": "/catalogo/productos/mirra_225.svg",
       "unidad_medida": "kg"
     }
   ]
