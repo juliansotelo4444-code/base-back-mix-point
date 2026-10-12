@@ -384,3 +384,110 @@ CREATE INDEX IF NOT EXISTS idx_audit_logs_usuario ON audit_logs(usuario_id);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_entidad ON audit_logs(entidad, entidad_id);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_accion ON audit_logs(accion);
 CREATE INDEX IF NOT EXISTS idx_remitos_operario ON remitos(operario_asignado_id);
+
+-- ---------------------------------------------------------
+-- MEMORIA EXTENDIDA DE AGENTES Y J.A.R.V.I.S.
+-- ---------------------------------------------------------
+CREATE TABLE IF NOT EXISTS agente_memoria (
+    id          SERIAL PRIMARY KEY,
+    clave       TEXT UNIQUE,
+    contenido   JSONB NOT NULL,
+    updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_agente_memoria_clave ON agente_memoria(clave);
+
+CREATE TABLE IF NOT EXISTS jarvis_consultas_equipo (
+    id                  SERIAL PRIMARY KEY,
+    solicitante_id      INTEGER REFERENCES usuarios(id),
+    solicitante_nombre  TEXT,
+    destinatario_id     INTEGER REFERENCES usuarios(id),
+    destinatario_nombre TEXT,
+    consulta            TEXT NOT NULL,
+    respuesta           TEXT,
+    estado              TEXT DEFAULT 'pendiente',
+    created_at          TIMESTAMP NOT NULL DEFAULT NOW(),
+    answered_at         TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_jarvis_consultas_dest ON jarvis_consultas_equipo(destinatario_id, estado);
+CREATE INDEX IF NOT EXISTS idx_jarvis_consultas_fecha ON jarvis_consultas_equipo(created_at DESC);
+
+-- =========================================================
+-- OPTIMIZACIONES DE RENDIMIENTO, INTEGRIDAD Y AUDITORÍA
+-- =========================================================
+
+-- Extensión de trigramas para búsquedas difusas rápidas (ILIKE '%...%')
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+CREATE INDEX IF NOT EXISTS idx_productos_busqueda_trgm 
+    ON productos USING gin (nombre gin_trgm_ops, COALESCE(codigo, '') gin_trgm_ops);
+
+CREATE INDEX IF NOT EXISTS idx_clientes_busqueda_trgm 
+    ON clientes USING gin (razon_social gin_trgm_ops, COALESCE(cuit, '') gin_trgm_ops);
+
+-- Índices en Foreign Keys críticas faltantes
+CREATE INDEX IF NOT EXISTS idx_lotes_recepcion ON lotes(recepcion_id);
+CREATE INDEX IF NOT EXISTS idx_receta_ingredientes_prod ON receta_ingredientes(producto_ingrediente_id);
+CREATE INDEX IF NOT EXISTS idx_produccion_insumos_prod ON produccion_insumos(producto_id);
+CREATE INDEX IF NOT EXISTS idx_produccion_insumos_lote ON produccion_insumos(lote_id);
+CREATE INDEX IF NOT EXISTS idx_conciliaciones_cliente ON conciliaciones_bancarias(cliente_id);
+CREATE INDEX IF NOT EXISTS idx_gastos_proveedor ON gastos(proveedor_id);
+CREATE INDEX IF NOT EXISTS idx_remitos_usuario ON remitos(usuario_id);
+
+-- Índices para Trazabilidad Polimórfica (Kardex y Cuenta Corriente)
+CREATE INDEX IF NOT EXISTS idx_mov_stock_referencia ON movimientos_stock(referencia_tipo, referencia_id);
+CREATE INDEX IF NOT EXISTS idx_mov_cuenta_referencia ON movimientos_cuenta(referencia_tipo, referencia_id);
+
+-- Índice Parcial para Algoritmo FEFO (Picking de lotes con mercadería activa)
+CREATE INDEX IF NOT EXISTS idx_lotes_fefo_activo 
+    ON lotes(producto_id, fecha_vencimiento ASC) 
+    WHERE cantidad_actual > 0;
+
+-- Índices para Kanban y Ciclo de Estados de Remitos
+CREATE INDEX IF NOT EXISTS idx_remitos_estado_fecha ON remitos(estado, fecha DESC);
+CREATE INDEX IF NOT EXISTS idx_remitos_estado_pago ON remitos(estado_pago);
+
+-- Restricciones de Integridad y Validación
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'chk_lotes_cantidad_positiva') THEN
+        ALTER TABLE lotes ADD CONSTRAINT chk_lotes_cantidad_positiva CHECK (cantidad_actual >= 0);
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'chk_remitos_estado_pago') THEN
+        ALTER TABLE remitos ADD CONSTRAINT chk_remitos_estado_pago 
+            CHECK (estado_pago IN ('pendiente', 'pagado', 'parcial', 'en_revision', 'cuenta_corriente', 'bonificado'));
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'chk_remitos_total_positivo') THEN
+        ALTER TABLE remitos ADD CONSTRAINT chk_remitos_total_positivo CHECK (total >= 0);
+    END IF;
+END $$;
+
+-- Vista para Auditoría / Reconciliación de Saldos de Clientes
+CREATE OR REPLACE VIEW v_reconciliacion_saldos_clientes AS
+SELECT 
+    c.id,
+    c.razon_social,
+    c.saldo_cuenta AS saldo_actual_tabla,
+    COALESCE(SUM(
+        CASE 
+            WHEN mc.tipo IN ('cargo') THEN mc.monto
+            WHEN mc.tipo IN ('cobro', 'pago') THEN -mc.monto
+            WHEN mc.tipo = 'ajuste' AND mc.referencia_tipo = 'remito_cancelado' THEN -mc.monto
+            ELSE 0 
+        END
+    ), 0) AS saldo_calculado_kardex,
+    (c.saldo_cuenta - COALESCE(SUM(
+        CASE 
+            WHEN mc.tipo IN ('cargo') THEN mc.monto
+            WHEN mc.tipo IN ('cobro', 'pago') THEN -mc.monto
+            WHEN mc.tipo = 'ajuste' AND mc.referencia_tipo = 'remito_cancelado' THEN -mc.monto
+            ELSE 0 
+        END
+    ), 0)) AS diferencia
+FROM clientes c
+LEFT JOIN movimientos_cuenta mc ON mc.entidad_tipo = 'cliente' AND mc.entidad_id = c.id
+GROUP BY c.id, c.razon_social, c.saldo_cuenta;
+

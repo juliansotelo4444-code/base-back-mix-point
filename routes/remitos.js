@@ -159,7 +159,12 @@ router.post('/', async (req, res, next) => {
                         if (!loteRef) loteRef = lote.id;
                     }
 
-                    await tx.run('UPDATE productos SET stock_actual = stock_actual - $1 WHERE id = $2', [cant, item.producto_id]);
+                    await tx.run(`
+                        UPDATE productos 
+                        SET stock_actual = (SELECT COALESCE(SUM(cantidad_actual), 0) FROM lotes WHERE producto_id = $1)
+                        WHERE id = $1
+                    `, [item.producto_id]);
+
                     await tx.run(`
                         INSERT INTO movimientos_stock (producto_id, lote_id, tipo, cantidad, motivo, referencia_tipo, referencia_id, usuario_id)
                         VALUES ($1, $2, 'egreso', $3, 'Entrega remito', 'remito', $4, $5)
@@ -270,10 +275,23 @@ router.put('/:id', async (req, res, next) => {
             // 2. Si ya había descontado stock, REVERTIR el stock previo
             if (yaHabiaDescontado) {
                 for (const oldIt of itemsViejos) {
-                    await tx.run('UPDATE productos SET stock_actual = stock_actual + $1 WHERE id = $2', [oldIt.cantidad, oldIt.producto_id]);
                     if (oldIt.lote_id) {
                         await tx.run('UPDATE lotes SET cantidad_actual = cantidad_actual + $1 WHERE id = $2', [oldIt.cantidad, oldIt.lote_id]);
+                    } else {
+                        const loteReciente = await tx.one(
+                            'SELECT id FROM lotes WHERE producto_id = $1 ORDER BY fecha_ingreso DESC, id DESC LIMIT 1',
+                            [oldIt.producto_id]
+                        );
+                        if (loteReciente) {
+                            await tx.run('UPDATE lotes SET cantidad_actual = cantidad_actual + $1 WHERE id = $2', [oldIt.cantidad, loteReciente.id]);
+                        }
                     }
+                    await tx.run(`
+                        UPDATE productos 
+                        SET stock_actual = (SELECT COALESCE(SUM(cantidad_actual), 0) FROM lotes WHERE producto_id = $1)
+                        WHERE id = $1
+                    `, [oldIt.producto_id]);
+
                     await tx.run(`
                         INSERT INTO movimientos_stock (producto_id, lote_id, tipo, cantidad, motivo, referencia_tipo, referencia_id, usuario_id)
                         VALUES ($1, $2, 'ajuste_positivo', $3, 'Reversión por edición de remito', 'remito', $4, $5)
@@ -320,7 +338,12 @@ router.put('/:id', async (req, res, next) => {
                         if (!loteRef) loteRef = lote.id;
                     }
 
-                    await tx.run('UPDATE productos SET stock_actual = stock_actual - $1 WHERE id = $2', [cant, item.producto_id]);
+                    await tx.run(`
+                        UPDATE productos 
+                        SET stock_actual = (SELECT COALESCE(SUM(cantidad_actual), 0) FROM lotes WHERE producto_id = $1)
+                        WHERE id = $1
+                    `, [item.producto_id]);
+
                     await tx.run(`
                         INSERT INTO movimientos_stock (producto_id, lote_id, tipo, cantidad, motivo, referencia_tipo, referencia_id, usuario_id)
                         VALUES ($1, $2, 'egreso', $3, 'Entrega actualizada por edición remito', 'remito', $4, $5)
@@ -559,10 +582,23 @@ router.put('/:id/estado', async (req, res, next) => {
             // CASO 2: Cancelación de un remito que ya había descontado stock
             else if (nuevoEsCancelado && yaDescontado) {
                 for (const item of items) {
-                    await tx.run('UPDATE productos SET stock_actual = stock_actual + $1 WHERE id = $2', [item.cantidad, item.producto_id]);
                     if (item.lote_id) {
                         await tx.run('UPDATE lotes SET cantidad_actual = cantidad_actual + $1 WHERE id = $2', [item.cantidad, item.lote_id]);
+                    } else {
+                        const loteReciente = await tx.one(
+                            'SELECT id FROM lotes WHERE producto_id = $1 ORDER BY fecha_ingreso DESC, id DESC LIMIT 1',
+                            [item.producto_id]
+                        );
+                        if (loteReciente) {
+                            await tx.run('UPDATE lotes SET cantidad_actual = cantidad_actual + $1 WHERE id = $2', [item.cantidad, loteReciente.id]);
+                        }
                     }
+                    await tx.run(`
+                        UPDATE productos 
+                        SET stock_actual = (SELECT COALESCE(SUM(cantidad_actual), 0) FROM lotes WHERE producto_id = $1)
+                        WHERE id = $1
+                    `, [item.producto_id]);
+
                     await tx.run(`
                         INSERT INTO movimientos_stock (producto_id, lote_id, tipo, cantidad, motivo, referencia_tipo, referencia_id, usuario_id)
                         VALUES ($1, $2, 'ajuste_positivo', $3, 'Cancelación de remito entregado', 'remito', $4, $5)

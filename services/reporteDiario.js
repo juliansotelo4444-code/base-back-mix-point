@@ -13,13 +13,13 @@ class ReporteDiarioService {
         const fechaTarget = fechaRef || new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
         const hoy = new Date().toISOString().slice(0, 10);
 
-        // 1. Ventas del día (remitos)
+        // 1. Ventas del día (remitos confirmados o entregados)
         const ventasRow = await db.one(`
             SELECT 
                 COUNT(*)::int as total_remitos,
                 COALESCE(SUM(total), 0) as total_facturado
             FROM remitos 
-            WHERE fecha = $1
+            WHERE fecha = $1 AND estado NOT IN ('anulado', 'cancelado')
         `, [fechaTarget]);
 
         // 2. Cobranzas registradas (abonos de clientes)
@@ -43,7 +43,7 @@ class ReporteDiarioService {
             FROM remito_items ri
             JOIN remitos r ON r.id = ri.remito_id
             JOIN productos p ON p.id = ri.producto_id
-            WHERE r.fecha = $1
+            WHERE r.fecha = $1 AND r.estado NOT IN ('anulado', 'cancelado')
             GROUP BY p.nombre, p.unidad_medida
             ORDER BY total_cantidad DESC
             LIMIT 3

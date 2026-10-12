@@ -13,7 +13,7 @@ router.get('/resumen', async (req, res, next) => {
 
         const ventasMes = await db.one(`
             SELECT COALESCE(SUM(total), 0) as total, COUNT(*)::int as cantidad
-            FROM remitos WHERE fecha >= $1 AND estado != 'anulado'
+            FROM remitos WHERE fecha >= $1 AND estado NOT IN ('anulado', 'cancelado')
         `, [inicioMesStr]);
 
         const gastosMes = await db.one(`
@@ -72,7 +72,7 @@ router.get('/evolucion-mensual', async (req, res, next) => {
     try {
         const ventas = await db.all(`
             SELECT TO_CHAR(fecha, 'YYYY-MM') as mes, COALESCE(SUM(total),0) as total
-            FROM remitos WHERE estado != 'anulado' AND fecha >= CURRENT_DATE - INTERVAL '6 months'
+            FROM remitos WHERE estado NOT IN ('anulado', 'cancelado') AND fecha >= CURRENT_DATE - INTERVAL '6 months'
             GROUP BY mes ORDER BY mes ASC
         `);
 

@@ -106,12 +106,11 @@ function getUsuariosConectados() {
 }
 
 /**
- * Emite un evento a todos los clientes o específicamente al room de depósito
+ * Emite un evento a todos los clientes suscritos al canal de depósito
  */
 function emitirEventoDeposito(evento, datos) {
     if (!io) return;
     io.to('deposito').emit(evento, datos);
-    io.emit(evento, datos);
 }
 
 /**

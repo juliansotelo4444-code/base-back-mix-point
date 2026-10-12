@@ -21,6 +21,15 @@ if (connectionString && connectionString.includes('sslmode=require') && !connect
 const pool = new Pool({
     connectionString,
     ssl: useSSL ? { rejectUnauthorized: false } : false,
+    max: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 10000,
+    options: '-c timezone=America/Argentina/Buenos_Aires',
+});
+
+// Manejador de error para clientes inactivos del pool (evita caídas por timeout o desconexión en Neon)
+pool.on('error', (err) => {
+    console.warn('⚠️ [Postgres Pool] Error en cliente inactivo (reanudando automáticamente):', err.message);
 });
 
 // Helpers para no repetir `.rows` / `.rows[0]` en cada ruta.
