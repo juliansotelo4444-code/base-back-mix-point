@@ -356,6 +356,31 @@ CREATE INDEX IF NOT EXISTS idx_conciliaciones_remito ON conciliaciones_bancarias
 CREATE INDEX IF NOT EXISTS idx_notificaciones_leida ON notificaciones(leida, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_notificaciones_fecha ON notificaciones(created_at DESC);
 
+-- ---------------------------------------------------------
+-- BANDEJA DE PEDIDOS WEB (INTEGRACIÓN DIRECTA E-COMMERCE)
+-- ---------------------------------------------------------
+CREATE TABLE IF NOT EXISTS pedidos_web (
+    id                  SERIAL PRIMARY KEY,
+    numero              TEXT UNIQUE NOT NULL,
+    cliente_nombre      TEXT NOT NULL,
+    telefono            TEXT,
+    direccion           TEXT,
+    zona                TEXT,
+    metodo_pago         TEXT DEFAULT 'No especificado',
+    notas               TEXT,
+    productos_str       TEXT,
+    items               JSONB NOT NULL DEFAULT '[]'::jsonb,
+    total               NUMERIC NOT NULL DEFAULT 0,
+    estado              TEXT NOT NULL DEFAULT 'pendiente' CHECK (estado IN ('pendiente', 'emitido', 'cancelado')),
+    remito_id           INTEGER REFERENCES remitos(id) ON DELETE SET NULL,
+    origen              TEXT DEFAULT 'web',
+    created_at          TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_pedidos_web_estado ON pedidos_web(estado);
+CREATE INDEX IF NOT EXISTS idx_pedidos_web_fecha ON pedidos_web(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_pedidos_web_numero ON pedidos_web(numero);
+
 -- Migración segura para columnas nuevas
 ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS preferencias JSONB DEFAULT '{}'::jsonb;
 ALTER TABLE remitos ADD COLUMN IF NOT EXISTS bultos INTEGER NOT NULL DEFAULT 1;

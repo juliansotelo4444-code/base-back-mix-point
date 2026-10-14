@@ -66,6 +66,71 @@ router.post('/sheets-webhook', authOrWebhookToken, async (req, res, next) => {
     }
 });
 
+/**
+ * Endpoint de recepción directa de Pedidos Web desde el E-commerce Gus-Gus
+ * Registra el pedido en PostgreSQL (Neon), asigna correlativo oficial MP-XXXX y emite notificación
+ */
+router.post('/pedidos-web', async (req, res, next) => {
+    try {
+        const {
+            nombre,
+            telefono,
+            direccion,
+            zona,
+            metodoPago,
+            notas,
+            productos,
+            items,
+            total
+        } = req.body;
+
+        if (!nombre || !String(nombre).trim()) {
+            return res.status(400).json({ success: false, error: 'El nombre del cliente es obligatorio.' });
+        }
+
+        const maxResult = await db.one(`
+            SELECT COALESCE(MAX(NULLIF(regexp_replace(numero, '[^0-9]', '', 'g'), '')::int), 154) as max_num FROM pedidos_web
+        `);
+        const maxNum = (maxResult && maxResult.max_num) ? parseInt(maxResult.max_num, 10) : 154;
+        const nuevoNumero = 'MP-' + String(maxNum + 1).padStart(4, '0');
+
+        const { row: pedidoGuardado } = await db.run(`
+            INSERT INTO pedidos_web (
+                numero, cliente_nombre, telefono, direccion, zona, metodo_pago,
+                notas, productos_str, items, total, estado, origen, created_at
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, $10, 'pendiente', 'web', NOW())
+            RETURNING *
+        `, [
+            nuevoNumero,
+            String(nombre).trim(),
+            String(telefono || '').trim(),
+            String(direccion || '').trim(),
+            String(zona || '').trim(),
+            String(metodoPago || 'No especificado').trim(),
+            String(notas || '').trim(),
+            String(productos || '').trim(),
+            JSON.stringify(Array.isArray(items) ? items : []),
+            Number(total) || 0
+        ]);
+
+        try {
+            const { emitirEventoDeposito } = require('../socket');
+            emitirEventoDeposito('pedido_web_nuevo', pedidoGuardado);
+        } catch {
+            // Ignorar si socket no inicializado
+        }
+
+        res.status(201).json({
+            success: true,
+            numeroPedido: nuevoNumero,
+            id: pedidoGuardado.id,
+            mensaje: 'Pedido registrado con éxito en la base de datos'
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+
 // A partir de aquí, las rutas administrativas requieren autenticación o token
 router.use(authOrWebhookToken);
 
@@ -202,14 +267,64 @@ router.post('/sync-catalogo', async (req, res, next) => {
 });
 
 /**
- * Leer pedidos desde el Sheet de pedidos
+ * Leer pedidos web: prioriza la base de datos PostgreSQL (Neon) para máxima velocidad
+ * Si aún no hay pedidos locales o se fuerza origen=sheets, consulta Google Sheets
  */
 router.get('/pedidos-web', async (req, res, next) => {
     try {
+        const pedidosDBRows = await db.all(`
+            SELECT pw.*, r.id AS remito_id_rel, r.numero AS remito_numero
+            FROM pedidos_web pw
+            LEFT JOIN remitos r ON pw.remito_id = r.id OR r.observaciones ILIKE '%' || pw.numero || '%'
+            ORDER BY pw.id DESC
+        `);
+
+        // Si existen pedidos en la base de datos y no se pidió forzar Sheets
+        if (pedidosDBRows.length > 0 && req.query.origen !== 'sheets') {
+            const pedidosProcesados = pedidosDBRows.map(r => {
+                let itemsParsed = [];
+                try {
+                    itemsParsed = Array.isArray(r.items) ? r.items : (typeof r.items === 'string' ? JSON.parse(r.items) : []);
+                } catch {
+                    itemsParsed = [];
+                }
+
+                const remitoAsociado = (r.remito_id || r.remito_id_rel)
+                    ? { id: r.remito_id || r.remito_id_rel, numero: r.remito_numero }
+                    : null;
+
+                return {
+                    id: r.id,
+                    numero: r.numero,
+                    fecha: r.created_at ? new Date(r.created_at).toISOString().slice(0, 10) : '',
+                    nombre: r.cliente_nombre,
+                    telefono: r.telefono || '',
+                    direccion: r.direccion || '',
+                    zona: r.zona || '',
+                    direccion_completa: [r.direccion, r.zona].filter(Boolean).join(', '),
+                    metodo_pago: r.metodo_pago,
+                    notas: r.notas,
+                    productos_str: r.productos_str || '',
+                    items: itemsParsed,
+                    total: Number(r.total) || 0,
+                    estado: r.estado,
+                    origen: r.origen || 'web',
+                    remito_asociado: remitoAsociado
+                };
+            });
+
+            return res.json({
+                pedidos: pedidosProcesados,
+                origen: 'base_de_datos',
+                total: pedidosProcesados.length
+            });
+        }
+
+        // Fallback o lectura histórica desde Google Sheets
         const cfg = await db.one("SELECT valor FROM configuracion_sistema WHERE clave = 'sheets_pedidos_url'");
         const url = req.query.url || (cfg && cfg.valor) || DEFAULT_PEDIDOS_URL;
         if (!url) {
-            return res.json({ pedidos: [], mensaje: 'Configurá el enlace de tu Google Sheet de pedidos.' });
+            return res.json({ pedidos: [], mensaje: 'Sin pedidos en base de datos ni enlace de Sheets configurado.' });
         }
 
         const sheetId = extraerSheetId(url);
@@ -219,7 +334,6 @@ router.get('/pedidos-web', async (req, res, next) => {
         const csvContent = await fetchUrl(exportUrl);
         const rows = parseCSV(csvContent);
 
-        // Obtener remitos existentes para saber cuáles pedidos ya fueron procesados
         const remitosExistentes = await db.all("SELECT id, numero, observaciones FROM remitos WHERE observaciones LIKE '%MP-%'");
         const remitosMap = {};
         remitosExistentes.forEach(r => {
@@ -227,110 +341,85 @@ router.get('/pedidos-web', async (req, res, next) => {
             if (m) remitosMap[m[0]] = { id: r.id, numero: r.numero };
         });
 
-        // Obtener catálogo para matchear productos
         const productosDB = await db.all('SELECT id, codigo, nombre, unidad_medida, precio_venta, stock_actual FROM productos WHERE activo = true');
 
-function normalizarTexto(str) {
-    if (!str) return '';
-    return str
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .trim();
-}
-
-function parsearItemsProductos(productosStr, productosDB) {
-    if (!productosStr) return [];
-    const lineas = productosStr.split(/[|\r\n;]+/).map(s => s.trim()).filter(Boolean);
-
-    return lineas.map(raw => {
-        let nombre = raw;
-        let unidad = 'kg';
-        let cantidad = 1;
-        let subtotalDeclarado = null;
-        let precioUnitarioDeclarado = null;
-
-        // 1. Extraer precio/subtotal entre corchetes tipo [$4.700] o [4700]
-        const precioMatch = nombre.match(/\[\s*\$?\s*([0-9.,]+)\s*\]/);
-        if (precioMatch) {
-            subtotalDeclarado = sanitizarNumero(precioMatch[1]);
-            nombre = nombre.replace(precioMatch[0], '').trim();
+        function normalizarTextoLocal(str) {
+            if (!str) return '';
+            return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
         }
 
-        // 2. Extraer cantidad tipo "x1", "x 2", "x2.5" al final o antes de corchetes
-        const cantMatch = nombre.match(/(?:^|\s)x\s*(\d+(?:[.,]\d+)?)\s*$/i) ||
-                          nombre.match(/(?:^|\s)x\s*(\d+(?:[.,]\d+)?)(?:\s|$)/i);
-        if (cantMatch) {
-            cantidad = sanitizarNumero(cantMatch[1]) || 1;
-            nombre = (nombre.slice(0, cantMatch.index) + ' ' + nombre.slice(cantMatch.index + cantMatch[0].length)).trim();
-        } else {
-            const cantPrefixMatch = nombre.match(/^(\d+(?:[.,]\d+)?)\s*x\s+/i);
-            if (cantPrefixMatch) {
-                cantidad = sanitizarNumero(cantPrefixMatch[1]) || 1;
-                nombre = nombre.slice(cantPrefixMatch[0].length).trim();
-            }
-        }
+        function parsearItemsProductosLocal(productosStr, prodsDB) {
+            if (!productosStr) return [];
+            const lineas = productosStr.split(/[|\r\n;]+/).map(s => s.trim()).filter(Boolean);
 
-        // 3. Extraer unidad tipo "(1kg)", "(unidad)", "(500g)"
-        const regexParen = /\((.*?)\)/g;
-        let pMatch;
-        while ((pMatch = regexParen.exec(nombre)) !== null) {
-            const dentro = pMatch[1].trim().toLowerCase();
-            if (dentro.includes('unidad') || dentro.includes('u') || dentro === 'un') {
-                unidad = 'unidad';
-                nombre = nombre.replace(pMatch[0], '').trim();
-                break;
-            } else if (dentro.includes('kg') || dentro.includes('kilo')) {
-                unidad = 'kg';
-                nombre = nombre.replace(pMatch[0], '').trim();
-                break;
-            } else if (dentro.includes('g') && !dentro.includes('kg')) {
-                unidad = 'g';
-                nombre = nombre.replace(pMatch[0], '').trim();
-                break;
-            }
-        }
+            return lineas.map(raw => {
+                let nombre = raw;
+                let unidad = 'kg';
+                let cantidad = 1;
+                let subtotalDeclarado = null;
+                let precioUnitarioDeclarado = null;
 
-        nombre = nombre.replace(/\s+/g, ' ').replace(/^[-–—]\s*/, '').replace(/\s*[-–—]$/, '').trim();
+                const precioMatch = nombre.match(/\[\s*\$?\s*([0-9.,]+)\s*\]/);
+                if (precioMatch) {
+                    subtotalDeclarado = sanitizarNumero(precioMatch[1]);
+                    nombre = nombre.replace(precioMatch[0], '').trim();
+                }
 
-        if (subtotalDeclarado && cantidad > 0) {
-            precioUnitarioDeclarado = Math.round(subtotalDeclarado / cantidad);
-        }
+                const cantMatch = nombre.match(/(?:^|\s)x\s*(\d+(?:[.,]\d+)?)\s*$/i) ||
+                                  nombre.match(/(?:^|\s)x\s*(\d+(?:[.,]\d+)?)(?:\s|$)/i);
+                if (cantMatch) {
+                    cantidad = sanitizarNumero(cantMatch[1]) || 1;
+                    nombre = (nombre.slice(0, cantMatch.index) + ' ' + nombre.slice(cantMatch.index + cantMatch[0].length)).trim();
+                }
 
-        const normNombre = normalizarTexto(nombre);
+                const regexParen = /\((.*?)\)/g;
+                let pMatch;
+                while ((pMatch = regexParen.exec(nombre)) !== null) {
+                    const dentro = pMatch[1].trim().toLowerCase();
+                    if (dentro.includes('unidad') || dentro.includes('u') || dentro === 'un') {
+                        unidad = 'unidad';
+                        nombre = nombre.replace(pMatch[0], '').trim();
+                        break;
+                    } else if (dentro.includes('kg') || dentro.includes('kilo')) {
+                        unidad = 'kg';
+                        nombre = nombre.replace(pMatch[0], '').trim();
+                        break;
+                    }
+                }
 
-        let match = productosDB.find(p => normalizarTexto(p.nombre) === normNombre);
-        if (!match) {
-            match = productosDB.find(p => {
-                const pNorm = normalizarTexto(p.nombre);
-                return pNorm === normNombre || pNorm.startsWith(normNombre) || normNombre.startsWith(pNorm);
+                nombre = nombre.replace(/\s+/g, ' ').replace(/^[-–—]\s*/, '').replace(/\s*[-–—]$/, '').trim();
+
+                if (subtotalDeclarado && cantidad > 0) {
+                    precioUnitarioDeclarado = Math.round(subtotalDeclarado / cantidad);
+                }
+
+                const normNombre = normalizarTextoLocal(nombre);
+                let match = prodsDB.find(p => normalizarTextoLocal(p.nombre) === normNombre);
+                if (!match) {
+                    match = prodsDB.find(p => {
+                        const pNorm = normalizarTextoLocal(p.nombre);
+                        return pNorm.includes(normNombre) || normNombre.includes(pNorm);
+                    });
+                }
+
+                const precioFinal = (match && Number(match.precio_venta) > 0) ? Number(match.precio_venta) : (precioUnitarioDeclarado || 0);
+                const subtotalFinal = (precioFinal > 0) ? (precioFinal * cantidad) : (subtotalDeclarado || 0);
+
+                return {
+                    raw,
+                    nombreOriginal: nombre,
+                    nombre: match ? match.nombre : nombre,
+                    producto_id: match ? match.id : null,
+                    codigo: match ? match.codigo : null,
+                    unidad_medida: match ? match.unidad_medida : unidad,
+                    precio_unitario: precioFinal,
+                    cantidad,
+                    subtotal: subtotalFinal,
+                    stock_actual: match ? Number(match.stock_actual) : 0,
+                    es_nuevo: !match
+                };
             });
         }
-        if (!match) {
-            match = productosDB.find(p => {
-                const pNorm = normalizarTexto(p.nombre);
-                return pNorm.includes(normNombre) || normNombre.includes(pNorm);
-            });
-        }
-
-        const precioFinal = (match && Number(match.precio_venta) > 0) ? Number(match.precio_venta) : (precioUnitarioDeclarado || 0);
-        const subtotalFinal = (precioFinal > 0) ? (precioFinal * cantidad) : (subtotalDeclarado || 0);
-
-        return {
-            raw,
-            nombreOriginal: nombre,
-            nombre: match ? match.nombre : nombre,
-            producto_id: match ? match.id : null,
-            codigo: match ? match.codigo : null,
-            unidad_medida: match ? match.unidad_medida : unidad,
-            precio_unitario: precioFinal,
-            cantidad,
-            subtotal: subtotalFinal,
-            stock_actual: match ? Number(match.stock_actual) : 0,
-            es_nuevo: !match
-        };
-    });
-}
 
         const pedidosProcesados = rows.map(r => {
             const normalizado = {};
@@ -347,9 +436,7 @@ function parsearItemsProductos(productosStr, productosDB) {
             const productosStr = normalizado.productos || '';
             const total = sanitizarNumero(normalizado.total);
 
-            // Parsear ítems con soporte para múltiples formatos y corchetes de precios
-            const itemsParsed = parsearItemsProductos(productosStr, productosDB);
-
+            const itemsParsed = parsearItemsProductosLocal(productosStr, productosDB);
             const remitoAsociado = remitosMap[numero] || null;
 
             return {
@@ -363,11 +450,74 @@ function parsearItemsProductos(productosStr, productosDB) {
                 productos_str: productosStr,
                 items: itemsParsed,
                 total,
-                remito_asociado: remitoAsociado
+                remito_asociado: remitoAsociado,
+                origen: 'google_sheets'
             };
         });
 
-        res.json({ pedidos: pedidosProcesados.reverse() });
+        res.json({ pedidos: pedidosProcesados.reverse(), origen: 'google_sheets' });
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * Importar pedidos históricos desde Google Sheets a la base de datos Neon
+ */
+router.post('/importar-historico-sheets', async (req, res, next) => {
+    try {
+        const cfg = await db.one("SELECT valor FROM configuracion_sistema WHERE clave = 'sheets_pedidos_url'");
+        const url = (cfg && cfg.valor) || DEFAULT_PEDIDOS_URL;
+        const sheetId = extraerSheetId(url);
+        if (!sheetId) return res.status(400).json({ error: 'URL de Google Sheets inválida.' });
+
+        const exportUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
+        const csvContent = await fetchUrl(exportUrl);
+        const rows = parseCSV(csvContent);
+
+        const productosDB = await db.all('SELECT id, codigo, nombre, unidad_medida, precio_venta, stock_actual FROM productos WHERE activo = true');
+        const remitosExistentes = await db.all("SELECT id, numero, observaciones FROM remitos WHERE observaciones LIKE '%MP-%'");
+        const remitosMap = {};
+        remitosExistentes.forEach(r => {
+            const m = r.observaciones ? r.observaciones.match(/MP-\d+/) : null;
+            if (m) remitosMap[m[0]] = r.id;
+        });
+
+        let importados = 0;
+        for (const r of rows) {
+            const norm = {};
+            Object.keys(r).forEach(k => { norm[k.trim().toLowerCase()] = r[k]; });
+            const numero = norm.numero || '';
+            if (!numero || !norm.nombre) continue;
+
+            const existe = await db.one('SELECT id FROM pedidos_web WHERE numero = $1', [numero]);
+            if (!existe) {
+                const remitoId = remitosMap[numero] || null;
+                const estado = remitoId ? 'emitido' : 'pendiente';
+
+                await db.run(`
+                    INSERT INTO pedidos_web (
+                        numero, cliente_nombre, telefono, direccion, zona,
+                        metodo_pago, notas, productos_str, items, total, estado, remito_id, origen, created_at
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, '[]'::jsonb, $9, $10, $11, 'sheets_historico', NOW())
+                `, [
+                    numero,
+                    norm.nombre,
+                    norm.telefono || '',
+                    norm.direccion || '',
+                    norm.zona || '',
+                    norm.metodopago || norm['metodo de pago'] || 'No especificado',
+                    norm.notas || '',
+                    norm.productos || '',
+                    sanitizarNumero(norm.total) || 0,
+                    estado,
+                    remitoId
+                ]);
+                importados++;
+            }
+        }
+
+        res.json({ ok: true, importados, mensaje: `Se importaron ${importados} pedidos históricos a la base de datos.` });
     } catch (err) {
         next(err);
     }
@@ -508,8 +658,21 @@ router.post('/crear-remito-desde-pedido', async (req, res, next) => {
                 `, [cliente.id, total, rId, `Remito Web ${pedido_numero} (${numero})`, usuarioId]);
             }
 
+            // 4. Actualizar estado del pedido web a 'emitido' en la base de datos
+            await tx.run(
+                `UPDATE pedidos_web SET estado = 'emitido', remito_id = $1 WHERE numero = $2 OR id = $3`,
+                [rId, pedido_numero, req.body.pedido_id || null]
+            );
+
             return rId;
         });
+
+        try {
+            const { emitirEventoDeposito } = require('../socket');
+            emitirEventoDeposito('pedido_web_actualizado', { numero: pedido_numero, remito_id: remitoId });
+        } catch {
+            // Socket opcional
+        }
 
         // Alerta de stock para productos vendidos
         if (items && items.length > 0) {
