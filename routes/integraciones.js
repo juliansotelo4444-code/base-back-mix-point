@@ -20,6 +20,11 @@ const router = express.Router();
 const DEFAULT_CATALOGO_URL = process.env.GOOGLE_SHEET_CATALOGO_URL || 'https://docs.google.com/spreadsheets/d/1PC-DPIePHgDQPXt7sGuXCObJyO2YAiMOyTS1clAvTao/edit?usp=sharing';
 const DEFAULT_PEDIDOS_URL = process.env.GOOGLE_SHEET_PEDIDOS_URL || 'https://docs.google.com/spreadsheets/d/1uJfkTvjqm_TEySTLJx2YW1fIViIrryjXl6IpDMlcPtk/edit?usp=sharing';
 
+function normalizarTexto(str) {
+    if (!str) return '';
+    return String(str).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+}
+
 /**
  * Middleware híbrido: acepta x-mixpoint-token o sesión de usuario activa
  */

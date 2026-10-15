@@ -55,6 +55,19 @@ router.get('/resumen', async (req, res, next) => {
             GROUP BY estado
         `);
 
+        const estadosPedidosHoy = await db.all(`
+            SELECT estado, COUNT(*)::int as cantidad, COALESCE(SUM(total), 0) as total
+            FROM remitos
+            WHERE fecha::date = CURRENT_DATE
+            GROUP BY estado
+        `);
+
+        const pedidosHoyInfo = await db.one(`
+            SELECT COUNT(*)::int as cantidad, COALESCE(SUM(total), 0) as total
+            FROM remitos
+            WHERE fecha::date = CURRENT_DATE
+        `);
+
         res.json({
             ventas_mes: ventasMes,
             compras_mes: comprasMes,
@@ -63,7 +76,9 @@ router.get('/resumen', async (req, res, next) => {
             productos_bajo_stock: productosBajoStock,
             lotes_por_vencer: lotesPorVencer,
             valor_stock_actual: valorStock.total,
-            estados_pedidos: estadosPedidos
+            estados_pedidos: estadosPedidos,
+            estados_pedidos_hoy: estadosPedidosHoy,
+            pedidos_hoy_info: pedidosHoyInfo
         });
     } catch (err) { next(err); }
 });
