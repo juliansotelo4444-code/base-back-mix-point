@@ -578,31 +578,48 @@ router.post('/crear-remito-desde-pedido', async (req, res, next) => {
             for (const it of items) {
                 const cant = Number(it.cantidad) || 1;
                 let precio = Number(it.precio_unitario) || 0;
-                let productoId = it.producto_id;
+                let productoId = it.producto_id ? parseInt(it.producto_id, 10) : null;
+                const nombreBuscado = it.nombre || it.nombreOriginal || it.raw || 'Producto Sin Nombre';
+                const normNom = normalizarTexto(nombreBuscado);
 
-                // Si el ítem no tiene producto_id, buscar en DB o crear el producto en el catálogo
-                if (!productoId) {
-                    const nombreBuscado = it.nombre || it.nombreOriginal || it.raw || 'Producto Sin Nombre';
-                    const normNom = normalizarTexto(nombreBuscado);
-                    let prodExistente = await tx.one('SELECT id, precio_venta, unidad_medida FROM productos WHERE LOWER(nombre) = LOWER($1)', [nombreBuscado.trim()]);
+                let prodExistente = null;
+
+                // 1. Si vino un ID, verificar primero que exista realmente en la tabla productos
+                if (productoId && !isNaN(productoId)) {
+                    prodExistente = await tx.one('SELECT id, precio_venta, unidad_medida FROM productos WHERE id = $1', [productoId]);
+                }
+
+                // 2. Si no existe por ID numérico, intentar buscar por código correlativo (ej: MP-351 si vino 351)
+                if (!prodExistente && productoId && !isNaN(productoId)) {
+                    const codBuscado = 'MP-' + String(productoId).padStart(3, '0');
+                    prodExistente = await tx.one('SELECT id, precio_venta, unidad_medida FROM productos WHERE codigo = $1', [codBuscado]);
+                }
+
+                // 3. Si no existe por ID ni por código, buscar por nombre exacto o normalizado
+                if (!prodExistente && nombreBuscado) {
+                    prodExistente = await tx.one('SELECT id, precio_venta, unidad_medida FROM productos WHERE LOWER(TRIM(nombre)) = LOWER(TRIM($1))', [nombreBuscado]);
                     if (!prodExistente) {
                         const todosProds = await tx.all('SELECT id, nombre, precio_venta, unidad_medida FROM productos WHERE activo = true');
-                        prodExistente = todosProds.find(p => normalizarTexto(p.nombre) === normNom || normalizarTexto(p.nombre).includes(normNom) || normNom.includes(normalizarTexto(p.nombre)));
+                        prodExistente = todosProds.find(p => {
+                            const pNorm = normalizarTexto(p.nombre);
+                            return pNorm === normNom || pNorm.includes(normNom) || normNom.includes(pNorm);
+                        });
                     }
+                }
 
-                    if (prodExistente) {
-                        productoId = prodExistente.id;
-                        if (!precio && Number(prodExistente.precio_venta) > 0) {
-                            precio = Number(prodExistente.precio_venta);
-                        }
-                    } else {
-                        const nuevoCodigo = await generarNumero('productos', 'MP', tx);
-                        const { row: nuevoProd } = await tx.run(`
-                            INSERT INTO productos (codigo, nombre, unidad_medida, precio_venta, stock_actual, activo)
-                            VALUES ($1, $2, $3, $4, 100, true) RETURNING id
-                        `, [nuevoCodigo, nombreBuscado.trim(), it.unidad_medida || 'kg', precio]);
-                        productoId = nuevoProd.id;
+                // 4. Asignar el producto existente o crearlo si de verdad es nuevo en el catálogo
+                if (prodExistente) {
+                    productoId = prodExistente.id;
+                    if (!precio && Number(prodExistente.precio_venta) > 0) {
+                        precio = Number(prodExistente.precio_venta);
                     }
+                } else {
+                    const nuevoCodigo = await generarNumero('productos', 'MP', tx);
+                    const { row: nuevoProd } = await tx.run(`
+                        INSERT INTO productos (codigo, nombre, unidad_medida, precio_venta, stock_actual, activo)
+                        VALUES ($1, $2, $3, $4, 100, true) RETURNING id
+                    `, [nuevoCodigo, nombreBuscado.trim(), it.unidad_medida || 'kg', precio]);
+                    productoId = nuevoProd.id;
                 }
 
                 // Asegurar que exista un lote disponible en lotes para trazabilidad FEFO

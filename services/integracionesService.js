@@ -140,27 +140,44 @@ class IntegracionesService {
             for (const it of items) {
                 const cant = Number(it.cantidad) || 1;
                 let precio = Number(it.precio_unitario) || 0;
-                let productoId = it.producto_id;
+                let productoId = it.producto_id ? parseInt(it.producto_id, 10) : null;
+                const nombreBuscado = it.nombre || it.raw || 'Producto Sin Nombre';
+                const normNom = normalizarTexto(nombreBuscado);
 
-                if (!productoId) {
-                    const normNom = normalizarTexto(it.nombre);
-                    let prodExistente = await tx.one('SELECT id, precio_venta FROM productos WHERE LOWER(nombre) = LOWER($1)', [it.nombre.trim()]);
+                let prodExistente = null;
+
+                // 1. Si vino un ID, verificar que exista en la tabla productos
+                if (productoId && !isNaN(productoId)) {
+                    prodExistente = await tx.one('SELECT id, precio_venta FROM productos WHERE id = $1', [productoId]);
+                }
+
+                // 2. Si no existe por ID numérico, buscar por código
+                if (!prodExistente && productoId && !isNaN(productoId)) {
+                    const codBuscado = 'MP-' + String(productoId).padStart(3, '0');
+                    prodExistente = await tx.one('SELECT id, precio_venta FROM productos WHERE codigo = $1', [codBuscado]);
+                }
+
+                // 3. Si no existe por ID ni código, buscar por nombre exacto o normalizado
+                if (!prodExistente && nombreBuscado) {
+                    prodExistente = await tx.one('SELECT id, precio_venta FROM productos WHERE LOWER(TRIM(nombre)) = LOWER(TRIM($1))', [nombreBuscado]);
                     if (!prodExistente) {
                         const todos = await tx.all('SELECT id, nombre, precio_venta FROM productos WHERE activo = true');
-                        prodExistente = todos.find(p => normalizarTexto(p.nombre) === normNom || normalizarTexto(p.nombre).includes(normNom));
-                    }
-                    if (prodExistente) {
-                        productoId = prodExistente.id;
-                        if (!precio) precio = Number(prodExistente.precio_venta) || 0;
+                        prodExistente = todos.find(p => {
+                            const pNorm = normalizarTexto(p.nombre);
+                            return pNorm === normNom || pNorm.includes(normNom) || normNom.includes(pNorm);
+                        });
                     }
                 }
 
-                if (!productoId) {
+                if (prodExistente) {
+                    productoId = prodExistente.id;
+                    if (!precio) precio = Number(prodExistente.precio_venta) || 0;
+                } else {
                     const cod = 'PROD-' + Math.floor(Math.random() * 9000 + 1000);
                     const { row: nuevoProd } = await tx.run(
                         `INSERT INTO productos (codigo, nombre, unidad_medida, precio_venta, stock_actual, stock_minimo, activo)
                          VALUES ($1, $2, 'kg', $3, 0, 5, true) RETURNING id`,
-                        [cod, it.nombre.trim(), precio]
+                        [cod, nombreBuscado.trim(), precio]
                     );
                     productoId = nuevoProd.id;
                 }
