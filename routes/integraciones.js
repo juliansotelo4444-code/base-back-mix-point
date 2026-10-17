@@ -99,6 +99,33 @@ router.post('/pedidos-web', async (req, res, next) => {
         const maxNum = (maxResult && maxResult.max_num) ? parseInt(maxResult.max_num, 10) : 154;
         const nuevoNumero = 'MP-' + String(maxNum + 1).padStart(4, '0');
 
+        const todosProds = await db.all('SELECT id, codigo, nombre, precio_venta, unidad_medida FROM productos WHERE activo = true');
+        const itemsSaneados = (Array.isArray(items) ? items : []).map(it => {
+            const nombreBuscado = it.nombre || it.raw || '';
+            const normNom = normalizarTexto(nombreBuscado);
+
+            // 1. Buscar coincidencia exacta o normalizada por nombre
+            let match = todosProds.find(p => normalizarTexto(p.nombre) === normNom);
+            if (!match && normNom) {
+                match = todosProds.find(p => {
+                    const pNorm = normalizarTexto(p.nombre);
+                    return pNorm.startsWith(normNom) || normNom.startsWith(pNorm);
+                });
+            }
+
+            if (match) {
+                return {
+                    ...it,
+                    producto_id: match.id,
+                    codigo: match.codigo,
+                    nombre: match.nombre,
+                    unidad_medida: it.unidad_medida || match.unidad_medida,
+                    precio_unitario: Number(it.precio_unitario) || Number(match.precio_venta) || 0
+                };
+            }
+            return it;
+        });
+
         const { row: pedidoGuardado } = await db.run(`
             INSERT INTO pedidos_web (
                 numero, cliente_nombre, telefono, direccion, zona, metodo_pago,
@@ -114,7 +141,7 @@ router.post('/pedidos-web', async (req, res, next) => {
             String(metodoPago || 'No especificado').trim(),
             String(notas || '').trim(),
             String(productos || '').trim(),
-            JSON.stringify(Array.isArray(items) ? items : []),
+            JSON.stringify(itemsSaneados),
             Number(total) || 0
         ]);
 
@@ -584,26 +611,36 @@ router.post('/crear-remito-desde-pedido', async (req, res, next) => {
 
                 let prodExistente = null;
 
-                // 1. Si vino un ID, verificar primero que exista realmente en la tabla productos
-                if (productoId && !isNaN(productoId)) {
-                    prodExistente = await tx.one('SELECT id, precio_venta, unidad_medida FROM productos WHERE id = $1', [productoId]);
+                // 1. PRIORIDAD ABSOLUTA: Buscar por NOMBRE en el catálogo de PostgreSQL
+                // El nombre elegido por el cliente es la verdad de lo que compró
+                if (nombreBuscado && nombreBuscado !== 'Producto Sin Nombre') {
+                    prodExistente = await tx.one('SELECT id, nombre, codigo, precio_venta, unidad_medida FROM productos WHERE LOWER(TRIM(nombre)) = LOWER(TRIM($1))', [nombreBuscado]);
+                    if (!prodExistente) {
+                        const todosProds = await tx.all('SELECT id, nombre, codigo, precio_venta, unidad_medida FROM productos WHERE activo = true');
+                        prodExistente = todosProds.find(p => normalizarTexto(p.nombre) === normNom);
+                        if (!prodExistente) {
+                            prodExistente = todosProds.find(p => {
+                                const pNorm = normalizarTexto(p.nombre);
+                                return pNorm.startsWith(normNom) || normNom.startsWith(pNorm);
+                            });
+                        }
+                    }
                 }
 
-                // 2. Si no existe por ID numérico, intentar buscar por código correlativo (ej: MP-351 si vino 351)
+                // 2. Si no se encontró por nombre pero vino ID, SOLO aceptarlo si el nombre en DB es compatible
+                if (!prodExistente && productoId && !isNaN(productoId)) {
+                    const prodPorId = await tx.one('SELECT id, nombre, codigo, precio_venta, unidad_medida FROM productos WHERE id = $1', [productoId]);
+                    if (prodPorId && (normalizarTexto(prodPorId.nombre) === normNom || !nombreBuscado || nombreBuscado === 'Producto Sin Nombre')) {
+                        prodExistente = prodPorId;
+                    }
+                }
+
+                // 3. Si no existe por nombre, intentar por código correlativo (ej: MP-351) si el nombre es compatible
                 if (!prodExistente && productoId && !isNaN(productoId)) {
                     const codBuscado = 'MP-' + String(productoId).padStart(3, '0');
-                    prodExistente = await tx.one('SELECT id, precio_venta, unidad_medida FROM productos WHERE codigo = $1', [codBuscado]);
-                }
-
-                // 3. Si no existe por ID ni por código, buscar por nombre exacto o normalizado
-                if (!prodExistente && nombreBuscado) {
-                    prodExistente = await tx.one('SELECT id, precio_venta, unidad_medida FROM productos WHERE LOWER(TRIM(nombre)) = LOWER(TRIM($1))', [nombreBuscado]);
-                    if (!prodExistente) {
-                        const todosProds = await tx.all('SELECT id, nombre, precio_venta, unidad_medida FROM productos WHERE activo = true');
-                        prodExistente = todosProds.find(p => {
-                            const pNorm = normalizarTexto(p.nombre);
-                            return pNorm === normNom || pNorm.includes(normNom) || normNom.includes(pNorm);
-                        });
+                    const prodPorCod = await tx.one('SELECT id, nombre, codigo, precio_venta, unidad_medida FROM productos WHERE codigo = $1', [codBuscado]);
+                    if (prodPorCod && (normalizarTexto(prodPorCod.nombre) === normNom || !nombreBuscado || nombreBuscado === 'Producto Sin Nombre')) {
+                        prodExistente = prodPorCod;
                     }
                 }
 

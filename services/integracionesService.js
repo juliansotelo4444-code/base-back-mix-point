@@ -1,6 +1,6 @@
 const db = require('../db/pool');
 const { fetchUrl, parseCSV, extraerSheetId, sanitizarNumero } = require('./googleSheets');
-const { generarNumero } = require('../utils/correlativo');
+const { generarNumero } = require('../utils/numerador');
 
 const DEFAULT_PEDIDOS_URL = 'https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit?usp=sharing';
 
@@ -146,26 +146,35 @@ class IntegracionesService {
 
                 let prodExistente = null;
 
-                // 1. Si vino un ID, verificar que exista en la tabla productos
-                if (productoId && !isNaN(productoId)) {
-                    prodExistente = await tx.one('SELECT id, precio_venta FROM productos WHERE id = $1', [productoId]);
+                // 1. PRIORIDAD ABSOLUTA: Buscar por NOMBRE en el catálogo de PostgreSQL
+                if (nombreBuscado && nombreBuscado !== 'Producto Sin Nombre') {
+                    prodExistente = await tx.one('SELECT id, nombre, codigo, precio_venta, unidad_medida FROM productos WHERE LOWER(TRIM(nombre)) = LOWER(TRIM($1))', [nombreBuscado]);
+                    if (!prodExistente) {
+                        const todos = await tx.all('SELECT id, nombre, codigo, precio_venta, unidad_medida FROM productos WHERE activo = true');
+                        prodExistente = todos.find(p => normalizarTexto(p.nombre) === normNom);
+                        if (!prodExistente) {
+                            prodExistente = todos.find(p => {
+                                const pNorm = normalizarTexto(p.nombre);
+                                return pNorm.startsWith(normNom) || normNom.startsWith(pNorm);
+                            });
+                        }
+                    }
                 }
 
-                // 2. Si no existe por ID numérico, buscar por código
+                // 2. Si no existe por nombre pero vino ID, SOLO aceptarlo si el nombre en DB coincide
+                if (!prodExistente && productoId && !isNaN(productoId)) {
+                    const prodPorId = await tx.one('SELECT id, nombre, codigo, precio_venta, unidad_medida FROM productos WHERE id = $1', [productoId]);
+                    if (prodPorId && (normalizarTexto(prodPorId.nombre) === normNom || !nombreBuscado || nombreBuscado === 'Producto Sin Nombre')) {
+                        prodExistente = prodPorId;
+                    }
+                }
+
+                // 3. Si no existe por nombre ni ID, buscar por código si el nombre es compatible
                 if (!prodExistente && productoId && !isNaN(productoId)) {
                     const codBuscado = 'MP-' + String(productoId).padStart(3, '0');
-                    prodExistente = await tx.one('SELECT id, precio_venta FROM productos WHERE codigo = $1', [codBuscado]);
-                }
-
-                // 3. Si no existe por ID ni código, buscar por nombre exacto o normalizado
-                if (!prodExistente && nombreBuscado) {
-                    prodExistente = await tx.one('SELECT id, precio_venta FROM productos WHERE LOWER(TRIM(nombre)) = LOWER(TRIM($1))', [nombreBuscado]);
-                    if (!prodExistente) {
-                        const todos = await tx.all('SELECT id, nombre, precio_venta FROM productos WHERE activo = true');
-                        prodExistente = todos.find(p => {
-                            const pNorm = normalizarTexto(p.nombre);
-                            return pNorm === normNom || pNorm.includes(normNom) || normNom.includes(pNorm);
-                        });
+                    const prodPorCod = await tx.one('SELECT id, nombre, codigo, precio_venta, unidad_medida FROM productos WHERE codigo = $1', [codBuscado]);
+                    if (prodPorCod && (normalizarTexto(prodPorCod.nombre) === normNom || !nombreBuscado || nombreBuscado === 'Producto Sin Nombre')) {
+                        prodExistente = prodPorCod;
                     }
                 }
 
