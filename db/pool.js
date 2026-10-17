@@ -22,8 +22,10 @@ const pool = new Pool({
     connectionString,
     ssl: useSSL ? { rejectUnauthorized: false } : false,
     max: 20,
-    idleTimeoutMillis: 30000,
+    idleTimeoutMillis: 120000,
     connectionTimeoutMillis: 10000,
+    keepAlive: true,
+    keepAliveInitialDelayMillis: 10000,
     options: '-c timezone=America/Argentina/Buenos_Aires',
 });
 

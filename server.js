@@ -16,6 +16,12 @@ const PORT = process.env.PORT || 4000;
 // Inicializar Socket.io con el servidor HTTP
 initSocket(server);
 
+try {
+    const compression = require('compression');
+    app.use(compression());
+} catch (err) {
+    console.warn('[Server] compresión HTTP desactivada:', err.message);
+}
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(morgan('dev'));
@@ -148,6 +154,23 @@ function iniciarTareasEnSegundoPlano() {
 
     setTimeout(ejecutarSentryJarvis, 10000);
     setInterval(ejecutarSentryJarvis, 20 * 60 * 1000);
+
+    // 4. Keep-alive de la base (Neon suspende el cómputo tras ~5 min inactivo → primer request tarda 1-3 s)
+    setInterval(() => {
+        db.query('SELECT 1').catch(() => {});
+    }, 4 * 60 * 1000);
+
+    // 5. Mantenimiento diario: purgar logs técnicos viejos y refrescar estadísticas del planificador
+    async function mantenimientoBD() {
+        try {
+            await db.query(`DELETE FROM sync_logs WHERE fecha < NOW() - INTERVAL '30 days'`);
+            await db.query(`ANALYZE remitos, remito_items, productos, clientes, lotes, movimientos_stock`);
+        } catch (err) {
+            console.warn('[Mantenimiento BD]', err.message);
+        }
+    }
+    setTimeout(mantenimientoBD, 60 * 1000);
+    setInterval(mantenimientoBD, 24 * 60 * 60 * 1000);
 
     console.log('⏰ Schedulers de Reporte Matutino (8:00 AM), Sync Sheets y J.A.R.V.I.S. Sentry Daemon (24/7) inicializados.');
 }
