@@ -150,7 +150,13 @@ async function sincronizarCatalogo(sheetUrl) {
         const unidadMedida = (r.tipoVenta && r.tipoVenta.toLowerCase().includes('unidad')) ? 'unidad' : 'kg';
 
         // 1. Buscar coincidencia por nombre exacto o normalizado
-        const existente = await db.one('SELECT id, codigo, stock_actual FROM productos WHERE LOWER(nombre) = LOWER($1)', [nombre]);
+        const existente = await db.one(`
+            SELECT id, codigo, stock_actual, activo
+            FROM productos
+            WHERE (LOWER(TRIM(nombre)) = LOWER(TRIM($1)) OR (codigo = $2 AND codigo IS NOT NULL))
+            ORDER BY activo DESC, id ASC
+            LIMIT 1
+        `, [nombre, codigo]);
 
         let prodId;
         if (existente) {

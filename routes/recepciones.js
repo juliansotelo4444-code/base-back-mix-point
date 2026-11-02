@@ -1,9 +1,9 @@
 const express = require('express');
+const router = express.Router();
 const db = require('../db/pool');
 const { requireAuth } = require('../middleware/auth');
 const { generarNumero } = require('../utils/numerador');
 
-const router = express.Router();
 router.use(requireAuth);
 
 router.get('/', async (req, res, next) => {
@@ -23,6 +23,107 @@ router.get('/', async (req, res, next) => {
         sql += ' ORDER BY r.fecha DESC, r.id DESC';
 
         res.json(await db.all(sql, params));
+    } catch (err) { next(err); }
+});
+
+/**
+ * Consulta de ingresos de mercadería por producto con el costo pagado,
+ * historial de proveedores, lotes y métricas de costos (último, promedio ponderado, mín, máx).
+ */
+router.get('/historial-producto', async (req, res, next) => {
+    try {
+        const { producto_id, q, proveedor_id, desde, hasta } = req.query;
+        let sql = `
+            SELECT 
+                ri.id as item_id,
+                ri.recepcion_id,
+                r.numero as recepcion_numero,
+                r.fecha,
+                r.estado as recepcion_estado,
+                r.numero_remito_proveedor,
+                r.numero_factura,
+                r.observaciones as recepcion_observaciones,
+                p.id as proveedor_id,
+                p.razon_social as proveedor_nombre,
+                pr.id as producto_id,
+                pr.codigo as producto_codigo,
+                pr.nombre as producto_nombre,
+                pr.unidad_medida,
+                pr.stock_actual,
+                pr.precio_compra as producto_costo_actual,
+                pr.precio_venta as producto_precio_venta,
+                ri.cantidad,
+                ri.precio_unitario as costo_unitario_pagado,
+                ri.subtotal,
+                l.numero_lote,
+                l.fecha_vencimiento,
+                l.cantidad_actual as lote_stock_remanente
+            FROM recepcion_items ri
+            JOIN recepciones r ON r.id = ri.recepcion_id
+            JOIN proveedores p ON p.id = r.proveedor_id
+            JOIN productos pr ON pr.id = ri.producto_id
+            LEFT JOIN lotes l ON l.id = ri.lote_id
+            WHERE r.estado != 'anulada'
+        `;
+        const params = [];
+        if (producto_id) {
+            params.push(Number(producto_id));
+            sql += ` AND pr.id = $${params.length}`;
+        }
+        if (q) {
+            params.push(`%${q}%`, `%${q}%`);
+            sql += ` AND (pr.nombre ILIKE $${params.length - 1} OR pr.codigo ILIKE $${params.length})`;
+        }
+        if (proveedor_id) {
+            params.push(Number(proveedor_id));
+            sql += ` AND p.id = $${params.length}`;
+        }
+        if (desde) {
+            params.push(desde);
+            sql += ` AND r.fecha >= $${params.length}`;
+        }
+        if (hasta) {
+            params.push(hasta);
+            sql += ` AND r.fecha <= $${params.length}`;
+        }
+
+        sql += ' ORDER BY r.fecha DESC, ri.id DESC LIMIT 400';
+
+        const items = await db.all(sql, params);
+
+        let totalCantidad = 0;
+        let totalInvertido = 0;
+        let ultimoCosto = 0;
+        let costoMin = null;
+        let costoMax = null;
+
+        if (items.length > 0) {
+            ultimoCosto = Number(items[0].costo_unitario_pagado) || 0;
+            for (const it of items) {
+                const cant = Number(it.cantidad) || 0;
+                const cost = Number(it.costo_unitario_pagado) || 0;
+                const sub = Number(it.subtotal) || (cant * cost);
+                totalCantidad += cant;
+                totalInvertido += sub;
+                if (costoMin === null || cost < costoMin) costoMin = cost;
+                if (costoMax === null || cost > costoMax) costoMax = cost;
+            }
+        }
+
+        const costoPromedioPonderado = totalCantidad > 0 ? (totalInvertido / totalCantidad) : 0;
+
+        res.json({
+            items,
+            metricas: {
+                total_ingresos: items.length,
+                total_cantidad: Math.round(totalCantidad * 100) / 100,
+                total_invertido: Math.round(totalInvertido * 100) / 100,
+                ultimo_costo: ultimoCosto,
+                costo_promedio: Math.round(costoPromedioPonderado * 100) / 100,
+                costo_minimo: costoMin || 0,
+                costo_maximo: costoMax || 0
+            }
+        });
     } catch (err) { next(err); }
 });
 
