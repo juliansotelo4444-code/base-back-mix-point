@@ -83,11 +83,15 @@ router.post('/pedidos-web', async (req, res, next) => {
             direccion,
             zona,
             metodoPago,
+            horarioEntrega,
+            horario_entrega,
             notas,
             productos,
             items,
             total
         } = req.body;
+
+        const horarioEntregaVal = String(horario_entrega || horarioEntrega || '').trim();
 
         if (!nombre || !String(nombre).trim()) {
             return res.status(400).json({ success: false, error: 'El nombre del cliente es obligatorio.' });
@@ -129,8 +133,8 @@ router.post('/pedidos-web', async (req, res, next) => {
         const { row: pedidoGuardado } = await db.run(`
             INSERT INTO pedidos_web (
                 numero, cliente_nombre, telefono, direccion, zona, metodo_pago,
-                notas, productos_str, items, total, estado, origen, created_at
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, $10, 'pendiente', 'web', NOW())
+                horario_entrega, notas, productos_str, items, total, estado, origen, created_at
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb, $11, 'pendiente', 'web', NOW())
             RETURNING *
         `, [
             nuevoNumero,
@@ -139,6 +143,7 @@ router.post('/pedidos-web', async (req, res, next) => {
             String(direccion || '').trim(),
             String(zona || '').trim(),
             String(metodoPago || 'No especificado').trim(),
+            horarioEntregaVal || null,
             String(notas || '').trim(),
             String(productos || '').trim(),
             JSON.stringify(itemsSaneados),
@@ -325,16 +330,42 @@ router.get('/pedidos-web', async (req, res, next) => {
                     ? { id: r.remito_id || r.remito_id_rel, numero: r.remito_numero }
                     : null;
 
+                let horaLlegada = '';
+                if (r.created_at) {
+                    try {
+                        const d = new Date(r.created_at);
+                        horaLlegada = d.toLocaleTimeString('es-AR', {
+                            timeZone: 'America/Argentina/Buenos_Aires',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: false
+                        });
+                    } catch {
+                        horaLlegada = '';
+                    }
+                }
+
+                let horarioEntrega = r.horario_entrega || '';
+                if (!horarioEntrega && r.notas) {
+                    const matchHorario = r.notas.match(/\[Horario preferido:\s*([^\]]+)\]/i) || r.notas.match(/Horario preferido:\s*([^|\]]+)/i);
+                    if (matchHorario) {
+                        horarioEntrega = matchHorario[1].trim();
+                    }
+                }
+
                 return {
                     id: r.id,
                     numero: r.numero,
                     fecha: r.created_at ? new Date(r.created_at).toISOString().slice(0, 10) : '',
+                    created_at: r.created_at,
+                    hora: horaLlegada,
                     nombre: r.cliente_nombre,
                     telefono: r.telefono || '',
                     direccion: r.direccion || '',
                     zona: r.zona || '',
                     direccion_completa: [r.direccion, r.zona].filter(Boolean).join(', '),
                     metodo_pago: r.metodo_pago,
+                    horario_entrega: horarioEntrega,
                     notas: r.notas,
                     productos_str: r.productos_str || '',
                     items: itemsParsed,
@@ -590,7 +621,13 @@ router.post('/crear-remito-desde-pedido', async (req, res, next) => {
 
             // 2. Generar número correlativo
             const numero = await generarNumero('remitos', 'REM', tx);
-            const observaciones = req.body.observaciones || (pedido_numero ? `Pedido Web ${pedido_numero}` : '');
+            let observaciones = req.body.observaciones;
+            if (!observaciones) {
+                const parts = [];
+                if (pedido_numero) parts.push(`Pedido Web ${pedido_numero}`);
+                if (req.body.horario_entrega) parts.push(`Horario: ${req.body.horario_entrega}`);
+                observaciones = parts.join(' | ');
+            }
 
             const { row: remitoRow } = await tx.run(
                 `INSERT INTO remitos (numero, cliente_id, fecha, direccion_entrega, transportista, observaciones, total, usuario_id)
