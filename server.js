@@ -7,7 +7,6 @@ const morgan = require('morgan');
 const db = require('./db/pool');
 const { initSocket } = require('./socket');
 const ReporteDiarioService = require('./services/reporteDiario');
-const { sincronizarUnidireccional } = require('./services/googleSheets');
 
 const app = express();
 const server = http.createServer(app);
@@ -86,15 +85,7 @@ function iniciarTareasEnSegundoPlano() {
         });
     }, 60 * 1000);
 
-    // 2. Sincronización periódica unidireccional con Google Sheets cada 10 minutos (Sheets -> Postgres)
-    setInterval(() => {
-        sincronizarUnidireccional().catch(err => {
-            // Silencioso si no hay sheet o hay error temporal
-            console.warn('[Sync Sheets Periódico]', err.message);
-        });
-    }, 10 * 60 * 1000);
-
-    // 3. J.A.R.V.I.S. Sentry Daemon (Monitoreo autónomo 24/7 de stock crítico y clientes inactivos)
+    // 2. J.A.R.V.I.S. Sentry Daemon (Monitoreo autónomo 24/7 de stock crítico y clientes inactivos)
     async function ejecutarSentryJarvis() {
         try {
             const JarvisService = require('./services/jarvisService');
