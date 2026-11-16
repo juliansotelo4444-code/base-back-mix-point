@@ -1,145 +1,227 @@
-id,nombre,descripcion,categoria,imagen,kg,cincoKg,diezKg,veinticincoKg,treintaKg
-1,Nueces Mariposa Chandler Extra light,,Frutos Secos,/assets/nuez-mariposa-extra.jpg,14900,13900,13900,,
-2,Nueces Mariposa Ambar,,Frutos Secos,/assets/nuez-ambar.jpg,17250,16100,15525,,
-3,Nuez Cuarto Extra Light,,Frutos Secos,/assets/nuez-cuarto.jpg,19435,18400,16100,,
-4,Nuez Con Cascara,,Frutos Secos,/assets/nuez-con-cascara.jpg,7935,5520,,,
-5,Almendras Guara Nacionales,,Frutos Secos,/assets/almendras-guara.jpg,18900,16500,16500,,
-6,Almendras Non Pareil Chilenas,,Frutos Secos,/assets/Almendras-Chilenas.jpg,23000,21850,21275,,
-7,Castañas De Caju W4,,Frutos Secos,/assets/castanas-caju.jpg,17000,15000,15000,,
-8,Avellanas,,Frutos Secos,/assets/avellanas.jpg,31050,29900,27600,,
-9,Pistacho,,Frutos Secos,/assets/Pistacho.jpg,42550,40250,36800,,
-10,Pasas De Uva Jumbo,,Frutos Secos,/assets/pasas-jumbo.jpg,8280,7360,6670,,
-11,Pasas De Uva Sultaninas,,Frutos Secos,/assets/pasas-sultaninas.jpg,4600,4140,3565,,
-12,Pasas De Uva Rubias,,Frutos Secos,/assets/pasas-rubias.jpg,8280,7475,6785,,
-13,Ciruela Sin Carozo,,Frutos Secos,/assets/ciruela-sin-carozo.jpg,8625,7820,7095,,
-14,Arandanos,,Frutos Secos,/assets/arandanos.jpg,15525,14375,13685,,
-15,Banana Chips Desecada,,Frutos Secos,/assets/banana-chips.jpg,13225,11730,,,
-16,Datiles,,Frutos Secos,/assets/datiles.jpg,8970,8280,,,
-17,Higos Negros,,Frutos Secos,/assets/higos-negros.jpg,12075,,,,
-18,Pasta De Mani Odiis,,Frutos Secos,/assets/pasta-mani.jpg,2875,,,,
-19,Mix Patagonia,"Arandanos, almendras, caju, nuez",Mixes,/assets/Mix Patagonia.jpg,18975,18400,17480,,
-20,Mix Frutas Sin Mani,"Almendra, nuez, pasas, castaña",Mixes,/assets/Mix Frutas Sin Mani.jpg,14950,13800,12650,,
-21,Mix Sin Pasas,"Nuez, mani, almendra, castaña",Mixes,/assets/mix-sin-pasas.jpg,14950,13800,12650,,
-22,Mix Premium,"Nuez, castañas, almendras, avellanas",Mixes,/assets/Mix Premium.jpg,21275,20700,20125,,
-23,Mix Banana,"Banana, nuez, almendras, pasas, mani",Mixes,/assets/mix-banana.jpg,7820,7475,7130,,
-24,Mix Tropical,"Banana, pasas, papaya, ananá cubos, nuez",Mixes,/assets/mix-tropical.jpg,14835,14375,,,
-25,Mix Economico,"Pasas, mani, nuez, almendras",Mixes,/assets/mix-economico.jpg,7130,6900,6670,,
-26,Mix Cervecero,"Maiz frito, mani salado, girasol, semilla zapallo, mani chino",Mixes,/assets/mix-cervecero.jpg,7130,6555,6325,,
-27,Almohaditas Frutilla,,Cereales,/assets/almohaditas.jpg,6900,,15525,,
-28,Almohaditas Avellanas,,Cereales,/assets/almohaditas.jpg,6900,,15525,,
-29,Almohaditas Limon,,Cereales,/assets/almohaditas.jpg,6900,,15525,,
-30,Almohaditas Chocolate,,Cereales,/assets/almohaditas.jpg,7475,,17135,,
-31,Quinoa Pop Inflada,,Cereales,/assets/quinoa-pop.jpg,5750,,14835,,
-32,Arito Frutal,,Cereales,/assets/arito-frutal.jpg,5750,12937,,,
-33,Bolita Chocolate,,Cereales,/assets/bolita-chocolate.jpg,6325,,15985,,
-34,Fibra De Salvado,,Cereales,/assets/fibra-salvado.jpg,4025,9430,,,
-35,Copos Con Azucar,,Cereales,/assets/copos.jpg,4600,,12075,,
-36,Copos Sin Azucar,,Cereales,/assets/copos.jpg,4025,,9568,,
-37,Granola,,Cereales,/assets/granola.jpg,4370,3910,,,33350
-38,Sal De Himalaya,,Cereales,/assets/sal-himalaya.jpg,2875,2415,,,
-39,Sal Marina Fina,Por 500gr,Cereales,/assets/sal-marina.jpg,1100,,,,
-40,Bicarbonato,,Cereales,/assets/bicarbonato.jpg,3795,3565,,,
-41,Gelatina Sin Sabor,,Cereales,/assets/gelatina.jpg,23575,,,,
-42,Tomates Secos,,Cereales,/assets/tomates-secos.jpg,17135,,,,
-43,Chips Chocolate Negro y Blanco,,Reposteria,/assets/chips-chocolate.jpg,11040,10120,,,
-44,Cacao Amargo Puro,,Reposteria,/assets/cacao-amargo.jpg,9890,8740,,,
-45,Mani Con Chocolate,,Reposteria,/assets/mani-chocolate.jpg,12650,11730,,,
-46,Almendras Con Chocolate,,Reposteria,/assets/almendras-chocolate.jpg,28750,26450,,,
-47,Pasas Con Chocolate,,Reposteria,/assets/pasas-chocolate.jpg,18860,17250,,,
-48,Rocklert Aguila,,Reposteria,/assets/rocklert.jpg,15180,13800,,,
-49,Coco Rallado,,Reposteria,/assets/coco-rallado.jpg,8970,8280,,,
-50,Polvo Para Hornear,,Reposteria,/assets/polvo-hornear.jpg,7360,6900,,,
-51,Tabletas Aguila x5KG,,Reposteria,/assets/tabletas-aguila.jpg,0,125350,,,
-52,Mani Salado Pelado,,Snacks,/assets/mani-salado.jpg,2800,2500,2500,2500,
-53,Mani Tostado Sin Sal,,Snacks,/assets/mani-salado.jpg,2800,2500,2500,2500,
-56,Mani Saborizado / Mani Chino,,Snacks,/assets/mani-chino.jpg,4025,3450,2990,,
-57,Mani De Vaina,,Snacks,/assets/mani-vaina.jpg,4025,3680,3220,,
-58,Maiz Frito Salado,,Snacks,/assets/maiz-frito.jpg,11385,10350,,,
-59,Garrapiñadas,,Snacks,/assets/garrapinadas.jpg,4025,3680,,,
-60,Palito Salado,,Snacks,/assets/palito-salado.jpg,3680,3450,3220,2875,
-61,Tutuca,,Snacks,/assets/tutuca.jpg,4140,3450,,,
-62,Lenteja,,Legumbres,/assets/lenteja.jpg,2875,12650,,,
-63,Lentejon,,Legumbres,/assets/lentejon.jpg,3335,13800,,,66700
-64,Arroz Yamani,,Legumbres,/assets/arroz-yamani.jpg,2530,9890,,,48990
-65,Arroz Integral,,Legumbres,/assets/arroz-integral.jpg,2300,9315,,,42435
-66,Avena Instantanea,,Legumbres,/assets/avena.jpg,2300,9430,,,44850
-67,Garbanzo,,Legumbres,/assets/garbanzo.jpg,2530,10350,,,42320
-68,Poroto Alubia,,Legumbres,/assets/poroto-alubia.jpg,3910,17480,,,
-69,Poroto Soja,,Legumbres,/assets/poroto-soja.jpg,1495,,,,
-70,Poroto Colorado,,Legumbres,/assets/poroto-colorado.jpg,2990,12880,,,
-71,Poroto Aduki,,Legumbres,/assets/poroto-aduki.jpg,3335,14835,,,
-72,Poroto Negro,,Legumbres,/assets/poroto-negro.jpg,2875,11270,,,
-73,Poroto Pallares Grande,,Legumbres,/assets/poroto-pallares.jpg,6440,31050,,,
-74,Pisingallo,,Legumbres,/assets/pisingallo.jpg,1610,6670,,,34500
-75,Oregano,,Condimentos,/assets/oregano.jpg,6900,6325,,,
-76,Provenzal,,Condimentos,/assets/provenzal.jpg,4370,4025,,,
-77,Adobo Para Pizza,,Condimentos,/assets/adobo-pizza.jpg,4025,3680,,,
-78,Pimenton,,Condimentos,/assets/pimenton.jpg,4025,3680,,,
-79,Pimenton Ahumado,,Condimentos,/assets/pimenton-ahumado.jpg,8970,8280,,,
-80,Pimienta Negra Molida,,Condimentos,/assets/pimienta-negra.jpg,12880,,,,
-81,Pimienta Blanca Molida,,Condimentos,/assets/pimienta-blanca.jpg,15985,15410,,,
-82,Ajo En Polvo,,Condimentos,/assets/ajo-polvo.jpg,7820,7130,,,
-83,Aji Puro,,Condimentos,/assets/aji-puro.jpg,7360,6900,,,
-84,Jengibre En Polvo,,Condimentos,/assets/jengibre.jpg,8395,7935,,,
-85,Chimichurri,,Condimentos,/assets/chimichurri.jpg,5060,4577,,,
-86,Nuez Moscada Molida,,Condimentos,/assets/nuez-moscada.jpg,11385,10580,,,
-87,Comino,,Condimentos,/assets/comino.jpg,3335,,,,
-88,Curcuma,,Condimentos,/assets/curcuma.jpg,3335,,,,
-89,Anis En Grano,,Condimentos,/assets/anis.jpg,17135,,,,
-90,Paprika,,Condimentos,/assets/paprika.jpg,7360,7130,,,
-91,Canela En Polvo,,Condimentos,/assets/canela.jpg,10580,10005,,,
-92,Curry,,Condimentos,/assets/curry.jpg,6785,6440,,,
-93,Ajo Triturado,,Condimentos,/assets/ajo-triturado.jpg,11040,10580,,,
-94,Azucar Impalpable,,Azucares,/assets/azucar-impalpable.jpg,2185,1955,1725,,
-95,Azucar Negra,,Azucares,/assets/azucar-negra.jpg,2185,1955,1725,,
-96,Azucar Rubia,,Azucares,/assets/azucar-rubia.jpg,2185,1955,1725,,
-97,Azucar Mascabo,,Azucares,/assets/azucar-mascabo.jpg,4600,3910,3450,,
-98,Harina Integral,,Harinas,/assets/harina-integral.jpg,1035,4370,,18285,
-99,Harina Paraguaya,,Harinas,/assets/harina-paraguaya.jpg,1380,5750,,,
-100,Harina De Soja,,Harinas,/assets/harina-soja.jpg,1138,5060,,,
-101,Harina De Arroz,,Harinas,/assets/harina-arroz.jpg,1725,7935,,,
-102,Harina Glutinada,,Harinas,/assets/harina-glutinada.jpg,862,,,,
-103,Harina De Garbanzo,,Harinas,/assets/harina-garbanzo.jpg,1035,4600,,20125,
-104,Harina De Centeno,,Harinas,/assets/harina-centeno.jpg,1610,6325,,,
-105,Harina De Almendras,,Harinas,/assets/harina-almendras.jpg,4830,4600,,4140,
-106,Harina De Coco,,Harinas,/assets/harina-coco.jpg,4715,4485,,,
-107,Harina De Avena,,Harinas,/assets/harina-avena.jpg,2300,9200,,,
-108,Soja Texturizada,,Harinas,/assets/soja-texturizada.jpg,2530,9775,,,
-109,Salvado De Trigo Fino/Grueso,,Harinas,/assets/salvado-trigo.jpg,1495,,,,
-110,Semola,,Harinas,/assets/semola.jpg,1725,8050,,,
-111,Semolin,,Harinas,/assets/semolin.jpg,1725,6210,,,
-112,Maizena,,Harinas,/assets/maizena.jpg,2300,9430,,,44850
-113,Mandioca,,Harinas,/assets/mandioca.jpg,2760,11500,,,51750
-114,Cascarilla,,Harinas,/assets/cascarilla.jpg,5635,,,,
-115,Semilla Amapola,,Semillas,/assets/semilla-amapola.jpg,15525,,,,
-116,Semilla Zapallo,,Semillas,/assets/semilla-zapallo.jpg,14375,13800,,,
-117,Semilla De Sesamo Blanco,,Semillas,/assets/sesamo-blanco.jpg,8510,,,35650,
-118,Semilla De Sesamo Integral,,Semillas,/assets/sesamo-integral.jpg,4140,,,18975,
-119,Semilla De Sesamo Negro,,Semillas,/assets/sesamo-negro.jpg,7935,,,37375,
-120,Semilla De Chia,,Semillas,/assets/chia.jpg,7820,,,35650,
-121,Semilla De Quinoa,,Semillas,/assets/quinoa.jpg,10580,,,48300,
-122,Semilla De Lino,,Semillas,/assets/lino.jpg,2300,10580,,,
-123,Girasol Pelado,,Semillas,/assets/girasol.jpg,4370,18400,,,
-124,Mix De Semillas,"Girasol, lino, sesamo integral, chia",Semillas,/assets/mix-semillas.jpg,3910,17250,,69000,
-125,Barritas Proteicas Iron Bar,"Chocolate, banana, cookies, frutilla, ddl, coco — Caja x20 uni",Suplementos,/assets/iron-bar.jpg,920,,,,
-126,Colageno Hidrolizado,,Suplementos,/assets/colageno.jpg,920,805,,,
-127,Harina De Coca,,Suplementos,/assets/harina-coca.jpg,920,805,,,
-128,Cartilago De Tiburon,,Suplementos,/assets/cartilago-tiburon.jpg,920,805,,,
-129,Maca En Polvo,x 500 gramos,Suplementos,/assets/maca.jpg,2185,1955,,,
-130,Aceite De Cannabis,30 ml,Suplementos,/assets/aceite-cannabis.jpg,7935,7475,,,
-131,Flor De Jamaica (Hibiscus),,Suplementos,/assets/flor-jamaica.jpg,20470,18630,,,
-132,Aceite De Coco,x360ml,Aceites,/assets/aceite-coco.jpg,6325,5980,5405,,
-133,Aceite De Oliva x 2LT,,Aceites,/assets/aceite-oliva.jpg,9660,8970,8280,,
-134,Aceite De Oliva x 1/2 Vidrio,,Aceites,/assets/aceite-oliva.jpg,5290,4830,,,
-135,Aceite De Oregano,x30cc — Bio Nativa,Aceites,/assets/aceite-oregano.jpg,7360,6785,,,
-136,Aceite De Chia,x250cc — Bio Nativa,Aceites,/assets/aceite-chia.jpg,9430,8970,,,
-137,Aceite De Lino,x250cc — Bio Nativa,Aceites,/assets/aceite-lino.jpg,6670,6210,,,
-138,Aceite De Almendra,x250cc — Bio Nativa,Aceites,/assets/aceite-almendra.jpg,8625,8280,,,
-139,Aceite De Jojoba,x100cc — Bio Nativa,Aceites,/assets/aceite-jojoba.jpg,6785,6325,,,
-140,Aceite De Ricino,x100cc — Bio Nativa,Aceites,/assets/aceite-ricino.jpg,5635,5175,,,
-141,Aceite De Palta,x250cc — Bio Nativa,Aceites,/assets/aceite-palta.jpg,12075,11270,,,
-142,Aceite De Coco Virgen,x360cc — Bio Nativa,Aceites,/assets/aceite-coco.jpg,9890,,,,
-143,Aceite De Romero,x30cc — Bio Nativa,Aceites,/assets/aceite-romero.jpg,7130,,,,
-144,Aceite De Rosa Mosqueta,x30cc — Bio Nativa,Aceites,/assets/aceite-rosa-mosqueta.jpg,9430,8970,,,
-145,Aceite De Sesamo,x250cc — Bio Nativa,Aceites,/assets/aceite-sesamo.jpg,6555,6210,,,
-146,Miel Pura X 1KG,,Otros,/assets/Miel Pura X 1KG.jfif,4025,,,,
+id,codigo,nombre,descripcion,categoria,imagen,kg,cincoKg,diezKg,veinticincoKg,treintaKg,tipoVenta
+1,MP-001,Nueces Mariposa Chandler Extra light 2026,,Frutos Secos,/assets/nuez-mariposa-extra.jpg,14900,14900,13900,,,kg
+2,MP-002,Nueces Mariposa light,,Frutos Secos,/assets/nuez-ambar.jpg,14900,14900,13900,,,kg
+3,MP-003,Nuez Cuarto Extra Light,,Frutos Secos,/assets/nuez-cuarto.jpg,19200,16800,16800,,,kg
+4,MP-004,Nuez Con Cascara,,Frutos Secos,/assets/nuez-con-cascara.jpg,8280,7560,,,,kg
+5,MP-005,Almendras Guara Nacionales,,Frutos Secos,/assets/almendras-guara.jpg,18900,18900,17900,,,kg
+6,MP-006,Almendras Non Pareil Chilenas,,Frutos Secos,/assets/Almendras-Chilenas.jpg,26400,24000,22200,,,kg
+7,MP-007,Castañas De Caju W4,,Frutos Secos,/assets/castanas-caju.jpg,16500,16500,15000,,,kg
+8,MP-008,Avellanas,,Frutos Secos,/assets/avellanas.jpg,31900,31900,28800,,,kg
+9,MP-009,Pistacho,,Frutos Secos,/assets/Pistacho.jpg,44400,42000,38400,,,kg
+10,MP-010,Pasas De Uva Jumbo,,Frutos Secos,/assets/pasas-jumbo.jpg,8640,7680,6960,,,kg
+11,MP-011,Pasas De Uva Flame,,Frutos Secos,/assets/pasas-sultaninas.jpg,4800,4500,4300,,,kg
+12,MP-012,Pasas De Uva Rubias,,Frutos Secos,/assets/pasas-rubias.jpg,8280,7475,3720,,,kg
+13,MP-013,Ciruela sin carozo D'agen,,Frutos Secos,/assets/ciruela-sin-carozo.jpg,9600,8160,8040,,,kg
+14,MP-014,Ciruelas presidente,,Frutos Secos,/assets/ciruela-sin-carozo.jpg,16000,,,,,kg
+15,MP-015,Arandanos,,Frutos Secos,/assets/arandanos.jpg,16800,16200,15480,,,kg
+16,MP-016,Banana Chips Desecada,,Frutos Secos,/assets/banana-chips.jpg,13800,12240,,,,kg
+17,MP-017,Datiles,,Frutos Secos,/assets/datiles.jpg,9360,8640,,,,kg
+18,MP-018,Higos Negros,,Frutos Secos,/assets/higos-negros.jpg,15000,,,,,kg
+19,MP-019,Pasta De Mani Entrenuts,,Frutos Secos,/assets/pasta-mani.jpg,3000,,,,,unidad
+20,MP-020,Mix Patagonia,"Arandanos, almendras, caju, nuez",Mixes,/assets/Mix Patagonia.jpg,19800,19200,18240,,,kg
+21,MP-021,Mix Frutas Sin Mani,"Almendra, nuez, pasas, castaña",Mixes,/assets/Mix Frutas Sin Mani.jpg,15600,15000,14800,,,kg
+22,MP-022,Mix Sin Pasas,"Nuez, mani, almendra, castaña",Mixes,/assets/mix-sin-pasas.jpg,13900,13900,13400,,,kg
+23,MP-023,Mix Premium,"Nuez, castañas, almendras, avellanas",Mixes,/assets/Mix Premium.jpg,17900,17000,16500,,,kg
+24,MP-024,Mix Banana,"Banana, nuez, almendras, pasas, mani",Mixes,/assets/mix-banana.jpg,8160,7800,7440,,,kg
+25,MP-025,Mix Tropical,"Banana, pasas, papaya, ananá cubos, nuez",Mixes,/assets/mix-tropical.jpg,15480,15000,,,,kg
+26,MP-026,Mix Economico,"Pasas, mani, nuez, almendras, caju",Mixes,/assets/mix-economico.jpg,6900,6900,6700,,,kg
+27,MP-027,Mix Cervecero,"Maiz frito, mani salado, girasol, semilla zapallo, mani chino",Mixes,/assets/mix-cervecero.jpg,7440,6840,6600,,,kg
+28,MP-028,Almohaditas Frutilla,,Cereales,/assets/almohaditas.jpg,7800,,,,,kg
+29,MP-029,Almohaditas Avellanas,,Cereales,/assets/almohaditas.jpg,7800,,,,,kg
+30,MP-030,Almohaditas Limon,,Cereales,/assets/almohaditas.jpg,7800,,,,,kg
+31,MP-031,Almohaditas Chocolate,,Cereales,/assets/almohaditas.jpg,8400,,,,,kg
+32,MP-032,Quinoa Pop Inflada,,Cereales,/assets/quinoa-pop.jpg,5900,,,,,kg
+33,MP-033,Arito Frutal,,Cereales,/assets/arito-frutal.jpg,6000,,,,,kg
+34,MP-034,Bolita Chocolate,,Cereales,/assets/bolita-chocolate.jpg,6600,,,,,kg
+35,MP-035,Fibra De Salvado,,Cereales,/assets/fibra-salvado.jpg,4800,,,,,kg
+36,MP-036,Copos Con Azucar,,Cereales,/assets/copos.jpg,5400,,,,,kg
+37,MP-037,Copos Sin Azucar,,Cereales,/assets/copos.jpg,4800,,,,,kg
+38,MP-038,Granola,,Cereales,/assets/granola.jpg,4800,,3800,,33350,kg
+39,MP-039,Sal De Himalaya,,Cereales,/assets/sal-himalaya.jpg,3000,2520,,,,kg
+40,MP-040,Sal Marina Fina,Por 500gr,Cereales,/assets/sal-marina.jpg,1050,,,,,unidad
+41,MP-041,Bicarbonato,,Cereales,/assets/bicarbonato.jpg,3795,,,,,kg
+42,MP-042,Gelatina Sin Sabor Mayana,,Cereales,/assets/gelatina.jpg,22000,,,,,kg
+43,MP-043,Tomates Secos,,Cereales,/assets/tomates-secos.jpg,17135,10560,,,,kg
+44,MP-044,Chips Chocolate Negro,,Repostería,/assets/chips-chocolate.jpg,11520,,,,,kg
+45,MP-045,Chips Chocolate Blanco,,Repostería,/assets/chips-chocolate.jpg,11520,,,,,kg
+46,MP-046,Cacao Amargo Puro,,Repostería,/assets/cacao-amargo.jpg,10320,9120,,,,kg
+47,MP-047,Mani Con Chocolate,,Repostería,/assets/mani-chocolate.jpg,13200,12240,,,,kg
+48,MP-048,Almendras Con Chocolate,,Repostería,/assets/almendras-chocolate.jpg,30000,27600,,,,kg
+49,MP-049,Pasas Con Chocolate,,Repostería,/assets/pasas-chocolate.jpg,21120,19920,,,,kg
+50,MP-050,Rocklets Aguila,,Repostería,/assets/rocklert.jpg,15840,14400,,,,kg
+51,MP-051,Coco Rallado,,Repostería,/assets/coco-rallado.jpg,9360,8640,,,,kg
+52,MP-052,Polvo Para Hornear,,Repostería,/assets/polvo-hornear.jpg,7500,7200,,,,kg
+53,MP-053,Tabletas Aguila x5KG,,Repostería,/assets/tabletas-aguila.jpg,130800,130800,,,,kg
+54,MP-054,Mani Salado Pelado,,Snacks,/assets/mani-salado.jpg,3000,3000,2760,2500,,kg
+55,MP-055,Mani Tostado Sin Sal,,Snacks,/assets/mani-salado.jpg,3000,3000,2760,2500,,kg
+56,MP-056,Mani Saborizado / Mani Chino,,Snacks,/assets/mani-chino.jpg,5400,4560,,,,kg
+57,MP-057,Mani De Vaina,,Snacks,/assets/mani-vaina.jpg,5400,4500,,,,kg
+58,MP-058,Maiz Frito Salado,,Snacks,/assets/maiz-frito.jpg,11880,10800,,,,kg
+59,MP-059,Garrapiñadas,,Snacks,/assets/garrapinadas.jpg,5400,3960,,,,kg
+60,MP-060,Palito Salado,,Snacks,/assets/palito-salado.jpg,4800,3600,3360,3000,,kg
+61,MP-061,Tutuca,,Snacks,/assets/tutuca.jpg,4320,3800,,,,kg
+62,MP-062,Lenteja,,Legumbres,/assets/lenteja.jpg,3000,2640,,,,kg
+63,MP-063,Lentejon,,Legumbres,/assets/lentejon.jpg,3480,2880,,,2250,kg
+64,MP-064,Arroz Yamani,,Legumbres,/assets/arroz-yamani.jpg,2640,2064,,,1650,kg
+65,MP-065,Arroz Integral,,Legumbres,/assets/arroz-integral.jpg,2400,1944,,,,kg
+66,MP-066,Avena Instantanea,,Legumbres,/assets/avena.jpg,2400,2100,,,1500,kg
+67,MP-067,Garbanzo,,Legumbres,/assets/garbanzo.jpg,2640,2160,,,1415,kg
+68,MP-068,Poroto Alubia,,Legumbres,/assets/poroto-alubia.jpg,4080,3648,,,,kg
+69,MP-069,Poroto Soja,,Legumbres,/assets/poroto-soja.jpg,1560,,,,,kg
+70,MP-070,Poroto Colorado,,Legumbres,/assets/poroto-colorado.jpg,3120,2688,,,,kg
+71,MP-071,Poroto Aduki,,Legumbres,/assets/poroto-aduki.jpg,3480,3096,,,,kg
+72,MP-072,Poroto Negro,,Legumbres,/assets/poroto-negro.jpg,3000,2352,,,,kg
+73,MP-073,Poroto Pallares Grande,,Legumbres,/assets/poroto-pallares.jpg,6720,6480,,,,kg
+74,MP-074,Pisingallo,,Legumbres,/assets/pisingallo.jpg,1680,1392,,,1150,kg
+75,MP-075,Oregano,,Condimentos,/assets/oregano.jpg,7020,6600,,,,kg
+76,MP-076,Provenzal,,Condimentos,/assets/provenzal.jpg,4500,4200,,,,kg
+77,MP-077,Adobo Para Pizza,,Condimentos,/assets/adobo-pizza.jpg,4200,3840,,,,kg
+78,MP-078,Pimenton,,Condimentos,/assets/pimenton.jpg,4200,3840,,,,kg
+79,MP-079,Pimenton Ahumado,,Condimentos,/assets/pimenton-ahumado.jpg,9750,9000,,,,kg
+80,MP-080,Pimienta Negra Molida,,Condimentos,/assets/pimienta-negra.jpg,13440,,,,,kg
+81,MP-081,Pimienta Blanca Molida,,Condimentos,/assets/pimienta-blanca.jpg,16680,16080,,,,kg
+82,MP-082,Ajo En Polvo,,Condimentos,/assets/ajo-polvo.jpg,8160,7440,,,,kg
+83,MP-083,Aji Puro,,Condimentos,/assets/aji-puro.jpg,7680,7200,,,,kg
+84,MP-084,Jengibre En Polvo,,Condimentos,/assets/jengibre.jpg,9480,8880,,,,kg
+85,MP-085,Chimichurri,,Condimentos,/assets/chimichurri.jpg,5280,4776,,,,kg
+86,MP-086,Nuez Moscada Molida,,Condimentos,/assets/nuez-moscada.jpg,12960,12000,,,,kg
+87,MP-087,Comino,,Condimentos,/assets/comino.jpg,3480,,,,,kg
+88,MP-088,Curcuma,,Condimentos,/assets/curcuma.jpg,3480,,,,,kg
+89,MP-089,Anis En Grano,,Condimentos,/assets/anis.jpg,17880,,,,,kg
+90,MP-090,Paprika,,Condimentos,/assets/paprika.jpg,10080,7600,,,,kg
+91,MP-091,Canela En Polvo,,Condimentos,/assets/canela.jpg,11760,11040,,,,kg
+92,MP-092,Curry,,Condimentos,/assets/curry.jpg,7440,7080,,,,kg
+93,MP-093,Ajo Triturado,,Condimentos,/assets/ajo-triturado.jpg,13920,12240,,,,kg
+94,MP-094,Azucar Impalpable,,Azúcares,/assets/azucar-impalpable.jpg,2880,2400,2160,,,kg
+95,MP-095,Azucar Negra,,Azúcares,/assets/azucar-negra.jpg,2880,2400,2160,,,kg
+96,MP-096,Azucar Rubia,,Azúcares,/assets/azucar-rubia.jpg,2880,2400,2160,,,kg
+97,MP-097,Azucar Mascabo,,Azúcares,/assets/azucar-mascabo.jpg,4800,4440,4080,,,kg
+98,MP-098,Harina Integral,,Harinas,/assets/harina-integral.jpg,1680,,,,,kg
+99,MP-099,Harina Paraguaya,,Harinas,/assets/harina-paraguaya.jpg,1800,1440,,,,kg
+100,MP-100,Harina De Soja,,Harinas,/assets/harina-soja.jpg,1188,1056,,,,kg
+101,MP-101,Harina De Arroz,,Harinas,/assets/harina-arroz.jpg,1800,1656,,,,kg
+102,MP-102,Harina Glutinada,,Harinas,/assets/harina-glutinada.jpg,900,,,,,kg
+103,MP-103,Harina De Garbanzo,,Harinas,/assets/harina-garbanzo.jpg,1680,1300,,1100,,kg
+104,MP-104,Harina De Centeno,,Harinas,/assets/harina-centeno.jpg,1920,,,,,kg
+105,MP-105,Harina De Almendras,,Harinas,/assets/harina-almendras.jpg,5040,4800,,4320,,kg
+106,MP-106,Harina De Coco,,Harinas,/assets/harina-coco.jpg,4920,4680,,,,kg
+107,MP-107,Harina De Avena,,Harinas,/assets/harina-avena.jpg,2400,,,,,kg
+108,MP-108,Soja Texturizada,,Harinas,/assets/soja-texturizada.jpg,2640,,,,,kg
+109,MP-109,Salvado De Trigo Fino/Grueso,,Harinas,/assets/salvado-trigo.jpg,1820,1800,,,,kg
+110,MP-110,Semola,,Harinas,/assets/semola.jpg,1800,1680,,,,kg
+111,MP-111,Semolin,,Harinas,/assets/semolin.jpg,1800,1296,,,,kg
+112,MP-112,Maizena,,Harinas,/assets/maizena.jpg,3000,2136,,,1495,kg
+113,MP-113,Harina de Mandioca,,Harinas,/assets/mandioca.jpg,3600,2400,,,1725,kg
+114,MP-114,Cascarilla,,Harinas,/assets/cascarilla.jpg,5880,,,,,kg
+115,MP-115,Semilla Amapola,,Semillas,/assets/semilla-amapola.jpg,17400,,,,,kg
+116,MP-116,Semilla Zapallo,,Semillas,/assets/semilla-zapallo.jpg,15000,14400,,,,kg
+117,MP-117,Semilla De Sesamo Blanco,,Semillas,/assets/sesamo-blanco.jpg,8880,7440,,,,kg
+118,MP-118,Semilla De Sesamo Integral,,Semillas,/assets/sesamo-integral.jpg,4320,3960,,,,kg
+119,MP-119,Semilla De Sesamo Negro,,Semillas,/assets/sesamo-negro.jpg,10680,9480,,,,kg
+120,MP-120,Semilla De Chia,,Semillas,/assets/chia.jpg,9120,8160,,,,kg
+121,MP-121,Semilla De Quinoa,,Semillas,/assets/quinoa.jpg,11040,10080,,,,kg
+122,MP-122,Semilla De Lino,,Semillas,/assets/lino.jpg,3840,,,,,kg
+123,MP-123,Girasol Pelado,,Semillas,/assets/girasol.jpg,4560,3840,,,,kg
+124,MP-124,Mix De Semillas,"Girasol, lino, sesamo integral, chia",Semillas,/assets/mix-semillas.jpg,4500,4000,,3000,,kg
+125,MP-125,Barritas Proteicas Iron Bar,"Chocolate, banana, cookies, frutilla, ddl, coco — Caja x20 uni",Suplementos,/assets/iron-bar.jpg,1980,,,,,unidad
+126,MP-126,Colageno Hidrolizado,,Suplementos,/assets/colageno.jpg,960,840,,,,unidad
+127,MP-127,Harina De Coca,,Suplementos,/assets/harina-coca.jpg,960,840,,,,unidad
+128,MP-128,Cartilago De Tiburon,,Suplementos,/assets/cartilago-tiburon.jpg,960,840,,,,unidad
+129,MP-129,Maca En Polvo,x 500 gramos,Suplementos,/assets/maca.jpg,2900,2040,,,,unidad
+130,MP-130,Aceite De Cannabis,30 ml,Suplementos,/assets/aceite-cannabis.jpg,8280,7800,,,,unidad
+131,MP-131,Flor De Jamaica (Hibiscus),,Suplementos,/assets/flor-jamaica.jpg,17900,16500,,,,kg
+132,MP-132,Aceite De Coco,x360ml,Aceites,/assets/aceite-coco.jpg,6600,6240,,,,unidad
+133,MP-133,Aceite De Oliva x 2LT,,Aceites,/assets/aceite-oliva.jpg,10080,9360,,,,unidad
+134,MP-134,Aceite De Oliva x 1/2 Vidrio,,Aceites,/assets/aceite-oliva.jpg,5880,5520,,,,unidad
+135,MP-135,Aceite De Oregano,x30cc — Bio Nativa,Aceites,/assets/aceite-oregano.jpg,7680,7080,,,,unidad
+136,MP-136,Aceite De Chia,x250cc — Bio Nativa,Aceites,/assets/aceite-chia.jpg,9840,9360,,,,unidad
+137,MP-137,Aceite De Lino,x250cc — Bio Nativa,Aceites,/assets/aceite-lino.jpg,6960,6480,,,,unidad
+138,MP-138,Aceite De Almendra,x250cc — Bio Nativa,Aceites,/assets/aceite-almendra.jpg,9000,8640,,,,unidad
+139,MP-139,Aceite De Jojoba,x100cc — Bio Nativa,Aceites,/assets/aceite-jojoba.jpg,7080,6600,,,,unidad
+140,MP-140,Aceite De Ricino,x100cc — Bio Nativa,Aceites,/assets/aceite-ricino.jpg,5880,5400,,,,unidad
+141,MP-141,Aceite De Palta,x250cc — Bio Nativa,Aceites,/assets/aceite-palta.jpg,12600,11760,,,,unidad
+142,MP-142,Aceite De Coco Virgen,x360cc — Bio Nativa,Aceites,/assets/aceite-coco.jpg,10320,,,,,unidad
+143,MP-143,Aceite De Romero,x30cc — Bio Nativa,Aceites,/assets/aceite-romero.jpg,7440,,,,,unidad
+144,MP-144,Aceite De Rosa Mosqueta,x30cc — Bio Nativa,Aceites,/assets/aceite-rosa-mosqueta.jpg,9840,9360,,,,unidad
+145,MP-145,Aceite De Sesamo,x250cc — Bio Nativa,Aceites,/assets/aceite-sesamo.jpg,6840,6480,,,,unidad
+146,MP-146,Miel Pura X 1KG,,Otros,/assets/Miel Pura X 1KG.jfif,5400,,,,,unidad
+147,MP-147,Chocolate barra al 70% con stevia,Colonial por 10 unidades,Chocolates sin TACC,/assets/Chocolate.jpg,30960,,,,,kg
+148,MP-148,Chocolate barra al 80% organico,Colonial por 10 unidades,Chocolates sin TACC,/assets/Chocolate.jpg,39600,,,,,kg
+149,MP-149,Chocolate barra al 60% organico,Colonial por 10 unidades,Chocolates sin TACC,/assets/Chocolate.jpg,35040,,,,,kg
+150,MP-150,Chocolate barra sin azucar,Colonial por 10 unidades,Chocolates sin TACC,/assets/Chocolate.jpg,28680,,,,,kg
+151,MP-151,Chocolate para chocotaza,Colonial por 10 unidades,Chocolates sin TACC,/assets/Chocolate.jpg,21840,,,,,kg
+152,MP-152,Chocolatinas con stevia (caja x50unid),Colonial por 10 unidades,Chocolates sin TACC,/assets/Chocolate.jpg,12720,,,,,kg
+153,MP-153,Chocolatinas semiamargo (caja x50unid),Colonial por 10 unidades,Chocolates sin TACC,/assets/Chocolate.jpg,11280,,,,,kg
+154,MP-154,Chocolatinas sin azucar (caja x50unid),Colonial por 10 unidades,Chocolates sin TACC,/assets/Chocolate.jpg,11940,,,,,kg
+155,MP-155,Pasas con chocolate,,Chocolates sin TACC,/assets/pasas-chocolate.jpg,21360,,,,,kg
+156,MP-156,Almendras Con Chocolate,,Chocolates sin TACC,/assets/pasas-chocolate.jpg,33600,,,,,kg
+157,MP-157,Eritritol Stevia 325gr Kony,,Otros,/assets/EritritolStevia.jpg,21467,,,,,unidad
+158,MP-158,Eritritol 200gr Oh Yeah!,,Otros,/assets/Eritritol200.jpg,7699,,,,,unidad
+159,MP-159,Gingko Biloba po 1kg,,Herboristería,/catalogo/productos/gingko_biloba_x_1kg_166.svg,26045,21704,,,,kg
+160,MP-160,Moringa po1 kg,,Herboristería,,39960,33300,,,,kg
+161,MP-161,Rosa Mosqueta por 1 kg,,Herboristería,/catalogo/productos/rosa_mosqueta_x_1kg_178.svg,42166,35138,,,,kg
+162,MP-162,Sem por 1 kg,,Herboristería,/catalogo/productos/sem_x_1kg_167.svg,5861,4884,,,,kg
+163,MP-163,Cascara Sagrada por 1 kg,,Herboristería,/catalogo/productos/cascara_sagrada_x_1kg_173.svg,63202,52668,,,,kg
+164,MP-164,Castañas de la India por 1 kg,,Herboristería,/catalogo/productos/castanas_de_la_india_x_1kg_179.svg,12815,10679,,,,kg
+165,MP-165,Graviola por 1kg,,Herboristería,/catalogo/productos/graviola_x_1kg_168.svg,43352,36127,,,,kg
+166,MP-166,Manzanilla,,Herboristería,/catalogo/productos/manzanilla_174.svg,27000,22500,,,,kg
+167,MP-167,Petalo de Rosas,,Herboristería,/catalogo/productos/petalo_de_rosas_180.svg,68020,56683,,,,kg
+168,MP-168,Sandalo,,Herboristería,/catalogo/productos/sandalo_169.svg,34454,28712,,,,kg
+169,MP-169,Siempre Viva,,Herboristería,/catalogo/productos/siempre_viva_175.svg,106560,88800,,,,kg
+170,MP-170,Flor de Tilo,,Herboristería,/catalogo/productos/flor_de_tilo_181.svg,86598,72165,,,,kg
+171,MP-171,Valeriana,,Herboristería,/catalogo/productos/valeriana_170.svg,71218,59348,,,,kg
+172,MP-172,Cedron,,Herboristería,/catalogo/productos/cedron_176.svg,29837,24864,,,,kg
+173,MP-173,Laurel,,Herboristería,/catalogo/productos/laurel_182.svg,19536,16280,,,,kg
+174,MP-174,Hammamelis,,Herboristería,/catalogo/productos/hammamelis_171.svg,52410,43675,,,,kg
+175,MP-175,Higuera tinta 60 cc,,Herboristería,/catalogo/productos/higuera_tinta_60_cc_177.svg,6026,5022,,,,unidad
+176,MP-176,Malva,,Herboristería,/catalogo/productos/malva_183.svg,9588,7990,,,,kg
+177,MP-177,Melisa,,Herboristería,/catalogo/productos/melisa_184.svg,23024,19187,,,,kg
+178,MP-178,Lapacho,,Herboristería,/catalogo/productos/lapacho_191.svg,10200,8500,,,,kg
+179,MP-179,Llanten tinta 60 cc,,Herboristería,/catalogo/productos/llanten_tinta_60_cc_198.svg,6026,5022,,,,unidad
+180,MP-180,Menta,,Herboristería,/catalogo/productos/menta_185.svg,13741,11451,,,,kg
+181,MP-181,Muña Muña,,Herboristería,/catalogo/productos/muna_muna_192.svg,8466,7055,,,,kg
+182,MP-182,Ortiga,,Herboristería,/catalogo/productos/ortiga_199.svg,7548,6290,,,,kg
+183,MP-183,Salvia,,Herboristería,/catalogo/productos/salvia_186.svg,16284,13570,,,,kg
+184,MP-184,Poleo,,Herboristería,/catalogo/productos/poleo_193.svg,15902,13252,,,,kg
+185,MP-185,Romero titura 50cc,,Herboristería,/catalogo/productos/romero_titura_50cc_200.svg,4723,3936,,,,kg
+186,MP-186,Peperina,,Herboristería,/catalogo/productos/peperina_187.svg,29268,24390,,,,kg
+187,MP-187,Pasionaria,,Herboristería,/catalogo/productos/pasionaria_194.svg,10657,8881,,,,kg
+188,MP-188,Te negro,,Herboristería,/catalogo/productos/te_negro_201.svg,9132,7610,,,,kg
+189,MP-189,Te rojo,,Herboristería,/catalogo/productos/te_rojo_188.svg,10680,8900,,,,kg
+190,MP-190,Te verde,,Herboristería,/catalogo/productos/te_verde_195.svg,9840,8200,,,,kg
+191,MP-191,Marcela,,Herboristería,/catalogo/productos/marcela_202.svg,14690,12242,,,,kg
+192,MP-192,Pesuña de vaca,,Herboristería,/catalogo/productos/pesuna_de_vaca_189.svg,11940,9950,,,,kg
+193,MP-193,rompe piedra 50grs,,Herboristería,/catalogo/productos/rompe_piedra_50grs_196.svg,2292,1910,,,,kg
+194,MP-194,rompe piedra tintura 60cc,,Herboristería,/catalogo/productos/rompe_piedra_tintura_60cc_203.svg,6026,5022,,,,unidad
+195,MP-195,Ajenjo,,Herboristería,/catalogo/productos/ajenjo_190.svg,12974,10812,,,,kg
+196,MP-196,Alcachofa,,Herboristería,/catalogo/productos/alcachofa_197.svg,7961,6634,,,,kg
+197,MP-197,Amargon,,Herboristería,/catalogo/productos/amargon_204.svg,15860,13217,,,,kg
+198,MP-198,Ambay,,Herboristería,/catalogo/productos/ambay_205.svg,11890,9908,,,,kg
+199,MP-199,Burrito,,Herboristería,/catalogo/productos/burrito_212.svg,7200,6000,,,,kg
+200,MP-200,Boldo,,Herboristería,/catalogo/productos/boldo_219.svg,15984,13320,,,,kg
+201,MP-201,Carqueja,,Herboristería,/catalogo/productos/carqueja_206.svg,7038,5865,,,,kg
+202,MP-202,Cola de caballo,,Herboristería,/catalogo/productos/cola_de_caballo_213.svg,4380,3650,,,,kg
+203,MP-203,Cola de quirquincho,,Herboristería,/catalogo/productos/cola_de_quirquincho_220.svg,17442,14535,,,,kg
+204,MP-204,Chañar titntura 60cc,,Herboristería,/catalogo/productos/chanar_titntura_60cc_207.svg,6026,5022,,,,kg
+205,MP-205,Calendula,,Herboristería,/catalogo/productos/calendula_214.svg,21013,17511,,,,kg
+206,MP-206,Diente de leon tintutara 60cc,,Herboristería,/catalogo/productos/diente_de_leon_tintutara_60cc_221.svg,4716,3930,,,,kg
+207,MP-207,Espina colorada,,Herboristería,/catalogo/productos/espina_colorada_208.svg,6528,5440,,,,kg
+208,MP-208,Doradilla 40grs,,Herboristería,/catalogo/productos/doradilla_40grs_215.svg,2292,1910,,,,kg
+209,MP-209,Estigma de maiz,,Herboristería,/catalogo/productos/estigma_de_maiz_222.svg,25200,21000,,,,kg
+210,MP-210,Eucalipto,,Herboristería,/catalogo/productos/eucalipto_209.svg,11911,9926,,,,kg
+211,MP-211,Cardo mariano,,Herboristería,/catalogo/productos/cardo_mariano_216.svg,74592,62160,,,,kg
+212,MP-212,hisopo,,Herboristería,/catalogo/productos/hisopo_223.svg,20893,17411,,,,kg
+213,MP-213,Palo Amarillo,,Herboristería,/catalogo/productos/palo_amarillo_210.svg,3982,3318,,,,kg
+214,MP-214,Salvia blanca,,Herboristería,/catalogo/productos/salvia_blanca_217.svg,13260,11050,,,,kg
+215,MP-215,Tilo,,Herboristería,/catalogo/productos/tilo_224.svg,86610,72175,,,,kg
+216,MP-216,Hierbabuena,,Herboristería,https://www.google.com/imgres?q=tipos%20de%20hierbabuena&imgurl=https%3A%2F%2Fpymstatic.com%2F28531%2Fconversions%2Fhierbabuena-wide.jpg&imgrefurl=https%3A%2F%2Fpsicologiaymente.com%2Fnutricion%2Fhierbabuena&docid=8F-BMJbQ1I4yMM&tbnid=QO_O8dOKTKcQMM&vet=12ahUKEwjZmuvH17KWAxXSDLkGHf82AFoQnPAOegUIkgEQAA..i&w=1200&h=675&hcb=2&ved=2ahUKEwjZmuvH17KWAxXSDLkGHf82AFoQnPAOegUIkgEQAA,30000,25000,,,,kg
+217,MP-217,Yerba de pollo 25grs,,Herboristería,/catalogo/productos/yerba_de_pollo_25grs_218.svg,760,633,,,,kg
+218,MP-218,Mirra,,Herboristería,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIVuUgPfn8lJWv8MXItaXU2gmIFhWOwwb_jhKkOzuF3g&s=10,27362,22802,,,,kg
+219,MP-219,Pimienta negra en granos,,Condimentos,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSXPyIYKPPE8nLz6Ae1nDC2O2pv0XSLGJBzYArnsHMAbg&s=10,26500,,,,,kg
+220,MP-220,Cacao alcalino,,Repostería,/assets/cacao-amargo.jpg,15000,,,,,kg
+221,MP-221,Goma xantica 40cc Procal,,Condimentos,https://www.google.com/imgres?q=xantica%2040gr%20Goma%20xantica%2040cc%20Procal&imgurl=https%3A%2F%2Fd22fxaf9t8d39k.cloudfront.net%2F81a21aef5b76133549c8a1934f992e50a6eef71c4d99113abe7b924c7679a2b810477.jpg&imgrefurl=https%3A%2F%2Fwww.delilaplata.com.ar%2Falacena1%2Fgoma-xantica-40-g-sin-tacc-procal&docid=E6xqCOO81qJNuM&tbnid=SZX4HLYG94rxBM&vet=12ahUKEwiJmYnvvc2WAxWQKrkGHQJ8A20QnPAOegQIPBAA..i&w=600&h=663&hcb=2&ved=2ahUKEwiJmYnvvc2WAxWQKrkGHQJ8A20QnPAOegQIPBAA,3620,,,,,unidad
+222,MP-222,Honey del amor,,Suplementos,https://drive.google.com/file/d/1AjT1Rz9gVK-DQ0nxa7tngylczsfdZaY9/view?usp=drive_link,16900,,,,,unidad
+223,MP-223,Huang He,,Suplementos,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4XDpAiohPZUty1KCMODvuxbZO5j1kerxW7zOsX8ohZw&s=10,5700,,,,,unidad
+224,MP-224,Pum Pum activa tu fuerza,,Suplementos,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSXs2z_-3q46yqHSHyLmIbzt05UeCc1rO27miuFYDB5QQ&s,10500,,,,,unidad
+225,MP-225,Castañas de Pará,,Frutos Secos,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRICTPQlcBioXpyjoCKjKe3TXgQ464smfBbhaSX8kP4HA&s=10,36500,,,,,kg
+226,MP-226,Agar Agar gelatina vegetal sin tacc,12 sobres por 10gr,Repostería,https://http2.mlstatic.com/D_NQ_NP_2X_675463-MLA46783120410_072021-F.webp,23800,,,,,unidad

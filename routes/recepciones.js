@@ -136,12 +136,207 @@ router.get('/:id', async (req, res, next) => {
         if (!recepcion) return res.status(404).json({ error: 'Recepción no encontrada.' });
 
         const items = await db.all(`
-            SELECT ri.*, pr.nombre as producto_nombre, pr.unidad_medida
-            FROM recepcion_items ri JOIN productos pr ON pr.id = ri.producto_id
+            SELECT ri.*, pr.nombre as producto_nombre, pr.unidad_medida,
+                   l.numero_lote, l.fecha_vencimiento, l.cantidad_actual, l.cantidad_inicial
+            FROM recepcion_items ri 
+            JOIN productos pr ON pr.id = ri.producto_id
+            LEFT JOIN lotes l ON l.id = ri.lote_id
             WHERE ri.recepcion_id = $1
+            ORDER BY ri.id ASC
         `, [req.params.id]);
 
         res.json({ ...recepcion, items });
+    } catch (err) { next(err); }
+});
+
+/**
+ * PUT /:id
+ * Edición Transaccional ACID de Recepción de Mercadería
+ */
+router.put('/:id', async (req, res, next) => {
+    try {
+        const recepcionId = parseInt(req.params.id, 10);
+        const { proveedor_id, fecha, numero_remito_proveedor, numero_factura, observaciones, items } = req.body;
+
+        const recepcionExistente = await db.one('SELECT * FROM recepciones WHERE id = $1', [recepcionId]);
+        if (!recepcionExistente) return res.status(404).json({ error: 'Recepción no encontrada.' });
+        if (recepcionExistente.estado === 'anulada') {
+            return res.status(400).json({ error: 'No se puede editar una recepción anulada.' });
+        }
+
+        if (!items || !items.length) {
+            return res.status(400).json({ error: 'Debe incluir al menos un ítem.' });
+        }
+
+        const proveedorFinalId = proveedor_id ? Number(proveedor_id) : recepcionExistente.proveedor_id;
+        const fechaEmision = (fecha && String(fecha).trim()) ? String(fecha).slice(0, 10) : recepcionExistente.fecha;
+
+        await db.transaction(async (tx) => {
+            const itemsViejos = await tx.all(`
+                SELECT ri.*, l.cantidad_actual, l.cantidad_inicial
+                FROM recepcion_items ri
+                LEFT JOIN lotes l ON l.id = ri.lote_id
+                WHERE ri.recepcion_id = $1
+            `, [recepcionId]);
+
+            let totalNuevo = 0;
+
+            for (const item of items) {
+                const cantNueva = Number(item.cantidad) || 0;
+                const costoNuevo = Number(item.precio_unitario) || 0;
+                const subtotal = Math.round(cantNueva * costoNuevo * 100) / 100;
+                totalNuevo += subtotal;
+
+                let oldIt = itemsViejos.find(it => it.id === Number(item.id) || (it.producto_id === Number(item.producto_id) && it.lote_id === Number(item.lote_id)));
+
+                if (oldIt) {
+                    const cantVieja = Number(oldIt.cantidad);
+                    const diffCant = cantNueva - cantVieja;
+
+                    // Si se quiere reducir la cantidad recibida, verificar que no se haya consumido más de lo que quedaría
+                    if (diffCant < 0 && oldIt.lote_id) {
+                        const lote = await tx.one('SELECT cantidad_actual, cantidad_inicial FROM lotes WHERE id = $1', [oldIt.lote_id]);
+                        if (lote) {
+                            const consumido = Number(lote.cantidad_inicial) - Number(lote.cantidad_actual);
+                            if (cantNueva < consumido) {
+                                throw new Error(`No se puede reducir la cantidad a ${cantNueva} porque ya se despacharon o consumieron ${consumido} unidades de ese lote.`);
+                            }
+                        }
+                    }
+
+                    // Actualizar lote
+                    if (oldIt.lote_id) {
+                        await tx.run(`
+                            UPDATE lotes SET
+                                cantidad_inicial = $1,
+                                cantidad_actual = GREATEST(0, cantidad_actual + $2),
+                                costo_unitario = $3,
+                                numero_lote = COALESCE($4, numero_lote),
+                                fecha_vencimiento = $5,
+                                proveedor_id = $6
+                            WHERE id = $7
+                        `, [cantNueva, diffCant, costoNuevo, item.numero_lote || null, item.fecha_vencimiento || null, proveedorFinalId, oldIt.lote_id]);
+                    }
+
+                    // Actualizar recepcion_items
+                    await tx.run(`
+                        UPDATE recepcion_items SET
+                            cantidad = $1,
+                            precio_unitario = $2,
+                            subtotal = $3
+                        WHERE id = $4
+                    `, [cantNueva, costoNuevo, subtotal, oldIt.id]);
+
+                    // Movimiento de stock si varió cantidad
+                    if (diffCant !== 0) {
+                        const tipoMov = diffCant > 0 ? 'ajuste_positivo' : 'ajuste_negativo';
+                        await tx.run(`
+                            INSERT INTO movimientos_stock (producto_id, lote_id, tipo, cantidad, motivo, referencia_tipo, referencia_id, usuario_id)
+                            VALUES ($1, $2, $3, $4, 'Ajuste por edición de recepción', 'recepcion', $5, $6)
+                        `, [item.producto_id, oldIt.lote_id, tipoMov, Math.abs(diffCant), recepcionId, req.usuario.id]);
+                    }
+
+                    // Sincronizar producto
+                    await tx.run(`
+                        UPDATE productos SET
+                            stock_actual = (SELECT COALESCE(SUM(cantidad_actual), 0) FROM lotes WHERE producto_id = $1),
+                            precio_compra = CASE WHEN $2 > 0 THEN $2 ELSE precio_compra END
+                        WHERE id = $1
+                    `, [item.producto_id, costoNuevo]);
+                } else {
+                    // Ítem agregado nuevo a la recepción existente
+                    const { row: loteRow } = await tx.run(`
+                        INSERT INTO lotes (producto_id, numero_lote, proveedor_id, fecha_ingreso, fecha_vencimiento, cantidad_inicial, cantidad_actual, costo_unitario, recepcion_id)
+                        VALUES ($1, $2, $3, $4, $5, $6, $6, $7, $8) RETURNING id
+                    `, [item.producto_id, item.numero_lote || null, proveedorFinalId, fechaEmision, item.fecha_vencimiento || null, cantNueva, costoNuevo, recepcionId]);
+
+                    await tx.run(`
+                        INSERT INTO recepcion_items (recepcion_id, producto_id, lote_id, cantidad, precio_unitario, subtotal)
+                        VALUES ($1, $2, $3, $4, $5, $6)
+                    `, [recepcionId, item.producto_id, loteRow.id, cantNueva, costoNuevo, subtotal]);
+
+                    await tx.run(`
+                        UPDATE productos SET
+                            stock_actual = (SELECT COALESCE(SUM(cantidad_actual), 0) FROM lotes WHERE producto_id = $1),
+                            precio_compra = CASE WHEN $2 > 0 THEN $2 ELSE precio_compra END
+                        WHERE id = $1
+                    `, [item.producto_id, costoNuevo]);
+
+                    await tx.run(`
+                        INSERT INTO movimientos_stock (producto_id, lote_id, tipo, cantidad, motivo, referencia_tipo, referencia_id, usuario_id)
+                        VALUES ($1, $2, 'ingreso', $3, 'Ítem agregado en edición de recepción', 'recepcion', $4, $5)
+                    `, [item.producto_id, loteRow.id, cantNueva, recepcionId, req.usuario.id]);
+                }
+            }
+
+            // Ajuste de Cuenta Corriente del Proveedor
+            const totalViejo = Number(recepcionExistente.total) || 0;
+            const diffTotal = totalNuevo - totalViejo;
+
+            if (proveedorFinalId === recepcionExistente.proveedor_id) {
+                if (diffTotal !== 0) {
+                    await tx.run('UPDATE proveedores SET saldo_cuenta = saldo_cuenta + $1 WHERE id = $2', [diffTotal, proveedorFinalId]);
+                    const tipoMov = diffTotal > 0 ? 'cargo' : 'pago';
+                    await tx.run(`
+                        INSERT INTO movimientos_cuenta (entidad_tipo, entidad_id, tipo, monto, medio_pago, referencia_tipo, referencia_id, observaciones, usuario_id)
+                        VALUES ('proveedor', $1, $2, $3, 'ajuste', 'recepcion_editada', $4, $5, $6)
+                    `, [proveedorFinalId, tipoMov, Math.abs(diffTotal), recepcionId, `Ajuste por edición de recepción ${recepcionExistente.numero}`, req.usuario.id]);
+                }
+            } else {
+                // Si cambió el proveedor: revertir deuda al viejo y cargarla al nuevo
+                if (totalViejo > 0) {
+                    await tx.run('UPDATE proveedores SET saldo_cuenta = saldo_cuenta - $1 WHERE id = $2', [totalViejo, recepcionExistente.proveedor_id]);
+                    await tx.run(`
+                        INSERT INTO movimientos_cuenta (entidad_tipo, entidad_id, tipo, monto, medio_pago, referencia_tipo, referencia_id, observaciones, usuario_id)
+                        VALUES ('proveedor', $1, 'ajuste', $2, 'ajuste', 'recepcion_cambio_proveedor', $3, $4, $5)
+                    `, [recepcionExistente.proveedor_id, totalViejo, recepcionId, `Reversión por cambio de proveedor en recepción ${recepcionExistente.numero}`, req.usuario.id]);
+                }
+                if (totalNuevo > 0) {
+                    await tx.run('UPDATE proveedores SET saldo_cuenta = saldo_cuenta + $1 WHERE id = $2', [totalNuevo, proveedorFinalId]);
+                    await tx.run(`
+                        INSERT INTO movimientos_cuenta (entidad_tipo, entidad_id, tipo, monto, medio_pago, referencia_tipo, referencia_id, observaciones, usuario_id)
+                        VALUES ('proveedor', $1, 'cargo', $2, 'cuenta_corriente', 'recepcion', $3, $4, $5)
+                    `, [proveedorFinalId, totalNuevo, recepcionId, `Cargo por edición y asignación en recepción ${recepcionExistente.numero}`, req.usuario.id]);
+                }
+            }
+
+            // Actualizar cabecera de la recepción
+            await tx.run(`
+                UPDATE recepciones SET
+                    proveedor_id = $1,
+                    fecha = $2,
+                    numero_remito_proveedor = $3,
+                    numero_factura = $4,
+                    observaciones = $5,
+                    total = $6
+                WHERE id = $7
+            `, [
+                proveedorFinalId,
+                fechaEmision,
+                numero_remito_proveedor !== undefined ? numero_remito_proveedor : recepcionExistente.numero_remito_proveedor,
+                numero_factura !== undefined ? numero_factura : recepcionExistente.numero_factura,
+                observaciones !== undefined ? observaciones : recepcionExistente.observaciones,
+                totalNuevo,
+                recepcionId
+            ]);
+        });
+
+        const actualizada = await db.one(`
+            SELECT r.*, p.razon_social as proveedor_nombre FROM recepciones r
+            JOIN proveedores p ON p.id = r.proveedor_id WHERE r.id = $1
+        `, [recepcionId]);
+
+        const itemsActualizados = await db.all(`
+            SELECT ri.*, pr.nombre as producto_nombre, pr.unidad_medida,
+                   l.numero_lote, l.fecha_vencimiento, l.cantidad_actual, l.cantidad_inicial
+            FROM recepcion_items ri
+            JOIN productos pr ON pr.id = ri.producto_id
+            LEFT JOIN lotes l ON l.id = ri.lote_id
+            WHERE ri.recepcion_id = $1
+            ORDER BY ri.id ASC
+        `, [recepcionId]);
+
+        res.json({ ...actualizada, items: itemsActualizados });
     } catch (err) { next(err); }
 });
 
@@ -177,8 +372,13 @@ router.post('/', async (req, res, next) => {
                     VALUES ($1, $2, $3, $4, $5, $6)
                 `, [recepcionId, item.producto_id, lote.id, item.cantidad, item.precio_unitario || 0, item.cantidad * (item.precio_unitario || 0)]);
 
-                await tx.run('UPDATE productos SET stock_actual = stock_actual + $1, precio_compra = $2 WHERE id = $3',
-                    [item.cantidad, item.precio_unitario || 0, item.producto_id]);
+                const costoIngreso = Number(item.precio_unitario) || 0;
+                await tx.run(`
+                    UPDATE productos 
+                    SET stock_actual = (SELECT COALESCE(SUM(cantidad_actual), 0) FROM lotes WHERE producto_id = $1),
+                        precio_compra = CASE WHEN $2 > 0 THEN $2 ELSE precio_compra END
+                    WHERE id = $1
+                `, [item.producto_id, costoIngreso]);
 
                 await tx.run(`
                     INSERT INTO movimientos_stock (producto_id, lote_id, tipo, cantidad, motivo, referencia_tipo, referencia_id, usuario_id)
@@ -227,8 +427,12 @@ router.post('/:id/anular', async (req, res, next) => {
         await db.transaction(async (tx) => {
             const items = await tx.all('SELECT * FROM recepcion_items WHERE recepcion_id = $1', [req.params.id]);
             for (const item of items) {
-                await tx.run('UPDATE productos SET stock_actual = stock_actual - $1 WHERE id = $2', [item.cantidad, item.producto_id]);
                 await tx.run('UPDATE lotes SET cantidad_actual = 0 WHERE id = $1', [item.lote_id]);
+                await tx.run(`
+                    UPDATE productos 
+                    SET stock_actual = (SELECT COALESCE(SUM(cantidad_actual), 0) FROM lotes WHERE producto_id = $1)
+                    WHERE id = $1
+                `, [item.producto_id]);
                 await tx.run(`
                     INSERT INTO movimientos_stock (producto_id, lote_id, tipo, cantidad, motivo, referencia_tipo, referencia_id, usuario_id)
                     VALUES ($1, $2, 'ajuste_negativo', $3, 'Anulación de recepción', 'recepcion', $4, $5)

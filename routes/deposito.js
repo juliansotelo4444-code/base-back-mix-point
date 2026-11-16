@@ -28,6 +28,7 @@ router.get('/kanban', async (req, res, next) => {
                 r.peso_kg,
                 r.transportista,
                 r.direccion_entrega,
+                r.datos_despacho,
                 r.observaciones,
                 r.operario_asignado_id,
                 r.created_at,

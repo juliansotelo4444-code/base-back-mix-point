@@ -219,6 +219,21 @@ class ConciliacionService {
                 RETURNING *
             `, [cId, rId, obs, conciliacion_id]);
 
+            // 4. Si está vinculado a un remito, actualizar el estado de pago del remito en forma coherente
+            if (rId) {
+                const remito = await tx.one('SELECT id, total FROM remitos WHERE id = $1', [rId]);
+                if (remito) {
+                    const totalRemito = Number(remito.total);
+                    const pagosPrevios = await tx.one(
+                        `SELECT COALESCE(SUM(monto), 0) as total_previo FROM conciliaciones_bancarias WHERE remito_id = $1 AND id != $2 AND estado = 'conciliado'`,
+                        [rId, conciliacion_id]
+                    );
+                    const totalAbonado = Number(pagosPrevios?.total_previo || 0) + monto;
+                    const nuevoEstadoPago = (totalAbonado >= totalRemito - 0.01) ? 'pagado' : 'parcial';
+                    await tx.run('UPDATE remitos SET estado_pago = $1 WHERE id = $2', [nuevoEstadoPago, rId]);
+                }
+            }
+
             return row;
         });
     }

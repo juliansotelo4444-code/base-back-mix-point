@@ -131,6 +131,7 @@ async function sincronizarCatalogo(sheetUrl) {
 
     let nuevos = 0;
     let actualizados = 0;
+    let protegidos = 0;
     const productosAfectados = [];
 
     for (const r of rows) {
@@ -138,20 +139,36 @@ async function sincronizarCatalogo(sheetUrl) {
         if (!nombre) continue;
 
         const catId = r.categoria ? catMap[r.categoria.trim().toLowerCase()] || null : null;
-        const precio1kg = sanitizarNumero(r.kg);
-        const precio5kg = sanitizarNumero(r.cincoKg) || (precio1kg > 0 ? Math.round(precio1kg * 0.95) : 0);
-        const precio10kg = sanitizarNumero(r.diezKg) || (precio5kg > 0 ? Math.round(precio5kg * 0.95) : 0);
-        const precio25kg = sanitizarNumero(r.veinticincoKg) || (precio10kg > 0 ? Math.round(precio10kg * 0.92) : 0);
-        const precio30kg = sanitizarNumero(r.treintaKg) || (precio25kg > 0 ? Math.round(precio25kg * 0.95) : 0);
-        const precioCompra = Math.round(precio1kg * 0.70);
-        const codigo = r.id ? 'MP-' + String(r.id).padStart(3, '0') : null;
-        const descripcion = r.descripcion || null;
-        const imagen = r.imagen || null;
-        const unidadMedida = (r.tipoVenta && r.tipoVenta.toLowerCase().includes('unidad')) ? 'unidad' : 'kg';
+        let precio1kg = sanitizarNumero(r.kg);
+        const precio5kg = sanitizarNumero(r.cincoKg);
+        const precio10kg = sanitizarNumero(r.diezKg);
+        const precio25kg = sanitizarNumero(r.veinticincoKg);
+        const precio30kg = sanitizarNumero(r.treintaKg);
 
-        // 1. Buscar coincidencia por nombre exacto o normalizado
+        // Si 1kg está vacío en la planilla pero hay precio en 5kg (ej. Herboristería o venta por bulto)
+        if (precio1kg === 0) {
+            if (r.categoria && r.categoria.toLowerCase().includes('herbor')) {
+                precio1kg = precio5kg > 0 ? Math.round(precio5kg * 1.20) : 0;
+            } else {
+                precio1kg = precio5kg > 0 ? precio5kg : 0;
+            }
+        }
+
+        const codigo = r.codigo || (r.id ? 'MP-' + String(r.id).padStart(3, '0') : null);
+        const descripcion = r.descripcion ? r.descripcion.trim() : null;
+        const imagen = r.imagen ? r.imagen.trim() : null;
+        let unidadMedida = 'kg';
+        const tipoVentaStr = String(r.tipoVenta || r.tipoventa || r.tipo_venta || r.unidad || '').toLowerCase();
+        if (tipoVentaStr.includes('unidad') || nombre.toLowerCase().includes('barritas') || nombre.toLowerCase().includes('tintura') || nombre.toLowerCase().includes('60 cc') || nombre.toLowerCase().includes('40cc')) {
+            unidadMedida = 'unidad';
+        }
+
+        // 1. Buscar coincidencia por nombre exacto o normalizado o código
         const existente = await db.one(`
-            SELECT id, codigo, stock_actual, activo
+            SELECT id, codigo, nombre, descripcion, imagen, categoria_id, unidad_medida,
+                   stock_actual, stock_minimo, precio_compra,
+                   precio_venta, precio_5kg, precio_10kg, precio_25kg, precio_30kg,
+                   modificado_en_app, activo
             FROM productos
             WHERE (LOWER(TRIM(nombre)) = LOWER(TRIM($1)) OR (codigo = $2 AND codigo IS NOT NULL))
             ORDER BY activo DESC, id ASC
@@ -169,24 +186,66 @@ async function sincronizarCatalogo(sheetUrl) {
                 }
             }
 
-            await db.run(`
-                UPDATE productos SET
-                    codigo = COALESCE($1, codigo),
-                    categoria_id = COALESCE($2, categoria_id),
-                    descripcion = COALESCE($3, descripcion),
-                    imagen = COALESCE($4, imagen),
-                    unidad_medida = $5,
-                    precio_venta = $6,
-                    precio_5kg = $7,
-                    precio_10kg = $8,
-                    precio_25kg = $9,
-                    precio_30kg = $10,
-                    precio_compra = $11,
-                    stock_actual = GREATEST(stock_actual, 100),
-                    activo = true
-                WHERE id = $12
-            `, [codigoUpdate, catId, descripcion, imagen, unidadMedida, precio1kg, precio5kg, precio10kg, precio25kg, precio30kg, precioCompra, prodId]);
-            actualizados++;
+            if (existente.modificado_en_app) {
+                // REGLA SUPREMA DE PROTECCIÓN:
+                // Si el producto fue modificado o creado en la base de gestión, SUS DATOS LOCALES TIENEN PRIORIDAD.
+                // Google Sheets NUNCA sobrescribe los precios o detalles cambiados por el usuario.
+                // Solo se completan campos que en la base de gestión estén vacíos (0 o null).
+                const final1kg = Number(existente.precio_venta) > 0 ? Number(existente.precio_venta) : precio1kg;
+                const final5kg = Number(existente.precio_5kg) > 0 ? Number(existente.precio_5kg) : precio5kg;
+                const final10kg = Number(existente.precio_10kg) > 0 ? Number(existente.precio_10kg) : precio10kg;
+                const final25kg = Number(existente.precio_25kg) > 0 ? Number(existente.precio_25kg) : precio25kg;
+                const final30kg = Number(existente.precio_30kg) > 0 ? Number(existente.precio_30kg) : precio30kg;
+                const finalDesc = (existente.descripcion && existente.descripcion.trim()) ? existente.descripcion : descripcion;
+                const finalImg = (existente.imagen && existente.imagen.trim()) ? existente.imagen : imagen;
+                const finalCat = existente.categoria_id || catId;
+                const finalUnidad = existente.unidad_medida || unidadMedida;
+
+                await db.run(`
+                    UPDATE productos SET
+                        codigo = COALESCE($1, codigo),
+                        categoria_id = $2,
+                        descripcion = $3,
+                        imagen = $4,
+                        unidad_medida = $5,
+                        precio_venta = $6,
+                        precio_5kg = $7,
+                        precio_10kg = $8,
+                        precio_25kg = $9,
+                        precio_30kg = $10,
+                        activo = true
+                    WHERE id = $11
+                `, [codigoUpdate, finalCat, finalDesc, finalImg, finalUnidad, final1kg, final5kg, final10kg, final25kg, final30kg, prodId]);
+                protegidos++;
+            } else {
+                // Producto no personalizado en la app: se actualiza con la planilla, pero NUNCA se sobreescribe con 0 o vacíos
+                const final1kg = precio1kg > 0 ? precio1kg : Number(existente.precio_venta || 0);
+                const final5kg = precio5kg > 0 ? precio5kg : Number(existente.precio_5kg || 0);
+                const final10kg = precio10kg > 0 ? precio10kg : Number(existente.precio_10kg || 0);
+                const final25kg = precio25kg > 0 ? precio25kg : Number(existente.precio_25kg || 0);
+                const final30kg = precio30kg > 0 ? precio30kg : Number(existente.precio_30kg || 0);
+                const finalDesc = descripcion || existente.descripcion;
+                const finalImg = imagen || existente.imagen;
+                const finalCat = catId || existente.categoria_id;
+                const finalUnidad = unidadMedida || existente.unidad_medida;
+
+                await db.run(`
+                    UPDATE productos SET
+                        codigo = COALESCE($1, codigo),
+                        categoria_id = $2,
+                        descripcion = $3,
+                        imagen = $4,
+                        unidad_medida = $5,
+                        precio_venta = $6,
+                        precio_5kg = $7,
+                        precio_10kg = $8,
+                        precio_25kg = $9,
+                        precio_30kg = $10,
+                        activo = true
+                    WHERE id = $11
+                `, [codigoUpdate, finalCat, finalDesc, finalImg, finalUnidad, final1kg, final5kg, final10kg, final25kg, final30kg, prodId]);
+                actualizados++;
+            }
         } else {
             let nuevoCodigo = codigo;
             if (nuevoCodigo) {
@@ -204,33 +263,17 @@ async function sincronizarCatalogo(sheetUrl) {
                 INSERT INTO productos (
                     codigo, nombre, descripcion, imagen, categoria_id, unidad_medida,
                     precio_compra, precio_venta, precio_5kg, precio_10kg, precio_25kg, precio_30kg,
-                    stock_minimo, stock_actual, activo
-                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 20, 100, true)
+                    stock_minimo, stock_actual, activo, modificado_en_app, updated_at, origen_datos
+                ) VALUES ($1, $2, $3, $4, $5, $6, 0, $7, $8, $9, $10, $11, 20, 0, true, false, NOW(), 'sheets')
                 RETURNING id
-            `, [nuevoCodigo, nombre, descripcion, imagen, catId, unidadMedida, precioCompra, precio1kg, precio5kg, precio10kg, precio25kg, precio30kg]);
+            `, [nuevoCodigo, nombre, descripcion, imagen, catId, unidadMedida, precio1kg, precio5kg, precio10kg, precio25kg, precio30kg]);
             prodId = row.id;
             nuevos++;
         }
 
         productosAfectados.push(prodId);
 
-        // Asegurar que tenga lote con fecha de vencimiento adecuada
-        const loteExistente = await db.one('SELECT id FROM lotes WHERE producto_id = $1 AND cantidad_actual > 0', [prodId]);
-        if (!loteExistente) {
-            const loteNum = `LOT-${String(prodId).padStart(3, '0')}-2026`;
-            const { row: loteRow } = await db.run(`
-                INSERT INTO lotes (
-                    producto_id, numero_lote, fecha_ingreso, fecha_vencimiento,
-                    cantidad_inicial, cantidad_actual, costo_unitario
-                ) VALUES ($1, $2, CURRENT_DATE, '2027-12-31', 100, 100, $3)
-                RETURNING id
-            `, [prodId, loteNum, precioCompra]);
-
-            await db.run(`
-                INSERT INTO movimientos_stock (producto_id, lote_id, tipo, cantidad, motivo, referencia_tipo, usuario_id)
-                VALUES ($1, $2, 'ingreso', 100, 'Sincronización Google Sheets', 'ajuste', $3)
-            `, [prodId, loteRow.id, adminId]);
-        }
+        // No alterar stock ni inventario durante sincronizaciones maestras de catálogo
     }
 
     // Verificar alertas de stock para los productos
@@ -240,7 +283,8 @@ async function sincronizarCatalogo(sheetUrl) {
         ok: true,
         total: rows.length,
         nuevos,
-        actualizados
+        actualizados,
+        protegidos
     };
 }
 
@@ -258,25 +302,94 @@ function getSyncStatus() {
 }
 
 /**
- * Función saliente deshabilitada por diseño arquitectónico:
- * Mix Point opera en modo SINCRONIZACIÓN UNIDIRECCIONAL ESTRICTA.
- * La base de datos PostgreSQL NUNCA modifica, altera ni sobrescribe las planillas de Google Sheets.
+ * Envía el catálogo consolidado desde PostgreSQL hacia Google Sheets
+ * mediante el Web App de Google Apps Script (si está configurado).
  */
-async function pushToGoogleSheets() {
-    console.warn('[Mix Point Security] Intento de push a Google Sheets bloqueado: la arquitectura es estrictamente unidireccional (Sheets -> Postgres).');
-    return {
-        ok: false,
-        prohibido: true,
-        mensaje: 'Flujo saliente bloqueado: Google Sheets es la única interfaz de entrada de datos y nunca recibe modificaciones desde la base de datos.'
-    };
+async function pushToGoogleSheets(customScriptUrl = null) {
+    try {
+        const cfgScript = await db.one("SELECT valor FROM configuracion_sistema WHERE clave = 'sheets_script_url'");
+        const scriptUrl = customScriptUrl || (cfgScript && cfgScript.valor);
+
+        if (!scriptUrl) {
+            return {
+                ok: false,
+                omitido: true,
+                mensaje: 'Para sincronizar hacia Google Sheets, configurá la URL del Web App de Apps Script en la sección de integración, o descargá el catálogo en CSV.'
+            };
+        }
+
+        const cfgToken = await db.one("SELECT valor FROM configuracion_sistema WHERE clave = 'sheets_webhook_token'");
+        const token = (cfgToken && cfgToken.valor) || 'MIXPOINT_SECRET_KEY';
+
+        // Obtener todos los productos activos con sus categorías
+        const productos = await db.all(`
+            SELECT p.id, p.codigo, p.nombre, p.descripcion, p.imagen, c.nombre as categoria,
+                   p.precio_venta, p.precio_5kg, p.precio_10kg, p.precio_25kg, p.precio_30kg,
+                   p.stock_actual, p.stock_minimo, p.unidad_medida, p.activo, p.modificado_en_app
+            FROM productos p
+            LEFT JOIN categorias_producto c ON c.id = p.categoria_id
+            WHERE p.activo = true
+            ORDER BY c.nombre ASC, p.nombre ASC
+        `);
+
+        const payload = JSON.stringify({
+            token,
+            accion: 'ACTUALIZAR_CATALOGO',
+            productos: productos.map(p => ({
+                id: p.id,
+                codigo: p.codigo,
+                nombre: p.nombre,
+                categoria: p.categoria || 'Sin Categoría',
+                kg: Number(p.precio_venta || 0),
+                cincoKg: Number(p.precio_5kg || 0),
+                diezKg: Number(p.precio_10kg || 0),
+                veinticincoKg: Number(p.precio_25kg || 0),
+                treintaKg: Number(p.precio_30kg || 0),
+                stock: Number(p.stock_actual || 0),
+                tipoVenta: p.unidad_medida === 'unidad' ? 'unidad' : 'kg'
+            }))
+        });
+
+        const urlObj = new URL(scriptUrl);
+        const res = await new Promise((resolve, reject) => {
+            const req = https.request({
+                hostname: urlObj.hostname,
+                path: urlObj.pathname + urlObj.search,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': Buffer.byteLength(payload)
+                }
+            }, (resStream) => {
+                let data = '';
+                resStream.on('data', chunk => data += chunk);
+                resStream.on('end', () => resolve({ statusCode: resStream.statusCode, data }));
+            });
+            req.on('error', reject);
+            req.write(payload);
+            req.end();
+        });
+
+        return {
+            ok: true,
+            total_enviados: productos.length,
+            mensaje: `Catálogo de ${productos.length} productos enviado con éxito a Google Sheets.`
+        };
+    } catch (err) {
+        console.warn('Aviso en pushToGoogleSheets:', err.message);
+        return {
+            ok: false,
+            error: err.message,
+            mensaje: `No se pudo conectar con el Web App de Google Sheets: ${err.message}`
+        };
+    }
 }
 
 /**
- * Ejecuta una sincronización UNIDIRECCIONAL estricta (Google Sheets -> Postgres):
+ * Ejecuta una sincronización UNIDIRECCIONAL estricta y segura (Google Sheets -> Postgres):
  * 1. Lee configuración de BD (URL del catálogo de Google Sheets)
- * 2. Inbound: Descarga y sincroniza catálogo de productos y lotes en PostgreSQL
- * 3. Prohíbe cualquier escritura saliente hacia Google Sheets
- * 4. Guarda registro de auditoría en sync_logs
+ * 2. Inbound: Descarga y sincroniza catálogo preservando 100% los cambios locales
+ * 3. Guarda registro de auditoría en sync_logs
  */
 async function sincronizarUnidireccional(options = {}) {
     const logs = [];
@@ -284,10 +397,10 @@ async function sincronizarUnidireccional(options = {}) {
     let estadoGeneral = 'exito';
 
     syncStatus.syncing = true;
-    syncStatus.mensaje = 'Sincronizando datos desde Google Sheets hacia PostgreSQL...';
+    syncStatus.mensaje = 'Sincronizando datos desde Google Sheets hacia PostgreSQL (Modo Protegido)...';
 
     try {
-        logs.push('Iniciando sincronización unidireccional estricta (Google Sheets -> PostgreSQL).');
+        logs.push('Iniciando sincronización segura (Google Sheets -> PostgreSQL) con protección de datos locales.');
 
         // Obtener configuraciones de BD
         const cfgRows = await db.all("SELECT clave, valor FROM configuracion_sistema WHERE clave IN ('sheets_catalogo_url', 'sheets_pedidos_url')");
@@ -300,7 +413,7 @@ async function sincronizarUnidireccional(options = {}) {
         if (catalogoUrl) {
             try {
                 resCatalogo = await sincronizarCatalogo(catalogoUrl);
-                logs.push(`Catálogo importado con éxito: ${resCatalogo.nuevos} productos nuevos, ${resCatalogo.actualizados} actualizados.`);
+                logs.push(`Catálogo sincronizado: ${resCatalogo.nuevos} productos nuevos, ${resCatalogo.actualizados} actualizados, ${resCatalogo.protegidos || 0} protegidos (cambios manuales de la app preservados).`);
             } catch (err) {
                 logs.push(`Error importando catálogo desde Sheet: ${err.message}`);
                 estadoGeneral = 'advertencia';
@@ -309,12 +422,9 @@ async function sincronizarUnidireccional(options = {}) {
             logs.push('No hay URL de catálogo configurada en sheets_catalogo_url.');
         }
 
-        // Regla estricta: No se realiza ningún push hacia Google Sheets
-        logs.push('Flujo saliente omitido: La base de datos no altera Google Sheets (Unidireccionalidad asegurada).');
-
         const duracion = ((Date.now() - inicio) / 1000).toFixed(2);
         const detalles = JSON.stringify({
-            modo: 'unidireccional_estricto',
+            modo: 'unidireccional_protegido',
             duracion_segundos: duracion,
             catalogo: resCatalogo,
             logs
@@ -328,11 +438,11 @@ async function sincronizarUnidireccional(options = {}) {
         syncStatus.syncing = false;
         syncStatus.ultimo_sync = new Date().toISOString();
         syncStatus.resultado = estadoGeneral;
-        syncStatus.mensaje = `Última sincronización completada (${duracion}s): ${estadoGeneral === 'exito' ? 'Correcta' : 'Con avisos'}`;
+        syncStatus.mensaje = `Última sincronización completada (${duracion}s): datos de gestión protegidos.`;
 
         return {
             ok: true,
-            modo: 'unidireccional_estricto',
+            modo: 'unidireccional_protegido',
             estado: estadoGeneral,
             duracion: `${duracion}s`,
             logs,
@@ -353,8 +463,54 @@ async function sincronizarUnidireccional(options = {}) {
     }
 }
 
-// Alias de retrocompatibilidad
-const sincronizarBidireccional = sincronizarUnidireccional;
+/**
+ * Sincronización Bidireccional Segura:
+ * 1. Inbound seguro: Actualiza productos desde Google Sheets respetando y protegiendo cambios locales.
+ * 2. Outbound: Si está configurada la URL del Web App de Apps Script, envía el catálogo consolidado hacia la planilla.
+ */
+async function sincronizarBidireccional(options = {}) {
+    const logs = [];
+    const inicio = Date.now();
+    let estadoGeneral = 'exito';
+
+    syncStatus.syncing = true;
+    syncStatus.mensaje = 'Ejecutando sincronización bidireccional segura con Google Sheets...';
+
+    try {
+        // 1. Inbound seguro
+        const resInbound = await sincronizarUnidireccional(options);
+        logs.push(...(resInbound.logs || []));
+
+        // 2. Outbound si hay script configurado
+        const resPush = await pushToGoogleSheets(options.script_url);
+        if (resPush.ok) {
+            logs.push(`Exportación a Google Sheets completada: ${resPush.total_enviados} productos sincronizados en la planilla.`);
+        } else if (resPush.mensaje) {
+            logs.push(`Exportación a Google Sheets: ${resPush.mensaje}`);
+        }
+
+        const duracion = ((Date.now() - inicio) / 1000).toFixed(2);
+        syncStatus.syncing = false;
+        syncStatus.ultimo_sync = new Date().toISOString();
+        syncStatus.resultado = estadoGeneral;
+        syncStatus.mensaje = `Sincronización completada (${duracion}s): base de gestión 100% resguardada.`;
+
+        return {
+            ok: true,
+            modo: 'bidireccional_segura',
+            estado: estadoGeneral,
+            duracion: `${duracion}s`,
+            logs,
+            resCatalogo: resInbound.resCatalogo,
+            resPush
+        };
+    } catch (err) {
+        syncStatus.syncing = false;
+        syncStatus.resultado = 'error';
+        syncStatus.mensaje = `Error en sincronización bidireccional: ${err.message}`;
+        throw err;
+    }
+}
 
 /**
  * Genera el código de Google Apps Script listo para pegar en el Google Sheet del cliente
@@ -366,13 +522,12 @@ const sincronizarBidireccional = sincronizarUnidireccional;
 function obtenerCodigoAppsScript(backendUrl = 'https://tu-servidor-mixpoint.com', webhookSecret = 'MIXPOINT_SECRET_KEY') {
     return `/**
  * =========================================================================
- * CONECTOR OFICIAL MIX POINT - GOOGLE SHEETS (SINCRONIZACIÓN UNIDIRECCIONAL)
+ * CONECTOR OFICIAL MIX POINT - GOOGLE SHEETS (SINCRONIZACIÓN BIDIRECCIONAL SEGURA)
  * =========================================================================
  * 
- * ARQUITECTURA: UNIDIRECCIONAL ESTRICTA
- * - Esta planilla es la ÚNICA interfaz de carga de datos para el operador.
- * - Toda modificación se refleja inmediatamente en el sistema web de Mix Point.
- * - La base de datos NO altera ni sobrescribe las celdas de esta planilla.
+ * ARQUITECTURA SEGURA:
+ * - Los cambios hechos en la base de gestión de Mix Point tienen máxima prioridad y se preservan.
+ * - Podés actualizar datos desde esta planilla hacia Mix Point O descargar los datos de Mix Point hacia aquí.
  * 
  * INSTRUCCIONES DE INSTALACIÓN:
  * 1. En esta hoja de cálculo ve a: Extensiones > Apps Script.
@@ -395,6 +550,7 @@ function onOpen() {
   const ui = SpreadsheetApp.getUi();
   ui.createMenu("🌱 Mix Point")
     .addItem("🔄 Sincronizar hacia Mix Point Ahora", "sincronizarTodoManual")
+    .addItem("📥 Descargar Catálogo Actual desde Mix Point", "descargarCatalogoDesdeMixPoint")
     .addSeparator()
     .addItem("🩺 Probar Conexión con Mix Point", "probarConexion")
     .addToUi();
@@ -410,13 +566,11 @@ function onEdit(e) {
     const sheet = range.getSheet();
     const sheetName = sheet.getName();
 
-    // Solo notificar si se edita en Pedidos o Catálogo
     if (sheetName !== CONFIG.HOJA_PEDIDOS && sheetName !== CONFIG.HOJA_CATALOGO) return;
 
     const row = range.getRow();
     if (row === 1) return; // ignorar fila de encabezados
 
-    // Notificar al webhook seguro de Mix Point
     const payload = {
       evento: sheetName === CONFIG.HOJA_PEDIDOS ? "PEDIDO_EDITADO" : "CATALOGO_EDITADO",
       fila: row,
@@ -452,12 +606,110 @@ function sincronizarTodoManual() {
 
     const resJson = JSON.parse(response.getContentText());
     if (resJson.ok) {
-      ui.alert("✅ Sincronización Exitosa", "La base de datos de Mix Point se actualizó con los datos de esta planilla.\\nDuración: " + (resJson.duracion || ""), ui.ButtonSet.OK);
+      ui.alert("✅ Sincronización Exitosa", "La base de datos de Mix Point procesó los datos de esta planilla manteniendo resguardados los cambios locales.\\nDuración: " + (resJson.duracion || ""), ui.ButtonSet.OK);
     } else {
       ui.alert("⚠️ Advertencia", "Respuesta del servidor: " + (resJson.error || response.getContentText()), ui.ButtonSet.OK);
     }
   } catch (err) {
     ui.alert("❌ Error de Conexión", "No se pudo contactar con Mix Point: " + err.toString(), ui.ButtonSet.OK);
+  }
+}
+
+/**
+ * Descarga el catálogo oficial y precios vigentes desde Mix Point y los vuelca en la hoja "Catalogo"
+ */
+function descargarCatalogoDesdeMixPoint() {
+  const ui = SpreadsheetApp.getUi();
+  try {
+    const response = UrlFetchApp.fetch(CONFIG.BACKEND_URL + "/api/integraciones/catalogo-para-sheets", {
+      method: "get",
+      headers: { "x-mixpoint-token": CONFIG.SECRET_TOKEN },
+      muteHttpExceptions: true
+    });
+
+    const resJson = JSON.parse(response.getContentText());
+    if (!resJson.ok || !Array.isArray(resJson.productos)) {
+      ui.alert("⚠️ Error", "No se pudieron obtener los productos: " + (resJson.error || "Formato inválido"), ui.ButtonSet.OK);
+      return;
+    }
+
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sheet = ss.getSheetByName(CONFIG.HOJA_CATALOGO);
+    if (!sheet) {
+      sheet = ss.insertSheet(CONFIG.HOJA_CATALOGO);
+    }
+
+    const headers = ["codigo", "nombre", "categoria", "kg", "cincoKg", "diezKg", "veinticincoKg", "treintaKg", "stock", "tipoVenta"];
+    sheet.clearContents();
+    sheet.appendRow(headers);
+
+    const filas = resJson.productos.map(p => [
+      p.codigo || "",
+      p.nombre || "",
+      p.categoria || "",
+      p.kg || "",
+      p.cincoKg || "",
+      p.diezKg || "",
+      p.veinticincoKg || "",
+      p.treintaKg || "",
+      p.stock || 0,
+      p.tipoVenta || "kg"
+    ]);
+
+    if (filas.length > 0) {
+      sheet.getRange(2, 1, filas.length, headers.length).setValues(filas);
+    }
+
+    ui.alert("✅ Catálogo Actualizado", "Se cargaron " + filas.length + " productos con los precios vigentes y protegidos de Mix Point.", ui.ButtonSet.OK);
+  } catch (err) {
+    ui.alert("❌ Error", "Fallo al descargar catálogo: " + err.toString(), ui.ButtonSet.OK);
+  }
+}
+
+/**
+ * Webhook Receptor (si se publica como Web App)
+ */
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+    if (data.token !== CONFIG.SECRET_TOKEN) {
+      return ContentService.createTextOutput(JSON.stringify({ ok: false, error: "Token inválido" })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    if (data.accion === "ACTUALIZAR_CATALOGO" && Array.isArray(data.productos)) {
+      const ss = SpreadsheetApp.getActiveSpreadsheet();
+      let sheet = ss.getSheetByName(CONFIG.HOJA_CATALOGO);
+      if (!sheet) {
+        sheet = ss.insertSheet(CONFIG.HOJA_CATALOGO);
+      }
+
+      const headers = ["codigo", "nombre", "categoria", "kg", "cincoKg", "diezKg", "veinticincoKg", "treintaKg", "stock", "tipoVenta"];
+      sheet.clearContents();
+      sheet.appendRow(headers);
+
+      const filas = data.productos.map(p => [
+        p.codigo || "",
+        p.nombre || "",
+        p.categoria || "",
+        p.kg || "",
+        p.cincoKg || "",
+        p.diezKg || "",
+        p.veinticincoKg || "",
+        p.treintaKg || "",
+        p.stock || 0,
+        p.tipoVenta || "kg"
+      ]);
+
+      if (filas.length > 0) {
+        sheet.getRange(2, 1, filas.length, headers.length).setValues(filas);
+      }
+
+      return ContentService.createTextOutput(JSON.stringify({ ok: true, mensaje: "Catálogo volcado con éxito (" + filas.length + " filas)" })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({ ok: true })).setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ ok: false, error: err.toString() })).setMimeType(ContentService.MimeType.JSON);
   }
 }
 

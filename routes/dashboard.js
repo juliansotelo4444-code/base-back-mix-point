@@ -132,7 +132,7 @@ router.get('/productos-mas-vendidos', async (req, res, next) => {
             FROM remito_items ri
             JOIN remitos r ON r.id = ri.remito_id
             JOIN productos p ON p.id = ri.producto_id
-            WHERE r.estado != 'anulado'
+            WHERE r.estado NOT IN ('anulado', 'cancelado')
         `;
         const params = [];
         if (desde) { params.push(desde); sql += ` AND r.fecha >= $${params.length}`; }

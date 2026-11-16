@@ -84,7 +84,7 @@ router.post('/', async (req, res, next) => {
     try {
         const {
             cliente_id, fecha, direccion_entrega, transportista, observaciones,
-            items, permitir_sin_stock, estado = 'pendiente', descuento_porcentaje = 0,
+            items, permitir_sin_stock, estado = 'pendiente', descuento_porcentaje = 0, descuento_monto = 0,
             bultos = 1, peso_kg, valor_declarado, datos_despacho
         } = req.body;
 
@@ -93,7 +93,17 @@ router.post('/', async (req, res, next) => {
 
         const estadosValidos = ['pendiente', 'en_preparacion', 'esperando_pago', 'en_camino', 'entregado', 'facturado', 'cancelado', 'anulado'];
         const estadoFinal = estadosValidos.includes(estado) ? estado : 'pendiente';
-        const descPorc = Math.max(0, Math.min(100, Number(descuento_porcentaje) || 0));
+
+        const subtotalBruto = items.reduce((acc, it) => acc + (Number(it.cantidad || 0) * Number(it.precio_unitario || 0)), 0);
+        let descPorc = Math.max(0, Math.min(100, Number(descuento_porcentaje) || 0));
+        let montoDesc = 0;
+        if (Number(descuento_monto) > 0) {
+            montoDesc = Math.min(subtotalBruto, Math.max(0, Number(descuento_monto)));
+            descPorc = subtotalBruto > 0 ? Math.round((montoDesc / subtotalBruto) * 10000) / 100 : 0;
+        } else {
+            montoDesc = Math.round((subtotalBruto * (descPorc / 100)) * 100) / 100;
+        }
+        const total = Math.max(0, Math.round((subtotalBruto - montoDesc) * 100) / 100);
 
         // Si se emite directamente como entregado, validar stock a menos que se permita sin stock
         if (estadoFinal === 'entregado') {
@@ -108,8 +118,6 @@ router.post('/', async (req, res, next) => {
             }
         }
 
-        const subtotalBruto = items.reduce((acc, it) => acc + (Number(it.cantidad || 0) * Number(it.precio_unitario || 0)), 0);
-        const total = Math.round((subtotalBruto - (subtotalBruto * (descPorc / 100))) * 100) / 100;
         const debeDescontar = (estadoFinal === 'entregado');
 
         // Cálculo de peso y valor declarado predeterminados
@@ -127,13 +135,13 @@ router.post('/', async (req, res, next) => {
                 INSERT INTO remitos (
                     numero, cliente_id, fecha, direccion_entrega, transportista,
                     bultos, peso_kg, valor_declarado, datos_despacho,
-                    observaciones, total, estado, stock_descontado, descuento_porcentaje, usuario_id
-                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING id
+                    observaciones, total, estado, stock_descontado, descuento_porcentaje, descuento_monto, usuario_id
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) RETURNING id
             `, [
                 numero, cliente_id, fechaEmision,
                 direccion_entrega || null, transportista || null,
                 bultosFinal, pesoFinal, valorFinal, JSON.stringify(datos_despacho || {}),
-                observaciones || null, total, estadoFinal, debeDescontar, descPorc, req.usuario.id
+                observaciones || null, total, estadoFinal, debeDescontar, descPorc, montoDesc, req.usuario.id
             ]);
 
             const rId = row.id;
@@ -233,6 +241,7 @@ router.put('/:id', async (req, res, next) => {
             items,
             permitir_sin_stock,
             descuento_porcentaje = 0,
+            descuento_monto = 0,
             bultos,
             peso_kg,
             valor_declarado,
@@ -255,11 +264,18 @@ router.put('/:id', async (req, res, next) => {
         const ip = AuditService.extraerIp(req);
         const yaHabiaDescontado = Boolean(remitoExistente.stock_descontado);
         const clienteFinalId = cliente_id ? Number(cliente_id) : remitoExistente.cliente_id;
-        const descPorc = Math.max(0, Math.min(100, Number(descuento_porcentaje) || 0));
 
-        // Cálculo de totales
+        // Cálculo de totales con soporte para % o monto fijo en $
         const subtotalBruto = items.reduce((acc, it) => acc + (Number(it.cantidad || 0) * Number(it.precio_unitario || 0)), 0);
-        const nuevoTotal = Math.round((subtotalBruto - (subtotalBruto * (descPorc / 100))) * 100) / 100;
+        let descPorc = Math.max(0, Math.min(100, Number(descuento_porcentaje) || 0));
+        let montoDesc = 0;
+        if (Number(descuento_monto) > 0) {
+            montoDesc = Math.min(subtotalBruto, Math.max(0, Number(descuento_monto)));
+            descPorc = subtotalBruto > 0 ? Math.round((montoDesc / subtotalBruto) * 10000) / 100 : 0;
+        } else {
+            montoDesc = Math.round((subtotalBruto * (descPorc / 100)) * 100) / 100;
+        }
+        const nuevoTotal = Math.max(0, Math.round((subtotalBruto - montoDesc) * 100) / 100);
 
         const pesoEstimado = items.reduce((acc, it) => acc + (Number(it.cantidad) || 0), 0);
         const pesoFinal = (peso_kg !== undefined && peso_kg !== null) ? Number(peso_kg) : Math.round(pesoEstimado * 100) / 100;
@@ -375,7 +391,12 @@ router.put('/:id', async (req, res, next) => {
                 `, [clienteFinalId, nuevoTotal, remitoId, `Cargo actualizado por edición de remito ${remitoExistente.numero}`, req.usuario.id]);
             }
 
-            // 7. Actualizar cabecera del remito
+            // 7. Actualizar cabecera del remito y reevaluar estado de pago si el total aumentó
+            let nuevoEstadoPago = remitoExistente.estado_pago || 'pendiente';
+            if (remitoExistente.estado_pago === 'pagado' && nuevoTotal > Number(remitoExistente.total)) {
+                nuevoEstadoPago = 'parcial';
+            }
+
             await tx.run(`
                 UPDATE remitos SET
                     cliente_id = $1,
@@ -387,15 +408,17 @@ router.put('/:id', async (req, res, next) => {
                     valor_declarado = $7,
                     observaciones = $8,
                     total = $9,
-                    descuento_porcentaje = $10
-                WHERE id = $11
+                    descuento_porcentaje = $10,
+                    descuento_monto = $11,
+                    estado_pago = $12
+                WHERE id = $13
             `, [
                 clienteFinalId, fechaEmision,
                 direccion_entrega !== undefined ? direccion_entrega : remitoExistente.direccion_entrega,
                 transportista !== undefined ? transportista : remitoExistente.transportista,
                 bultosFinal, pesoFinal, valorFinal,
                 observaciones !== undefined ? observaciones : remitoExistente.observaciones,
-                nuevoTotal, descPorc, remitoId
+                nuevoTotal, descPorc, montoDesc, nuevoEstadoPago, remitoId
             ]);
 
             // 8. Registro de auditoría ACID (si falla, tx revierte)
@@ -473,7 +496,7 @@ router.put('/:id', async (req, res, next) => {
 router.put('/:id/despacho', async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { transportista, bultos, peso_kg, valor_declarado, datos_despacho } = req.body;
+        const { transportista, bultos, peso_kg, valor_declarado, datos_despacho, direccion_entrega, observaciones } = req.body;
 
         const remito = await db.one('SELECT * FROM remitos WHERE id = $1', [id]);
         if (!remito) return res.status(404).json({ error: 'Remito no encontrado.' });
@@ -483,12 +506,14 @@ router.put('/:id/despacho', async (req, res, next) => {
         const nuevoPeso = peso_kg !== undefined ? Math.max(0, parseFloat(peso_kg) || 0) : (remito.peso_kg || 0);
         const nuevoValor = valor_declarado !== undefined ? Math.max(0, parseFloat(valor_declarado) || 0) : (remito.valor_declarado || remito.total || 0);
         const nuevosDatos = datos_despacho !== undefined ? datos_despacho : (remito.datos_despacho || {});
+        const nuevaDireccion = direccion_entrega !== undefined ? direccion_entrega : remito.direccion_entrega;
+        const nuevasObs = observaciones !== undefined ? observaciones : remito.observaciones;
 
         await db.run(`
             UPDATE remitos
-            SET transportista = $1, bultos = $2, peso_kg = $3, valor_declarado = $4, datos_despacho = $5
-            WHERE id = $6
-        `, [nuevoTransportista, nuevosBultos, nuevoPeso, nuevoValor, JSON.stringify(nuevosDatos), id]);
+            SET transportista = $1, bultos = $2, peso_kg = $3, valor_declarado = $4, datos_despacho = $5, direccion_entrega = $6, observaciones = $7
+            WHERE id = $8
+        `, [nuevoTransportista, nuevosBultos, nuevoPeso, nuevoValor, JSON.stringify(nuevosDatos), nuevaDireccion, nuevasObs, id]);
 
         const actualizado = await db.one(`
             SELECT r.*, c.razon_social as cliente_nombre, c.cuit as cliente_cuit,
@@ -557,7 +582,11 @@ router.put('/:id/estado', async (req, res, next) => {
                         if (!loteRef) loteRef = lote.id;
                     }
 
-                    await tx.run('UPDATE productos SET stock_actual = stock_actual - $1 WHERE id = $2', [item.cantidad, item.producto_id]);
+                    await tx.run(`
+                        UPDATE productos 
+                        SET stock_actual = (SELECT COALESCE(SUM(cantidad_actual), 0) FROM lotes WHERE producto_id = $1)
+                        WHERE id = $1
+                    `, [item.producto_id]);
                     await tx.run(`
                         UPDATE remito_items SET lote_id = COALESCE(lote_id, $1) WHERE id = $2
                     `, [loteRef, item.id]);

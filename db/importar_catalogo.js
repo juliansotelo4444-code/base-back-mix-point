@@ -119,12 +119,13 @@ async function importar() {
 
         const catId = p.categoria ? catMap[p.categoria.trim().toLowerCase()] || null : null;
         const precio1kg = parseFloat(p.kg) || 0;
-        const precio5kg = parseFloat(p.cincoKg) || (precio1kg > 0 ? Math.round(precio1kg * 0.95) : 0);
-        const precio10kg = parseFloat(p.diezKg) || (precio5kg > 0 ? Math.round(precio5kg * 0.95) : 0);
-        const precio25kg = parseFloat(p.veinticincoKg) || (precio10kg > 0 ? Math.round(precio10kg * 0.92) : 0);
-        const precio30kg = parseFloat(p.treintaKg) || (precio25kg > 0 ? Math.round(precio25kg * 0.95) : 0);
-        const precioCompra = Math.round(precio1kg * 0.70);
-        const codigo = 'MP-' + String(p.id).padStart(3, '0');
+        const precio5kg = parseFloat(p.cincoKg) || 0;
+        const precio10kg = parseFloat(p.diezKg) || 0;
+        const precio25kg = parseFloat(p.veinticincoKg) || 0;
+        const precio30kg = parseFloat(p.treintaKg) || 0;
+        const precioCompra = parseFloat(p.precio_compra) || 0;
+        const unidadMedida = (p.tipoVenta && p.tipoVenta.toLowerCase().includes('unidad')) ? 'unidad' : 'kg';
+        const codigo = p.codigo || ('MP-' + String(p.id).padStart(3, '0'));
         const descripcion = p.descripcion || null;
         const imagen = p.imagen || null;
 
@@ -144,10 +145,10 @@ async function importar() {
                     precio_10kg = $7,
                     precio_25kg = $8,
                     precio_30kg = $9,
-                    precio_compra = $10,
-                    stock_actual = GREATEST(stock_actual, 100)
+                    unidad_medida = $10,
+                    activo = true
                 WHERE id = $11
-            `, [codigo, catId, descripcion, imagen, precio1kg, precio5kg, precio10kg, precio25kg, precio30kg, precioCompra, prodId]);
+            `, [codigo, catId, descripcion, imagen, precio1kg, precio5kg, precio10kg, precio25kg, precio30kg, unidadMedida, prodId]);
             actualizados++;
         } else {
             const { row } = await db.run(`
@@ -155,28 +156,35 @@ async function importar() {
                     codigo, nombre, descripcion, imagen, categoria_id, unidad_medida,
                     precio_compra, precio_venta, precio_5kg, precio_10kg, precio_25kg, precio_30kg,
                     stock_minimo, stock_actual, activo
-                ) VALUES ($1, $2, $3, $4, $5, 'kg', $6, $7, $8, $9, $10, $11, 20, 100, true)
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 20, 0, true)
                 RETURNING id
-            `, [codigo, nombre, descripcion, imagen, catId, precioCompra, precio1kg, precio5kg, precio10kg, precio25kg, precio30kg]);
+            `, [codigo, nombre, descripcion, imagen, catId, unidadMedida, precioCompra, precio1kg, precio5kg, precio10kg, precio25kg, precio30kg]);
             prodId = row.id;
             importados++;
         }
 
-        const loteExistente = await db.one('SELECT id FROM lotes WHERE producto_id = $1 AND cantidad_actual > 0', [prodId]);
+        // Solo para productos nuevos que no tienen ningún lote histórico registrado
+        const loteExistente = await db.one('SELECT id FROM lotes WHERE producto_id = $1 LIMIT 1', [prodId]);
         if (!loteExistente) {
             const loteNum = `LOT-${String(prodId).padStart(3, '0')}-2026`;
             const { row: loteRow } = await db.run(`
                 INSERT INTO lotes (
                     producto_id, numero_lote, fecha_ingreso, fecha_vencimiento,
                     cantidad_inicial, cantidad_actual, costo_unitario
-                ) VALUES ($1, $2, CURRENT_DATE, '2027-12-31', 100, 100, $3)
+                ) VALUES ($1, $2, CURRENT_DATE, '2027-12-31', 50, 50, $3)
                 RETURNING id
             `, [prodId, loteNum, precioCompra]);
 
             await db.run(`
                 INSERT INTO movimientos_stock (producto_id, lote_id, tipo, cantidad, motivo, referencia_tipo, usuario_id)
-                VALUES ($1, $2, 'ingreso', 100, 'Inventario inicial de catálogo Mix Point', 'ajuste', $3)
+                VALUES ($1, $2, 'ingreso', 50, 'Inventario inicial de catálogo Mix Point', 'ajuste', $3)
             `, [prodId, loteRow.id, adminId]);
+
+            await db.run(`
+                UPDATE productos 
+                SET stock_actual = (SELECT COALESCE(SUM(cantidad_actual), 0) FROM lotes WHERE producto_id = $1)
+                WHERE id = $1
+            `, [prodId]);
         }
     }
 

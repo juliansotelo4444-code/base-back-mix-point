@@ -21,7 +21,11 @@ async function seed() {
         console.log('ℹ️  Usuario admin ya existe, no se recrea.');
     }
 
-    const categoriasProducto = ['Frutos secos', 'Frutas desecadas', 'Semillas', 'Mix / Snacks', 'Otros'];
+    const categoriasProducto = [
+        'Frutos Secos', 'Mixes', 'Cereales', 'Repostería', 'Snacks',
+        'Legumbres', 'Condimentos', 'Azúcares', 'Harinas', 'Semillas',
+        'Suplementos', 'Aceites', 'Otros', 'Chocolates sin TACC', 'Herboristería'
+    ];
     for (const c of categoriasProducto) {
         await db.run('INSERT INTO categorias_producto (nombre) VALUES ($1) ON CONFLICT (nombre) DO NOTHING', [c]);
     }

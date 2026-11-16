@@ -11,7 +11,7 @@ router.use(requireAuth);
  */
 router.post('/', async (req, res, next) => {
     try {
-        const { entidad_tipo, entidad_id, tipo, monto, medio_pago, observaciones } = req.body;
+        const { entidad_tipo, entidad_id, tipo, monto, medio_pago, observaciones, subtipo } = req.body;
 
         if (!['cliente', 'proveedor'].includes(entidad_tipo)) return res.status(400).json({ error: 'entidad_tipo inválido.' });
         if (!['cobro', 'pago', 'ajuste', 'cargo'].includes(tipo)) return res.status(400).json({ error: 'tipo inválido.' });
@@ -21,8 +21,16 @@ router.post('/', async (req, res, next) => {
         const entidad = await db.one(`SELECT * FROM ${tabla} WHERE id = $1`, [entidad_id]);
         if (!entidad) return res.status(404).json({ error: `${entidad_tipo} no encontrado.` });
 
-        const signo = (tipo === 'cobro' || tipo === 'pago') ? -1 : 1;
-        const deltaSaldo = signo * Math.abs(monto);
+        let signo;
+        if (tipo === 'cobro' || tipo === 'pago') {
+            signo = -1;
+        } else if (tipo === 'cargo') {
+            signo = 1;
+        } else {
+            // ajuste: si es crédito o el monto vino negativo, reduce la deuda (-1), si es débito la aumenta (+1)
+            signo = (subtipo === 'credito' || Number(monto) < 0) ? -1 : 1;
+        }
+        const deltaSaldo = signo * Math.abs(Number(monto));
 
         await db.transaction(async (tx) => {
             await tx.run(`

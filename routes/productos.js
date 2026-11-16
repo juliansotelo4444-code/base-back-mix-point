@@ -2,8 +2,41 @@ const express = require('express');
 const db = require('../db/pool');
 const { requireAuth } = require('../middleware/auth');
 const AlertasService = require('../services/alertasService');
+const AuditService = require('../services/auditService');
 
 const router = express.Router();
+
+// Endpoint público para el E-commerce / Tienda Web (sin autenticación requerida)
+router.get('/public', async (req, res, next) => {
+    try {
+        const sql = `
+            SELECT 
+                p.id,
+                p.codigo,
+                p.nombre,
+                p.descripcion,
+                p.imagen,
+                p.categoria_id,
+                COALESCE(c.nombre, 'Varios') as categoria,
+                p.unidad_medida,
+                p.precio_venta,
+                p.precio_5kg,
+                p.precio_10kg,
+                p.precio_25kg,
+                p.precio_30kg,
+                p.stock_actual,
+                p.activo
+            FROM productos p
+            LEFT JOIN categorias_producto c ON c.id = p.categoria_id
+            WHERE p.activo = true
+            ORDER BY c.nombre ASC, p.nombre ASC
+        `;
+        const items = await db.all(sql);
+        res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+        res.json(items);
+    } catch (err) { next(err); }
+});
+
 router.use(requireAuth);
 
 router.get('/categorias', async (req, res, next) => {
@@ -80,14 +113,25 @@ router.post('/', async (req, res, next) => {
         const { row } = await db.run(`
             INSERT INTO productos (
                 codigo, nombre, descripcion, imagen, categoria_id, unidad_medida,
-                precio_compra, precio_venta, precio_5kg, precio_10kg, precio_25kg, precio_30kg, stock_minimo, stock_actual
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, 0) RETURNING id
+                precio_compra, precio_venta, precio_5kg, precio_10kg, precio_25kg, precio_30kg,
+                stock_minimo, stock_actual, modificado_en_app, updated_at, origen_datos
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, 0, true, NOW(), 'app')
+            RETURNING id
         `, [
             codigo || null, nombre, descripcion || null, imagen || null, categoria_id || null, unidad_medida || 'kg',
             precio_compra || 0, precio_venta || 0, precio_5kg || 0, precio_10kg || 0, precio_25kg || 0, precio_30kg || 0, stock_minimo || 0
         ]);
 
-        res.status(201).json(await db.one('SELECT * FROM productos WHERE id = $1', [row.id]));
+        const nuevoProd = await db.one('SELECT * FROM productos WHERE id = $1', [row.id]);
+        AuditService.registrar({
+            usuario_id: req.usuario?.id,
+            accion: 'CREO_PRODUCTO',
+            entidad: 'productos',
+            entidad_id: row.id,
+            detalles: { nombre: nuevoProd.nombre, codigo: nuevoProd.codigo, precio_venta: nuevoProd.precio_venta }
+        }).catch(() => {});
+
+        res.status(201).json(nuevoProd);
     } catch (err) { next(err); }
 });
 
@@ -97,19 +141,32 @@ router.put('/:id', async (req, res, next) => {
         if (!existente) return res.status(404).json({ error: 'Producto no encontrado.' });
 
         const p = { ...existente, ...req.body };
-        await db.run(`
+        const { row: actualizado } = await db.run(`
             UPDATE productos SET
                 codigo=$1, nombre=$2, descripcion=$3, imagen=$4, categoria_id=$5, unidad_medida=$6,
                 precio_compra=$7, precio_venta=$8, precio_5kg=$9, precio_10kg=$10, precio_25kg=$11, precio_30kg=$12,
-                stock_minimo=$13, activo=$14
+                stock_minimo=$13, activo=$14,
+                modificado_en_app=true, updated_at=NOW()
             WHERE id = $15
+            RETURNING *
         `, [
             p.codigo, p.nombre, p.descripcion, p.imagen, p.categoria_id, p.unidad_medida,
             p.precio_compra, p.precio_venta, p.precio_5kg, p.precio_10kg, p.precio_25kg, p.precio_30kg,
             p.stock_minimo, p.activo, req.params.id
         ]);
 
-        res.json(await db.one('SELECT * FROM productos WHERE id = $1', [req.params.id]));
+        AuditService.registrar({
+            usuario_id: req.usuario?.id,
+            accion: 'EDITO_PRODUCTO',
+            entidad: 'productos',
+            entidad_id: req.params.id,
+            detalles: {
+                antes: { nombre: existente.nombre, precio_venta: existente.precio_venta, precio_5kg: existente.precio_5kg },
+                despues: { nombre: p.nombre, precio_venta: p.precio_venta, precio_5kg: p.precio_5kg }
+            }
+        }).catch(() => {});
+
+        res.json(actualizado || await db.one('SELECT * FROM productos WHERE id = $1', [req.params.id]));
     } catch (err) { next(err); }
 });
 
@@ -117,7 +174,14 @@ router.delete('/:id', async (req, res, next) => {
     try {
         const existente = await db.one('SELECT * FROM productos WHERE id = $1', [req.params.id]);
         if (!existente) return res.status(404).json({ error: 'Producto no encontrado.' });
-        await db.run('UPDATE productos SET activo = false WHERE id = $1', [req.params.id]);
+        await db.run('UPDATE productos SET activo = false, modificado_en_app = true, updated_at = NOW() WHERE id = $1', [req.params.id]);
+        AuditService.registrar({
+            usuario_id: req.usuario?.id,
+            accion: 'DESACTIVO_PRODUCTO',
+            entidad: 'productos',
+            entidad_id: req.params.id,
+            detalles: { nombre: existente.nombre }
+        }).catch(() => {});
         res.json({ ok: true });
     } catch (err) { next(err); }
 });
@@ -169,7 +233,12 @@ router.post('/:id/ajuste-stock', async (req, res, next) => {
                 }
             }
 
-            await tx.run('UPDATE productos SET stock_actual = stock_actual + $1 WHERE id = $2', [numCant, req.params.id]);
+            // Mantener stock_actual perfectamente sincronizado con la suma de sus lotes físicos
+            await tx.run(`
+                UPDATE productos
+                SET stock_actual = (SELECT COALESCE(SUM(cantidad_actual), 0) FROM lotes WHERE producto_id = $1)
+                WHERE id = $1
+            `, [req.params.id]);
             await tx.run(`
                 INSERT INTO movimientos_stock (producto_id, lote_id, tipo, cantidad, motivo, referencia_tipo, usuario_id)
                 VALUES ($1, $2, $3, $4, $5, 'ajuste', $6)

@@ -14,25 +14,72 @@ function parsearItemsProductos(productosStr, productosDB) {
     const lineas = productosStr.split(/[|\r\n;]+/).map(s => s.trim()).filter(Boolean);
 
     return lineas.map(raw => {
-        let nombre = raw;
+        let text = String(raw || '').trim();
         let unidad = 'kg';
         let cantidad = 1;
         let subtotalDeclarado = null;
 
-        const precioMatch = nombre.match(/\[\s*\$?\s*([0-9.,]+)\s*\]/);
+        // 1. Extraer subtotal entre corchetes: [$15.000] o [15000]
+        const precioMatch = text.match(/\[\s*\$?\s*([0-9.,]+)\s*\]/);
         if (precioMatch) {
             subtotalDeclarado = sanitizarNumero(precioMatch[1]);
-            nombre = nombre.replace(precioMatch[0], '').trim();
+            text = text.replace(precioMatch[0], ' ').trim();
         }
 
-        const cantMatch = nombre.match(/(?:x|cant\.?|cantidad:?)\s*([0-9.,]+)(?:\s*(kg|kilos?|gr|gramos?|un|unidades?))?/i);
-        if (cantMatch) {
-            cantidad = sanitizarNumero(cantMatch[1]) || 1;
-            if (cantMatch[2]) unidad = cantMatch[2].toLowerCase();
-            nombre = nombre.replace(cantMatch[0], '').trim();
+        // 2. Extraer gramos: 500g, 500 gr, 500gr, 500 gramos (dentro o fuera de paréntesis)
+        const grMatch = text.match(/(?:^|[\s(])(\d+(?:[.,]\d+)?)\s*(?:g|gr|gramos)\b\)?/i);
+        if (grMatch) {
+            const gramos = parseFloat(grMatch[1].replace(',', '.'));
+            if (gramos > 0) {
+                cantidad = Math.round((gramos / 1000) * 1000) / 1000;
+                unidad = 'kg';
+                text = text.replace(grMatch[0], ' ');
+            }
+        } else {
+            // 3. Extraer kilos: 2kg, 2.5 kg, 2 kilos, 2k (dentro o fuera de paréntesis)
+            const kgMatch = text.match(/(?:^|[\s(])(\d+(?:[.,]\d+)?)\s*(?:kg|kilos?|k)\b\)?/i);
+            if (kgMatch) {
+                cantidad = parseFloat(kgMatch[1].replace(',', '.')) || 1;
+                unidad = 'kg';
+                text = text.replace(kgMatch[0], ' ');
+            } else {
+                // 4. Extraer unidades: 3 unidades, 3 u, 3 un, 3 unids (dentro o fuera de paréntesis)
+                const unMatch = text.match(/(?:^|[\s(])(\d+(?:[.,]\d+)?)\s*(?:unidades?|unids?|un|u)\b\)?/i);
+                if (unMatch) {
+                    cantidad = parseFloat(unMatch[1].replace(',', '.')) || 1;
+                    unidad = 'unidad';
+                    text = text.replace(unMatch[0], ' ');
+                } else {
+                    // 5. Multiplicador explícito: x 3, 3x, x3, cant: 3, cantidad 3
+                    const xMatch = text.match(/(?:^|[\s(])(?:x\s*(\d+(?:[.,]\d+)?)|(\d+(?:[.,]\d+)?)\s*x|(?:cant|cantidad):?\s*(\d+(?:[.,]\d+)?))(?:\s|\)|$)/i);
+                    if (xMatch) {
+                        const val = xMatch[1] || xMatch[2] || xMatch[3];
+                        cantidad = parseFloat(val.replace(',', '.')) || 1;
+                        text = text.replace(xMatch[0], ' ');
+                    } else {
+                        // 6. Número al inicio: '2 Nuez Chandler' o '2.5 Almendras'
+                        const numInicioMatch = text.match(/^(\d+(?:[.,]\d+)?)\s+([a-zA-ZáéíóúÁÉÍÓÚñÑ])/i);
+                        if (numInicioMatch) {
+                            cantidad = parseFloat(numInicioMatch[1].replace(',', '.')) || 1;
+                            text = text.slice(numInicioMatch[1].length).trim();
+                        } else {
+                            // 7. Número aislado al final: 'Nuez Chandler 2'
+                            const numFinMatch = text.match(/\s+(\d+(?:[.,]\d+)?)\s*$/i);
+                            if (numFinMatch) {
+                                cantidad = parseFloat(numFinMatch[1].replace(',', '.')) || 1;
+                                text = text.slice(0, numFinMatch.index).trim();
+                            }
+                        }
+                    }
+                }
+            }
         }
 
-        nombre = nombre.replace(/^[-•*>\s]+/, '').trim();
+        // Limpiar paréntesis vacíos, sobrantes y guiones
+        let nombre = text.replace(/\(\s*\)/g, ' ')
+                         .replace(/[-–—•*>\s]+/g, ' ')
+                         .trim();
+
         const normNom = normalizarTexto(nombre);
 
         let match = productosDB.find(p => normalizarTexto(p.nombre) === normNom);

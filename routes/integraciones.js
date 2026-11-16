@@ -8,6 +8,7 @@ const {
     sanitizarNumero,
     sincronizarUnidireccional,
     sincronizarBidireccional,
+    pushToGoogleSheets,
     obtenerCodigoAppsScript,
     getSyncStatus
 } = require('../services/googleSheets');
@@ -168,6 +169,93 @@ router.post('/pedidos-web', async (req, res, next) => {
     }
 });
 
+/**
+ * PUT /pedidos-web/:id
+ * Edición de Pedido Web antes de su emisión a remito (cambio de dirección, teléfono, productos, horario)
+ */
+router.put('/pedidos-web/:id', async (req, res, next) => {
+    try {
+        const param = String(req.params.id || '');
+        const numId = parseInt(param, 10);
+        const {
+            cliente_nombre,
+            telefono,
+            direccion,
+            zona,
+            metodo_pago,
+            horario_entrega,
+            notas,
+            items,
+            total
+        } = req.body;
+
+        const existente = await db.one('SELECT * FROM pedidos_web WHERE id = $1 OR numero = $2', [isNaN(numId) ? -1 : numId, param]);
+        if (!existente) return res.status(404).json({ error: 'Pedido web no encontrado.' });
+        if (existente.estado === 'emitido' && existente.remito_id) {
+            return res.status(400).json({ error: 'El pedido ya tiene un remito emitido. Para modificarlo, edita el remito correspondiente en la sección Remitos.' });
+        }
+
+        const itemsSaneados = (Array.isArray(items) ? items : []).map(it => {
+            const cant = Number(it.cantidad) || 1;
+            const pu = Number(it.precio_unitario) || 0;
+            const sub = it.subtotal !== undefined && it.subtotal !== null ? Number(it.subtotal) : cant * pu;
+            return {
+                producto_id: it.producto_id ? Number(it.producto_id) : null,
+                codigo: it.codigo || '',
+                nombre: String(it.nombre || '').trim(),
+                cantidad: cant,
+                unidad_medida: it.unidad_medida || 'kg',
+                precio_unitario: pu,
+                subtotal: sub
+            };
+        });
+
+        const totalCalc = total !== undefined && total !== null
+            ? Number(total)
+            : itemsSaneados.reduce((acc, it) => acc + (Number(it.subtotal) || 0), 0);
+        const productosStr = itemsSaneados.map(it => `${it.nombre || ''} x ${it.cantidad || 1} ${it.unidad_medida || 'kg'}`).join(' | ');
+
+        const { row: actualizado } = await db.run(`
+            UPDATE pedidos_web SET
+                cliente_nombre = COALESCE($1, cliente_nombre),
+                telefono = COALESCE($2, telefono),
+                direccion = COALESCE($3, direccion),
+                zona = COALESCE($4, zona),
+                metodo_pago = COALESCE($5, metodo_pago),
+                horario_entrega = COALESCE($6, horario_entrega),
+                notas = COALESCE($7, notas),
+                items = $8::jsonb,
+                productos_str = $9,
+                total = $10,
+                modificado_en_app = true,
+                updated_at = NOW()
+            WHERE id = $11
+            RETURNING *
+        `, [
+            cliente_nombre !== undefined ? String(cliente_nombre).trim() : null,
+            telefono !== undefined ? String(telefono).trim() : null,
+            direccion !== undefined ? String(direccion).trim() : null,
+            zona !== undefined ? String(zona).trim() : null,
+            metodo_pago !== undefined ? String(metodo_pago).trim() : null,
+            horario_entrega !== undefined ? String(horario_entrega).trim() : null,
+            notas !== undefined ? String(notas).trim() : null,
+            JSON.stringify(itemsSaneados),
+            productosStr,
+            totalCalc,
+            existente.id
+        ]);
+
+        try {
+            const { emitirEventoDeposito } = require('../socket');
+            emitirEventoDeposito('pedido_web_actualizado', actualizado);
+        } catch {}
+
+        res.json({ ok: true, pedido: actualizado });
+    } catch (err) {
+        next(err);
+    }
+});
+
 // A partir de aquí, las rutas administrativas requieren autenticación o token
 router.use(authOrWebhookToken);
 
@@ -262,11 +350,112 @@ router.post('/sync-unidireccional', async (req, res, next) => {
 });
 
 /**
- * Sincronización bidireccional (Compatibilidad: ejecuta sincronización unidireccional estricta hacia Postgres)
+ * Sincronización bidireccional segura:
+ * Inbound protegido + Outbound hacia Google Sheets (si hay script configurado)
  */
 router.post('/sync-bidireccional', async (req, res, next) => {
     try {
-        const resultado = await sincronizarUnidireccional(req.body);
+        const resultado = await sincronizarBidireccional(req.body);
+        res.json(resultado);
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * GET /api/integraciones/catalogo-para-sheets
+ * Devuelve el catálogo consolidado en formato JSON para que Google Apps Script lo descargue
+ */
+router.get('/catalogo-para-sheets', authOrWebhookToken, async (req, res, next) => {
+    try {
+        const productos = await db.all(`
+            SELECT p.id, p.codigo, p.nombre, p.descripcion, p.imagen, c.nombre as categoria,
+                   p.precio_venta, p.precio_5kg, p.precio_10kg, p.precio_25kg, p.precio_30kg,
+                   p.stock_actual, p.stock_minimo, p.unidad_medida, p.activo, p.modificado_en_app
+            FROM productos p
+            LEFT JOIN categorias_producto c ON c.id = p.categoria_id
+            WHERE p.activo = true
+            ORDER BY c.nombre ASC, p.nombre ASC
+        `);
+
+        res.json({
+            ok: true,
+            total: productos.length,
+            productos: productos.map(p => ({
+                id: p.id,
+                codigo: p.codigo || '',
+                nombre: p.nombre,
+                categoria: p.categoria || 'Sin Categoría',
+                kg: Number(p.precio_venta || 0),
+                cincoKg: Number(p.precio_5kg || 0),
+                diezKg: Number(p.precio_10kg || 0),
+                veinticincoKg: Number(p.precio_25kg || 0),
+                treintaKg: Number(p.precio_30kg || 0),
+                stock: Number(p.stock_actual || 0),
+                tipoVenta: p.unidad_medida === 'unidad' ? 'unidad' : 'kg'
+            }))
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * GET /api/integraciones/exportar-catalogo-csv
+ * Descarga el catálogo en formato CSV compatible directo con Google Sheets
+ */
+router.get('/exportar-catalogo-csv', async (req, res, next) => {
+    try {
+        const productos = await db.all(`
+            SELECT p.id, p.codigo, p.nombre, p.descripcion, p.imagen, c.nombre as categoria,
+                   p.precio_venta, p.precio_5kg, p.precio_10kg, p.precio_25kg, p.precio_30kg,
+                   p.stock_actual, p.stock_minimo, p.unidad_medida
+            FROM productos p
+            LEFT JOIN categorias_producto c ON c.id = p.categoria_id
+            WHERE p.activo = true
+            ORDER BY c.nombre ASC, p.nombre ASC
+        `);
+
+        const escapeCSV = (str) => {
+            if (str === null || str === undefined) return '';
+            const s = String(str).replace(/"/g, '""');
+            return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s}"` : s;
+        };
+
+        const headers = ['codigo', 'nombre', 'categoria', 'kg', 'cincoKg', 'diezKg', 'veinticincoKg', 'treintaKg', 'stock', 'tipoVenta', 'descripcion'];
+        const csvRows = [headers.join(',')];
+
+        productos.forEach(p => {
+            csvRows.push([
+                escapeCSV(p.codigo || ''),
+                escapeCSV(p.nombre || ''),
+                escapeCSV(p.categoria || ''),
+                Number(p.precio_venta || 0),
+                Number(p.precio_5kg || 0),
+                Number(p.precio_10kg || 0),
+                Number(p.precio_25kg || 0),
+                Number(p.precio_30kg || 0),
+                Number(p.stock_actual || 0),
+                escapeCSV(p.unidad_medida || 'kg'),
+                escapeCSV(p.descripcion || '')
+            ].join(','));
+        });
+
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+        res.setHeader('Content-Disposition', 'attachment; filename="catalogo_mixpoint.csv"');
+        res.send(csvRows.join('\r\n'));
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * POST /api/integraciones/push-a-sheets
+ * Envía los datos actuales de la base hacia Google Sheets
+ */
+router.post('/push-a-sheets', async (req, res, next) => {
+    try {
+        const resultado = await pushToGoogleSheets(req.body.script_url);
         res.json(resultado);
     } catch (err) {
         next(err);
@@ -416,41 +605,73 @@ router.get('/pedidos-web', async (req, res, next) => {
             const lineas = productosStr.split(/[|\r\n;]+/).map(s => s.trim()).filter(Boolean);
 
             return lineas.map(raw => {
-                let nombre = raw;
+                let text = String(raw || '').trim();
                 let unidad = 'kg';
                 let cantidad = 1;
                 let subtotalDeclarado = null;
                 let precioUnitarioDeclarado = null;
 
-                const precioMatch = nombre.match(/\[\s*\$?\s*([0-9.,]+)\s*\]/);
+                // 1. Extraer subtotal entre corchetes: [$15.000] o [15000]
+                const precioMatch = text.match(/\[\s*\$?\s*([0-9.,]+)\s*\]/);
                 if (precioMatch) {
                     subtotalDeclarado = sanitizarNumero(precioMatch[1]);
-                    nombre = nombre.replace(precioMatch[0], '').trim();
+                    text = text.replace(precioMatch[0], ' ').trim();
                 }
 
-                const cantMatch = nombre.match(/(?:^|\s)x\s*(\d+(?:[.,]\d+)?)\s*$/i) ||
-                                  nombre.match(/(?:^|\s)x\s*(\d+(?:[.,]\d+)?)(?:\s|$)/i);
-                if (cantMatch) {
-                    cantidad = sanitizarNumero(cantMatch[1]) || 1;
-                    nombre = (nombre.slice(0, cantMatch.index) + ' ' + nombre.slice(cantMatch.index + cantMatch[0].length)).trim();
-                }
-
-                const regexParen = /\((.*?)\)/g;
-                let pMatch;
-                while ((pMatch = regexParen.exec(nombre)) !== null) {
-                    const dentro = pMatch[1].trim().toLowerCase();
-                    if (dentro.includes('unidad') || dentro.includes('u') || dentro === 'un') {
-                        unidad = 'unidad';
-                        nombre = nombre.replace(pMatch[0], '').trim();
-                        break;
-                    } else if (dentro.includes('kg') || dentro.includes('kilo')) {
+                // 2. Extraer gramos: 500g, 500 gr, 500gr, 500 gramos (dentro o fuera de paréntesis)
+                const grMatch = text.match(/(?:^|[\s(])(\d+(?:[.,]\d+)?)\s*(?:g|gr|gramos)\b\)?/i);
+                if (grMatch) {
+                    const gramos = parseFloat(grMatch[1].replace(',', '.'));
+                    if (gramos > 0) {
+                        cantidad = Math.round((gramos / 1000) * 1000) / 1000;
                         unidad = 'kg';
-                        nombre = nombre.replace(pMatch[0], '').trim();
-                        break;
+                        text = text.replace(grMatch[0], ' ');
+                    }
+                } else {
+                    // 3. Extraer kilos: 2kg, 2.5 kg, 2 kilos, 2k (dentro o fuera de paréntesis)
+                    const kgMatch = text.match(/(?:^|[\s(])(\d+(?:[.,]\d+)?)\s*(?:kg|kilos?|k)\b\)?/i);
+                    if (kgMatch) {
+                        cantidad = parseFloat(kgMatch[1].replace(',', '.')) || 1;
+                        unidad = 'kg';
+                        text = text.replace(kgMatch[0], ' ');
+                    } else {
+                        // 4. Extraer unidades: 3 unidades, 3 u, 3 un, 3 unids (dentro o fuera de paréntesis)
+                        const unMatch = text.match(/(?:^|[\s(])(\d+(?:[.,]\d+)?)\s*(?:unidades?|unids?|un|u)\b\)?/i);
+                        if (unMatch) {
+                            cantidad = parseFloat(unMatch[1].replace(',', '.')) || 1;
+                            unidad = 'unidad';
+                            text = text.replace(unMatch[0], ' ');
+                        } else {
+                            // 5. Multiplicador explícito: x 3, 3x, x3, cant: 3, cantidad 3
+                            const xMatch = text.match(/(?:^|[\s(])(?:x\s*(\d+(?:[.,]\d+)?)|(\d+(?:[.,]\d+)?)\s*x|(?:cant|cantidad):?\s*(\d+(?:[.,]\d+)?))(?:\s|\)|$)/i);
+                            if (xMatch) {
+                                const val = xMatch[1] || xMatch[2] || xMatch[3];
+                                cantidad = parseFloat(val.replace(',', '.')) || 1;
+                                text = text.replace(xMatch[0], ' ');
+                            } else {
+                                // 6. Número al inicio: '2 Nuez Chandler' o '2.5 Almendras'
+                                const numInicioMatch = text.match(/^(\d+(?:[.,]\d+)?)\s+([a-zA-ZáéíóúÁÉÍÓÚñÑ])/i);
+                                if (numInicioMatch) {
+                                    cantidad = parseFloat(numInicioMatch[1].replace(',', '.')) || 1;
+                                    text = text.slice(numInicioMatch[1].length).trim();
+                                } else {
+                                    // 7. Número aislado al final: 'Nuez Chandler 2'
+                                    const numFinMatch = text.match(/\s+(\d+(?:[.,]\d+)?)\s*$/i);
+                                    if (numFinMatch) {
+                                        cantidad = parseFloat(numFinMatch[1].replace(',', '.')) || 1;
+                                        text = text.slice(0, numFinMatch.index).trim();
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
 
-                nombre = nombre.replace(/\s+/g, ' ').replace(/^[-–—]\s*/, '').replace(/\s*[-–—]$/, '').trim();
+                // Limpiar paréntesis vacíos, sobrantes y guiones
+                let nombre = text.replace(/\(\s*\)/g, ' ')
+                                 .replace(/[-–—]+/g, ' ')
+                                 .replace(/\s+/g, ' ')
+                                 .trim();
 
                 if (subtotalDeclarado && cantidad > 0) {
                     precioUnitarioDeclarado = Math.round(subtotalDeclarado / cantidad);
@@ -630,8 +851,8 @@ router.post('/crear-remito-desde-pedido', async (req, res, next) => {
             }
 
             const { row: remitoRow } = await tx.run(
-                `INSERT INTO remitos (numero, cliente_id, fecha, direccion_entrega, transportista, observaciones, total, usuario_id)
-                 VALUES ($1, $2, CURRENT_DATE, $3, 'Distribución propia', $4, 0, $5) RETURNING id`,
+                `INSERT INTO remitos (numero, cliente_id, fecha, direccion_entrega, transportista, observaciones, total, estado, stock_descontado, usuario_id)
+                 VALUES ($1, $2, CURRENT_DATE, $3, 'Distribución propia', $4, 0, 'en_preparacion', true, $5) RETURNING id`,
                 [numero, cliente.id, direccion_completa || null, observaciones, usuarioId]
             );
 
@@ -733,7 +954,11 @@ router.post('/crear-remito-desde-pedido', async (req, res, next) => {
                     VALUES ($1, $2, $3, $4, $5, $6)
                 `, [rId, productoId, loteRef, cant, precio, subtotalItem]);
 
-                await tx.run('UPDATE productos SET stock_actual = stock_actual - $1 WHERE id = $2', [cant, productoId]);
+                await tx.run(`
+                    UPDATE productos 
+                    SET stock_actual = (SELECT COALESCE(SUM(cantidad_actual), 0) FROM lotes WHERE producto_id = $1)
+                    WHERE id = $1
+                `, [productoId]);
 
                 await tx.run(`
                     INSERT INTO movimientos_stock (producto_id, lote_id, tipo, cantidad, motivo, referencia_tipo, referencia_id, usuario_id)

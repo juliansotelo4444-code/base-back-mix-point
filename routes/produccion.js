@@ -221,7 +221,11 @@ router.post('/elaborar', async (req, res, next) => {
                 }
 
                 const totalKgIngrediente = (cant * (Number(ing.porcentaje) / 100));
-                await tx.run('UPDATE productos SET stock_actual = stock_actual - $1 WHERE id = $2', [totalKgIngrediente, ing.producto_ingrediente_id]);
+                await tx.run(`
+                    UPDATE productos 
+                    SET stock_actual = (SELECT COALESCE(SUM(cantidad_actual), 0) FROM lotes WHERE producto_id = $1)
+                    WHERE id = $1
+                `, [ing.producto_ingrediente_id]);
                 await tx.run(`
                     INSERT INTO movimientos_stock (producto_id, tipo, cantidad, motivo, referencia_tipo, usuario_id)
                     VALUES ($1, 'egreso', $2, $3, 'produccion', $4)
@@ -241,8 +245,12 @@ router.post('/elaborar', async (req, res, next) => {
             `, [receta.producto_id, loteNum, vtoDate, cant, costoUnitarioFinal]);
 
             // Sumar stock al producto resultante y actualizar su precio de costo
-            await tx.run('UPDATE productos SET stock_actual = stock_actual + $1, precio_compra = $2 WHERE id = $3',
-                [cant, costoUnitarioFinal, receta.producto_id]);
+            await tx.run(`
+                UPDATE productos 
+                SET stock_actual = (SELECT COALESCE(SUM(cantidad_actual), 0) FROM lotes WHERE producto_id = $1),
+                    precio_compra = $2
+                WHERE id = $1
+            `, [receta.producto_id, costoUnitarioFinal]);
 
             // Movimiento kardex de ingreso
             await tx.run(`
