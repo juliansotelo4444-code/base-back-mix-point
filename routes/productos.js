@@ -24,6 +24,10 @@ router.get('/public', async (req, res, next) => {
                 p.precio_10kg,
                 p.precio_25kg,
                 p.precio_30kg,
+                p.precio_oferta,
+                p.destacado_carrusel,
+                p.badge_carrusel,
+                p.orden_carrusel,
                 p.stock_actual,
                 p.activo
             FROM productos p
@@ -180,13 +184,16 @@ router.put('/:id', async (req, res, next) => {
                 codigo=$1, nombre=$2, descripcion=$3, imagen=$4, categoria_id=$5, unidad_medida=$6,
                 precio_compra=$7, precio_venta=$8, precio_5kg=$9, precio_10kg=$10, precio_25kg=$11, precio_30kg=$12,
                 stock_minimo=$13, activo=$14,
+                destacado_carrusel=$15, badge_carrusel=$16, orden_carrusel=$17, precio_oferta=$18,
                 modificado_en_app=true, updated_at=NOW()
-            WHERE id = $15
+            WHERE id = $19
             RETURNING *
         `, [
             p.codigo, p.nombre, p.descripcion, p.imagen, p.categoria_id, p.unidad_medida,
             p.precio_compra, p.precio_venta, p.precio_5kg, p.precio_10kg, p.precio_25kg, p.precio_30kg,
-            p.stock_minimo, p.activo, req.params.id
+            p.stock_minimo, p.activo,
+            Boolean(p.destacado_carrusel), p.badge_carrusel || '🔥 OFERTA', Number(p.orden_carrusel) || 0, p.precio_oferta ? Number(p.precio_oferta) : null,
+            req.params.id
         ]);
 
         AuditService.registrar({

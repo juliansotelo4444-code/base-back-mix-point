@@ -41,6 +41,7 @@ app.use('/api/usuarios', require('./routes/usuarios'));
 app.use('/api/clientes', require('./routes/clientes'));
 app.use('/api/proveedores', require('./routes/proveedores'));
 app.use('/api/productos', require('./routes/productos'));
+app.use('/api/carrusel-ofertas', require('./routes/carruselOfertas'));
 app.use('/api/recepciones', require('./routes/recepciones'));
 app.use('/api/remitos', require('./routes/remitos'));
 app.use('/api/gastos', require('./routes/gastos'));
