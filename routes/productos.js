@@ -39,6 +39,40 @@ router.get('/public', async (req, res, next) => {
 
 router.use(requireAuth);
 
+router.get('/buscar-imagenes', async (req, res, next) => {
+    try {
+        const q = (req.query.q || '').trim();
+        if (!q) return res.json({ ok: true, resultados: [] });
+
+        const resultados = [];
+        const seenUrls = new Set();
+
+        // 1. Coincidencias en base de productos existentes
+        const sql = `
+            SELECT id, nombre, imagen 
+            FROM productos 
+            WHERE imagen IS NOT NULL AND imagen != '' AND imagen NOT LIKE '%generico%'
+              AND (nombre ILIKE $1 OR descripcion ILIKE $1)
+            LIMIT 8
+        `;
+        const locales = await db.all(sql, [`%${q}%`]);
+        for (const loc of locales) {
+            if (loc.imagen && !seenUrls.has(loc.imagen)) {
+                seenUrls.add(loc.imagen);
+                resultados.push({
+                    titulo: loc.nombre,
+                    url: loc.imagen,
+                    fuente: 'Catálogo de la base'
+                });
+            }
+        }
+
+        res.json({ ok: true, resultados });
+    } catch (err) {
+        next(err);
+    }
+});
+
 router.get('/categorias', async (req, res, next) => {
     try {
         res.json(await db.all('SELECT * FROM categorias_producto ORDER BY nombre'));
