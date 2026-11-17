@@ -270,7 +270,7 @@ categories_summary = list(cats_seen.values())
 
 output_data = {
     "empresa": "Mix Point Mayorista",
-    "linea_whatsapp": "1167873243",
+    "linea_whatsapp": "1157077061",
     "alias_pago": "mixpoint2026",
     "deposito": "San Isidro 2135 Ituzaingó, Buenos Aires",
     "total_productos": len(all_products),
