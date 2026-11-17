@@ -215,15 +215,27 @@ router.delete('/:id', async (req, res, next) => {
     try {
         const existente = await db.one('SELECT * FROM productos WHERE id = $1', [req.params.id]);
         if (!existente) return res.status(404).json({ error: 'Producto no encontrado.' });
-        await db.run('UPDATE productos SET activo = false, modificado_en_app = true, updated_at = NOW() WHERE id = $1', [req.params.id]);
+        
+        await db.run(
+            `UPDATE productos 
+             SET activo = false, 
+                 stock_actual = 0, 
+                 destacado_carrusel = false, 
+                 modificado_en_app = true, 
+                 updated_at = NOW() 
+             WHERE id = $1`,
+            [req.params.id]
+        );
+
         AuditService.registrar({
             usuario_id: req.usuario?.id,
-            accion: 'DESACTIVO_PRODUCTO',
+            accion: 'ELIMINO_PRODUCTO',
             entidad: 'productos',
             entidad_id: req.params.id,
-            detalles: { nombre: existente.nombre }
+            detalles: { nombre: existente.nombre, codigo: existente.codigo }
         }).catch(() => {});
-        res.json({ ok: true });
+
+        res.json({ ok: true, mensaje: `Producto "${existente.nombre}" eliminado correctamente.` });
     } catch (err) { next(err); }
 });
 
