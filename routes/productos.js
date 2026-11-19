@@ -3,6 +3,7 @@ const db = require('../db/pool');
 const { requireAuth } = require('../middleware/auth');
 const AlertasService = require('../services/alertasService');
 const AuditService = require('../services/auditService');
+const { emitirEventoDeposito } = require('../socket');
 
 const router = express.Router();
 
@@ -169,6 +170,8 @@ router.post('/', async (req, res, next) => {
             detalles: { nombre: nuevoProd.nombre, codigo: nuevoProd.codigo, precio_venta: nuevoProd.precio_venta }
         }).catch(() => {});
 
+        emitirEventoDeposito('producto_actualizado', { id: row.id, producto: nuevoProd });
+
         res.status(201).json(nuevoProd);
     } catch (err) { next(err); }
 });
@@ -207,7 +210,10 @@ router.put('/:id', async (req, res, next) => {
             }
         }).catch(() => {});
 
-        res.json(actualizado || await db.one('SELECT * FROM productos WHERE id = $1', [req.params.id]));
+        const prodActualizado = actualizado || await db.one('SELECT * FROM productos WHERE id = $1', [req.params.id]);
+        emitirEventoDeposito('producto_actualizado', { id: req.params.id, producto: prodActualizado });
+
+        res.json(prodActualizado);
     } catch (err) { next(err); }
 });
 
@@ -226,6 +232,8 @@ router.delete('/:id', async (req, res, next) => {
              WHERE id = $1`,
             [req.params.id]
         );
+
+        emitirEventoDeposito('producto_actualizado', { id: req.params.id, eliminado: true });
 
         AuditService.registrar({
             usuario_id: req.usuario?.id,
