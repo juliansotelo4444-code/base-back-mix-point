@@ -185,7 +185,8 @@ CREATE TABLE IF NOT EXISTS remito_items (
     lote_id         INTEGER REFERENCES lotes(id),
     cantidad        NUMERIC NOT NULL,
     precio_unitario NUMERIC NOT NULL DEFAULT 0,
-    subtotal        NUMERIC NOT NULL DEFAULT 0
+    subtotal        NUMERIC NOT NULL DEFAULT 0,
+    descripcion     TEXT
 );
 
 -- ---------------------------------------------------------
@@ -260,6 +261,7 @@ CREATE INDEX IF NOT EXISTS idx_proveedores_nombre ON proveedores(LOWER(razon_soc
 -- ---------------------------------------------------------
 ALTER TABLE clientes ADD COLUMN IF NOT EXISTS limite_credito NUMERIC NOT NULL DEFAULT 0;
 ALTER TABLE clientes ADD COLUMN IF NOT EXISTS plazo_dias INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE remito_items ADD COLUMN IF NOT EXISTS descripcion TEXT;
 
 -- ---------------------------------------------------------
 -- MÓDULO DE RECETAS Y PRODUCCIÓN DE MIXES (BOM)

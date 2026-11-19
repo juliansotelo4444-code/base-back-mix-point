@@ -206,7 +206,10 @@ router.put('/pedidos-web/:id', async (req, res, next) => {
                 cantidad: cant,
                 unidad_medida: it.unidad_medida || 'kg',
                 precio_unitario: pu,
-                subtotal: sub
+                subtotal: sub,
+                escala: it.escala || '',
+                multiplicador: Number(it.multiplicador) || 1,
+                kilos_totales: it.kilos_totales ? Number(it.kilos_totales) : null
             };
         });
 
@@ -858,14 +861,33 @@ router.post('/crear-remito-desde-pedido', async (req, res, next) => {
 
             const rId = remitoRow.id;
             let totalCalculado = 0;
+            let totalBultos = 0;
+            let totalPesoKg = 0;
 
             // 3. Crear ítems y descontar stock por FEFO garantizando que NINGÚN ÍTEM se pierda
             for (const it of items) {
-                const cant = Number(it.cantidad) || 1;
+                const cantBultos = Number(it.cantidad) || 1;
                 let precio = Number(it.precio_unitario) || 0;
                 let productoId = it.producto_id ? parseInt(it.producto_id, 10) : null;
                 const nombreBuscado = it.nombre || it.nombreOriginal || it.raw || 'Producto Sin Nombre';
                 const normNom = normalizarTexto(nombreBuscado);
+
+                // Detección de escala mayorista (bultos cerrados / packs: 5kg, 10kg, 25kg, 30kg, etc.)
+                let multiplicador = Number(it.multiplicador) || 1;
+                const escalaStr = String(it.escala || it.escala_key || it.unidad_medida || '').toLowerCase().trim();
+                const nombreLower = String(nombreBuscado).toLowerCase();
+
+                if (multiplicador === 1) {
+                    if (escalaStr.includes('30kg') || escalaStr.includes('30 kg') || escalaStr.includes('treintakg') || nombreLower.includes('x30kg') || nombreLower.includes('x 30kg')) {
+                        multiplicador = 30;
+                    } else if (escalaStr.includes('25kg') || escalaStr.includes('25 kg') || escalaStr.includes('veinticincokg') || nombreLower.includes('x25kg') || nombreLower.includes('x 25kg')) {
+                        multiplicador = 25;
+                    } else if (escalaStr.includes('10kg') || escalaStr.includes('10 kg') || escalaStr.includes('diezkg') || escalaStr.includes('pack x10') || nombreLower.includes('x10kg') || nombreLower.includes('x 10kg')) {
+                        multiplicador = 10;
+                    } else if (escalaStr.includes('5kg') || escalaStr.includes('5 kg') || escalaStr.includes('cincokg') || escalaStr.includes('pack x5') || nombreLower.includes('x5kg') || nombreLower.includes('x 5kg')) {
+                        multiplicador = 5;
+                    }
+                }
 
                 let prodExistente = null;
 
@@ -932,7 +954,35 @@ router.post('/crear-remito-desde-pedido', async (req, res, next) => {
                     lotes = [nuevoLote];
                 }
 
-                let cantidadRestante = cant;
+                let cantidadTotal = cantBultos * multiplicador;
+                if (it.kilos_totales && Number(it.kilos_totales) > 0) {
+                    cantidadTotal = Number(it.kilos_totales);
+                }
+
+                const subtotalItem = (it.subtotal !== undefined && it.subtotal !== null && Number(it.subtotal) > 0)
+                    ? Number(it.subtotal)
+                    : Math.round(cantBultos * precio * 100) / 100;
+
+                let precioUnitarioCalculado = 0;
+                if (cantidadTotal > 0) {
+                    precioUnitarioCalculado = Math.round((subtotalItem / cantidadTotal) * 100) / 100;
+                } else {
+                    precioUnitarioCalculado = precio;
+                }
+
+                let itemDescripcion = null;
+                const unidadActual = (prodExistente?.unidad_medida || it.unidad_medida || 'kg').toLowerCase();
+                if (multiplicador > 1) {
+                    const esPack = escalaStr.includes('pack') || unidadActual === 'unidad';
+                    const tipoBulto = esPack ? 'Pack' : 'Bolsa';
+                    itemDescripcion = cantBultos > 1
+                        ? `${cantBultos} ${tipoBulto}s x${multiplicador}${esPack ? 'u' : 'kg'}`
+                        : `${tipoBulto} x${multiplicador}${esPack ? 'u' : 'kg'}`;
+                } else if (it.escala && it.escala !== '1kg' && it.escala !== 'Unidad') {
+                    itemDescripcion = String(it.escala);
+                }
+
+                let cantidadRestante = cantidadTotal;
                 let loteRef = null;
                 for (const lote of lotes) {
                     if (cantidadRestante <= 0) break;
@@ -946,13 +996,16 @@ router.post('/crear-remito-desde-pedido', async (req, res, next) => {
                     loteRef = lotes[0].id;
                 }
 
-                const subtotalItem = Math.round(cant * precio * 100) / 100;
                 totalCalculado += subtotalItem;
+                totalBultos += cantBultos;
+                if (unidadActual !== 'unidad') {
+                    totalPesoKg += cantidadTotal;
+                }
 
                 await tx.run(`
-                    INSERT INTO remito_items (remito_id, producto_id, lote_id, cantidad, precio_unitario, subtotal)
-                    VALUES ($1, $2, $3, $4, $5, $6)
-                `, [rId, productoId, loteRef, cant, precio, subtotalItem]);
+                    INSERT INTO remito_items (remito_id, producto_id, lote_id, cantidad, precio_unitario, subtotal, descripcion)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7)
+                `, [rId, productoId, loteRef, cantidadTotal, precioUnitarioCalculado, subtotalItem, itemDescripcion]);
 
                 await tx.run(`
                     UPDATE productos 
@@ -963,12 +1016,12 @@ router.post('/crear-remito-desde-pedido', async (req, res, next) => {
                 await tx.run(`
                     INSERT INTO movimientos_stock (producto_id, lote_id, tipo, cantidad, motivo, referencia_tipo, referencia_id, usuario_id)
                     VALUES ($1, $2, 'egreso', $3, $4, 'remito', $5, $6)
-                `, [productoId, loteRef, cant, `Remito Web ${pedido_numero || ''}`, rId, usuarioId]);
+                `, [productoId, loteRef, cantidadTotal, `Remito Web ${pedido_numero || ''}`, rId, usuarioId]);
             }
 
-            // Actualizar total definitivo del remito
+            // Actualizar total definitivo del remito, bultos y peso
             const total = totalCalculado;
-            await tx.run('UPDATE remitos SET total = $1 WHERE id = $2', [total, rId]);
+            await tx.run('UPDATE remitos SET total = $1, bultos = $2, peso_kg = $3 WHERE id = $4', [total, totalBultos || 1, totalPesoKg, rId]);
 
             // Actualizar cuenta corriente del cliente si el remito tiene monto
             if (Number(total) > 0) {

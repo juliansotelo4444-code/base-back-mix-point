@@ -180,9 +180,9 @@ router.post('/', async (req, res, next) => {
                 }
 
                 await tx.run(`
-                    INSERT INTO remito_items (remito_id, producto_id, lote_id, cantidad, precio_unitario, subtotal)
-                    VALUES ($1, $2, $3, $4, $5, $6)
-                `, [rId, item.producto_id, loteRef, cant, precio, subtotal]);
+                    INSERT INTO remito_items (remito_id, producto_id, lote_id, cantidad, precio_unitario, subtotal, descripcion)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7)
+                `, [rId, item.producto_id, loteRef, cant, precio, subtotal, item.descripcion || null]);
             }
 
             // Si se entregó y tiene importe, actualizar saldo en cuenta corriente
@@ -377,9 +377,9 @@ router.put('/:id', async (req, res, next) => {
                 const loteId = item._loteRef || null;
 
                 await tx.run(`
-                    INSERT INTO remito_items (remito_id, producto_id, lote_id, cantidad, precio_unitario, subtotal)
-                    VALUES ($1, $2, $3, $4, $5, $6)
-                `, [remitoId, item.producto_id, loteId, cant, precio, subtotal]);
+                    INSERT INTO remito_items (remito_id, producto_id, lote_id, cantidad, precio_unitario, subtotal, descripcion)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7)
+                `, [remitoId, item.producto_id, loteId, cant, precio, subtotal, item.descripcion || null]);
             }
 
             // 6. Si ya había descontado y tiene importe, cargar nuevo saldo a cuenta corriente
