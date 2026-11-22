@@ -26,7 +26,7 @@ router.post('/login', async (req, res, next) => {
         const token = jwt.sign(
             { id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol },
             SECRET,
-            { expiresIn: '1h' }
+            { expiresIn: '4h' }
         );
 
         res.json({
@@ -39,7 +39,7 @@ router.post('/login', async (req, res, next) => {
                 permisos: usuario.permisos || [],
                 preferencias: usuario.preferencias || {}
             },
-            expires_in: 3600
+            expires_in: 14400
         });
     } catch (err) { next(err); }
 });
