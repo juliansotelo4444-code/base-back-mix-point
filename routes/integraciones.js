@@ -26,6 +26,111 @@ function normalizarTexto(str) {
     return String(str).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
 }
 
+function parsearItemsProductosLocal(productosStr, prodsDB = []) {
+    if (!productosStr) return [];
+    const lineas = productosStr.split(/[|\r\n;]+/).map(s => s.trim()).filter(Boolean);
+
+    return lineas.map(raw => {
+        let text = String(raw || '').trim();
+        let unidad = 'kg';
+        let cantidad = 1;
+        let subtotalDeclarado = null;
+        let precioUnitarioDeclarado = null;
+
+        // 1. Extraer subtotal entre corchetes: [$15.000] o [15000]
+        const precioMatch = text.match(/\[\s*\$?\s*([0-9.,]+)\s*\]/);
+        if (precioMatch) {
+            subtotalDeclarado = sanitizarNumero(precioMatch[1]);
+            text = text.replace(precioMatch[0], ' ').trim();
+        }
+
+        // 2. Extraer gramos: 500g, 500 gr, 500gr, 500 gramos (dentro o fuera de paréntesis)
+        const grMatch = text.match(/(?:^|[\s(])(\d+(?:[.,]\d+)?)\s*(?:g|gr|gramos)\b\)?/i);
+        if (grMatch) {
+            const gramos = parseFloat(grMatch[1].replace(',', '.'));
+            if (gramos > 0) {
+                cantidad = Math.round((gramos / 1000) * 1000) / 1000;
+                unidad = 'kg';
+                text = text.replace(grMatch[0], ' ');
+            }
+        } else {
+            // 3. Extraer kilos: 2kg, 2.5 kg, 2 kilos, 2k (dentro o fuera de paréntesis)
+            const kgMatch = text.match(/(?:^|[\s(])(\d+(?:[.,]\d+)?)\s*(?:kg|kilos?|k)\b\)?/i);
+            if (kgMatch) {
+                cantidad = parseFloat(kgMatch[1].replace(',', '.')) || 1;
+                unidad = 'kg';
+                text = text.replace(kgMatch[0], ' ');
+            } else {
+                // 4. Extraer unidades: 3 unidades, 3 u, 3 un, 3 unids (dentro o fuera de paréntesis)
+                const unMatch = text.match(/(?:^|[\s(])(\d+(?:[.,]\d+)?)\s*(?:unidades?|unids?|un|u)\b\)?/i);
+                if (unMatch) {
+                    cantidad = parseFloat(unMatch[1].replace(',', '.')) || 1;
+                    unidad = 'unidad';
+                    text = text.replace(unMatch[0], ' ');
+                } else {
+                    // 5. Multiplicador explícito: x 3, 3x, x3, cant: 3, cantidad 3
+                    const xMatch = text.match(/(?:^|[\s(])(?:x\s*(\d+(?:[.,]\d+)?)|(\d+(?:[.,]\d+)?)\s*x|(?:cant|cantidad):?\s*(\d+(?:[.,]\d+)?))(?:\s|\)|$)/i);
+                    if (xMatch) {
+                        const val = xMatch[1] || xMatch[2] || xMatch[3];
+                        cantidad = parseFloat(val.replace(',', '.')) || 1;
+                        text = text.replace(xMatch[0], ' ');
+                    } else {
+                        // 6. Número al inicio: '2 Nuez Chandler' o '2.5 Almendras'
+                        const numInicioMatch = text.match(/^(\d+(?:[.,]\d+)?)\s+([a-zA-ZáéíóúÁÉÍÓÚñÑ])/i);
+                        if (numInicioMatch) {
+                            cantidad = parseFloat(numInicioMatch[1].replace(',', '.')) || 1;
+                            text = text.slice(numInicioMatch[1].length).trim();
+                        } else {
+                            // 7. Número aislado al final: 'Nuez Chandler 2'
+                            const numFinMatch = text.match(/\s+(\d+(?:[.,]\d+)?)\s*$/i);
+                            if (numFinMatch) {
+                                cantidad = parseFloat(numFinMatch[1].replace(',', '.')) || 1;
+                                text = text.slice(0, numFinMatch.index).trim();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Limpiar paréntesis vacíos, sobrantes y guiones
+        let nombre = text.replace(/\(\s*\)/g, ' ')
+                         .replace(/[-–—]+/g, ' ')
+                         .replace(/\s+/g, ' ')
+                         .trim();
+
+        if (subtotalDeclarado && cantidad > 0) {
+            precioUnitarioDeclarado = Math.round(subtotalDeclarado / cantidad);
+        }
+
+        const normNombre = normalizarTexto(nombre);
+        let match = prodsDB.find(p => normalizarTexto(p.nombre) === normNombre);
+        if (!match) {
+            match = prodsDB.find(p => {
+                const pNorm = normalizarTexto(p.nombre);
+                return pNorm.includes(normNombre) || normNombre.includes(pNorm);
+            });
+        }
+
+        const precioFinal = (match && Number(match.precio_venta) > 0) ? Number(match.precio_venta) : (precioUnitarioDeclarado || 0);
+        const subtotalFinal = (precioFinal > 0) ? (precioFinal * cantidad) : (subtotalDeclarado || 0);
+
+        return {
+            raw,
+            nombreOriginal: nombre,
+            nombre: match ? match.nombre : nombre,
+            producto_id: match ? match.id : null,
+            codigo: match ? match.codigo : null,
+            unidad_medida: match ? match.unidad_medida : unidad,
+            precio_unitario: precioFinal,
+            cantidad,
+            subtotal: subtotalFinal,
+            stock_actual: match ? Number(match.stock_actual) : 0,
+            es_nuevo: !match
+        };
+    });
+}
+
 /**
  * Middleware híbrido: acepta x-mixpoint-token o sesión de usuario activa
  */
@@ -501,6 +606,8 @@ router.post('/sync-catalogo', async (req, res, next) => {
  */
 router.get('/pedidos-web', async (req, res, next) => {
     try {
+        const productosDB = await db.all('SELECT id, codigo, nombre, unidad_medida, precio_venta, stock_actual FROM productos WHERE activo = true');
+
         const pedidosDBRows = await db.all(`
             SELECT pw.*, r.id AS remito_id_rel, r.numero AS remito_numero
             FROM pedidos_web pw
@@ -516,6 +623,11 @@ router.get('/pedidos-web', async (req, res, next) => {
                     itemsParsed = Array.isArray(r.items) ? r.items : (typeof r.items === 'string' ? JSON.parse(r.items) : []);
                 } catch {
                     itemsParsed = [];
+                }
+
+                // Autocompletar items estructurados parseando productos_str si items vino vacío
+                if ((!itemsParsed || itemsParsed.length === 0) && r.productos_str) {
+                    itemsParsed = parsearItemsProductosLocal(r.productos_str, productosDB);
                 }
 
                 const remitoAsociado = (r.remito_id || r.remito_id_rel)
@@ -547,16 +659,16 @@ router.get('/pedidos-web', async (req, res, next) => {
 
                 return {
                     id: r.id,
-                    numero: r.numero,
+                    numero: r.numero || `MP-${String(r.id).padStart(4, '0')}`,
                     fecha: r.created_at ? new Date(r.created_at).toISOString().slice(0, 10) : '',
                     created_at: r.created_at,
                     hora: horaLlegada,
-                    nombre: r.cliente_nombre,
+                    nombre: r.cliente_nombre || 'Cliente Web',
                     telefono: r.telefono || '',
                     direccion: r.direccion || '',
                     zona: r.zona || '',
                     direccion_completa: [r.direccion, r.zona].filter(Boolean).join(', '),
-                    metodo_pago: r.metodo_pago,
+                    metodo_pago: r.metodo_pago || 'No especificado',
                     horario_entrega: horarioEntrega,
                     notas: r.notas,
                     productos_str: r.productos_str || '',
@@ -596,119 +708,13 @@ router.get('/pedidos-web', async (req, res, next) => {
             if (m) remitosMap[m[0]] = { id: r.id, numero: r.numero };
         });
 
-        const productosDB = await db.all('SELECT id, codigo, nombre, unidad_medida, precio_venta, stock_actual FROM productos WHERE activo = true');
+        // Filtrar filas vacías para evitar pedidos en blanco
+        const pedidosValidos = rows.filter(r => {
+            const vals = Object.values(r).map(v => String(v || '').trim()).filter(Boolean);
+            return vals.length > 0 && (r.Numero || r.Nombre || r.numero || r.nombre || r.Productos || r.productos);
+        });
 
-        function normalizarTextoLocal(str) {
-            if (!str) return '';
-            return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
-        }
-
-        function parsearItemsProductosLocal(productosStr, prodsDB) {
-            if (!productosStr) return [];
-            const lineas = productosStr.split(/[|\r\n;]+/).map(s => s.trim()).filter(Boolean);
-
-            return lineas.map(raw => {
-                let text = String(raw || '').trim();
-                let unidad = 'kg';
-                let cantidad = 1;
-                let subtotalDeclarado = null;
-                let precioUnitarioDeclarado = null;
-
-                // 1. Extraer subtotal entre corchetes: [$15.000] o [15000]
-                const precioMatch = text.match(/\[\s*\$?\s*([0-9.,]+)\s*\]/);
-                if (precioMatch) {
-                    subtotalDeclarado = sanitizarNumero(precioMatch[1]);
-                    text = text.replace(precioMatch[0], ' ').trim();
-                }
-
-                // 2. Extraer gramos: 500g, 500 gr, 500gr, 500 gramos (dentro o fuera de paréntesis)
-                const grMatch = text.match(/(?:^|[\s(])(\d+(?:[.,]\d+)?)\s*(?:g|gr|gramos)\b\)?/i);
-                if (grMatch) {
-                    const gramos = parseFloat(grMatch[1].replace(',', '.'));
-                    if (gramos > 0) {
-                        cantidad = Math.round((gramos / 1000) * 1000) / 1000;
-                        unidad = 'kg';
-                        text = text.replace(grMatch[0], ' ');
-                    }
-                } else {
-                    // 3. Extraer kilos: 2kg, 2.5 kg, 2 kilos, 2k (dentro o fuera de paréntesis)
-                    const kgMatch = text.match(/(?:^|[\s(])(\d+(?:[.,]\d+)?)\s*(?:kg|kilos?|k)\b\)?/i);
-                    if (kgMatch) {
-                        cantidad = parseFloat(kgMatch[1].replace(',', '.')) || 1;
-                        unidad = 'kg';
-                        text = text.replace(kgMatch[0], ' ');
-                    } else {
-                        // 4. Extraer unidades: 3 unidades, 3 u, 3 un, 3 unids (dentro o fuera de paréntesis)
-                        const unMatch = text.match(/(?:^|[\s(])(\d+(?:[.,]\d+)?)\s*(?:unidades?|unids?|un|u)\b\)?/i);
-                        if (unMatch) {
-                            cantidad = parseFloat(unMatch[1].replace(',', '.')) || 1;
-                            unidad = 'unidad';
-                            text = text.replace(unMatch[0], ' ');
-                        } else {
-                            // 5. Multiplicador explícito: x 3, 3x, x3, cant: 3, cantidad 3
-                            const xMatch = text.match(/(?:^|[\s(])(?:x\s*(\d+(?:[.,]\d+)?)|(\d+(?:[.,]\d+)?)\s*x|(?:cant|cantidad):?\s*(\d+(?:[.,]\d+)?))(?:\s|\)|$)/i);
-                            if (xMatch) {
-                                const val = xMatch[1] || xMatch[2] || xMatch[3];
-                                cantidad = parseFloat(val.replace(',', '.')) || 1;
-                                text = text.replace(xMatch[0], ' ');
-                            } else {
-                                // 6. Número al inicio: '2 Nuez Chandler' o '2.5 Almendras'
-                                const numInicioMatch = text.match(/^(\d+(?:[.,]\d+)?)\s+([a-zA-ZáéíóúÁÉÍÓÚñÑ])/i);
-                                if (numInicioMatch) {
-                                    cantidad = parseFloat(numInicioMatch[1].replace(',', '.')) || 1;
-                                    text = text.slice(numInicioMatch[1].length).trim();
-                                } else {
-                                    // 7. Número aislado al final: 'Nuez Chandler 2'
-                                    const numFinMatch = text.match(/\s+(\d+(?:[.,]\d+)?)\s*$/i);
-                                    if (numFinMatch) {
-                                        cantidad = parseFloat(numFinMatch[1].replace(',', '.')) || 1;
-                                        text = text.slice(0, numFinMatch.index).trim();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Limpiar paréntesis vacíos, sobrantes y guiones
-                let nombre = text.replace(/\(\s*\)/g, ' ')
-                                 .replace(/[-–—]+/g, ' ')
-                                 .replace(/\s+/g, ' ')
-                                 .trim();
-
-                if (subtotalDeclarado && cantidad > 0) {
-                    precioUnitarioDeclarado = Math.round(subtotalDeclarado / cantidad);
-                }
-
-                const normNombre = normalizarTextoLocal(nombre);
-                let match = prodsDB.find(p => normalizarTextoLocal(p.nombre) === normNombre);
-                if (!match) {
-                    match = prodsDB.find(p => {
-                        const pNorm = normalizarTextoLocal(p.nombre);
-                        return pNorm.includes(normNombre) || normNombre.includes(pNorm);
-                    });
-                }
-
-                const precioFinal = (match && Number(match.precio_venta) > 0) ? Number(match.precio_venta) : (precioUnitarioDeclarado || 0);
-                const subtotalFinal = (precioFinal > 0) ? (precioFinal * cantidad) : (subtotalDeclarado || 0);
-
-                return {
-                    raw,
-                    nombreOriginal: nombre,
-                    nombre: match ? match.nombre : nombre,
-                    producto_id: match ? match.id : null,
-                    codigo: match ? match.codigo : null,
-                    unidad_medida: match ? match.unidad_medida : unidad,
-                    precio_unitario: precioFinal,
-                    cantidad,
-                    subtotal: subtotalFinal,
-                    stock_actual: match ? Number(match.stock_actual) : 0,
-                    es_nuevo: !match
-                };
-            });
-        }
-
-        const pedidosProcesados = rows.map(r => {
+        const pedidosProcesados = pedidosValidos.map(r => {
             const normalizado = {};
             Object.keys(r).forEach(k => {
                 normalizado[k.trim().toLowerCase()] = r[k];
@@ -716,7 +722,7 @@ router.get('/pedidos-web', async (req, res, next) => {
 
             const numero = normalizado.numero || '';
             const fecha = normalizado.fecha || '';
-            const nombre = normalizado.nombre || '';
+            const nombre = normalizado.nombre || 'Cliente Web';
             const telefono = normalizado.telefono || '';
             const direccion = normalizado.direccion || '';
             const zona = normalizado.zona || '';
@@ -818,7 +824,13 @@ router.post('/crear-remito-desde-pedido', async (req, res, next) => {
         const { pedido_numero, fecha, nombre, telefono, direccion_completa, items } = req.body;
 
         if (!nombre) return res.status(400).json({ error: 'El nombre del cliente es requerido.' });
-        if (!items || !items.length) return res.status(400).json({ error: 'El pedido no contiene ítems.' });
+
+        let itemsFinal = Array.isArray(items) ? items : [];
+        if (!itemsFinal.length && req.body.productos_str) {
+            const prodsDB = await db.all('SELECT id, codigo, nombre, unidad_medida, precio_venta, stock_actual FROM productos WHERE activo = true');
+            itemsFinal = parsearItemsProductosLocal(req.body.productos_str, prodsDB);
+        }
+        if (!itemsFinal || !itemsFinal.length) return res.status(400).json({ error: 'El pedido no contiene ítems ni detalle de productos.' });
 
         const adminUser = await db.one("SELECT id FROM usuarios WHERE rol = 'admin' LIMIT 1");
         const usuarioId = req.usuario ? req.usuario.id : (adminUser ? adminUser.id : 1);
@@ -865,7 +877,7 @@ router.post('/crear-remito-desde-pedido', async (req, res, next) => {
             let totalPesoKg = 0;
 
             // 3. Crear ítems y descontar stock por FEFO garantizando que NINGÚN ÍTEM se pierda
-            for (const it of items) {
+            for (const it of itemsFinal) {
                 const cantBultos = Number(it.cantidad) || 1;
                 let precio = Number(it.precio_unitario) || 0;
                 let productoId = it.producto_id ? parseInt(it.producto_id, 10) : null;
