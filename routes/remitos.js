@@ -22,6 +22,7 @@ router.use(requireAuth);
 
 router.get('/', async (req, res, next) => {
     try {
+        res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
         const { cliente_id, desde, hasta, estado, estado_pago } = req.query;
         let sql = `
             SELECT r.*, c.razon_social as cliente_nombre, c.telefono as cliente_telefono,
@@ -48,6 +49,7 @@ router.get('/', async (req, res, next) => {
 
 router.get('/:id', async (req, res, next) => {
     try {
+        res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
         const remito = await db.one(`
             SELECT r.*, c.razon_social as cliente_nombre, c.cuit as cliente_cuit,
                    c.condicion_iva as cliente_condicion_iva, c.direccion as cliente_direccion,
@@ -421,6 +423,43 @@ router.put('/:id', async (req, res, next) => {
                 nuevoTotal, descPorc, montoDesc, nuevoEstadoPago, remitoId
             ]);
 
+            // 7b. Sincronizar pedido web vinculado (si existe) para que la vista online coincida siempre con remito_items
+            const pedidoVinculado = await tx.one('SELECT id, numero FROM pedidos_web WHERE remito_id = $1', [remitoId]);
+            if (pedidoVinculado) {
+                const itemsSyncRows = await tx.all(`
+                    SELECT ri.producto_id, p.codigo, p.nombre AS producto_nombre, p.unidad_medida,
+                           ri.cantidad, ri.precio_unitario, ri.subtotal, ri.descripcion
+                    FROM remito_items ri
+                    JOIN productos p ON p.id = ri.producto_id
+                    WHERE ri.remito_id = $1
+                    ORDER BY ri.id ASC
+                `, [remitoId]);
+
+                const itemsSync = itemsSyncRows.map(it => ({
+                    producto_id: it.producto_id,
+                    codigo: it.codigo || '',
+                    nombre: it.producto_nombre,
+                    cantidad: Number(it.cantidad) || 0,
+                    unidad_medida: it.unidad_medida || 'kg',
+                    precio_unitario: Number(it.precio_unitario) || 0,
+                    subtotal: Number(it.subtotal) || 0,
+                    escala: '',
+                    descripcion: it.descripcion || '',
+                    es_de_remito: true
+                }));
+
+                const productosStrSync = itemsSyncRows.map(it => {
+                    const subRedondeado = Math.round(Number(it.subtotal) || 0).toLocaleString('es-AR');
+                    return `${it.producto_nombre} (${it.unidad_medida || 'kg'}) x${Number(it.cantidad) || 0} [$${subRedondeado}]`;
+                }).join(' | ');
+
+                await tx.run(`
+                    UPDATE pedidos_web
+                    SET items = $1::jsonb, productos_str = $2, total = $3, updated_at = NOW()
+                    WHERE id = $4
+                `, [JSON.stringify(itemsSync), productosStrSync, nuevoTotal, pedidoVinculado.id]);
+            }
+
             // 8. Registro de auditoría ACID (si falla, tx revierte)
             await AuditService.registrar({
                 usuario_id: req.usuario.id,
@@ -459,16 +498,22 @@ router.put('/:id', async (req, res, next) => {
             cliente_id: clienteFinalId,
             total: nuevoTotal
         });
+        emitirEventoDeposito('pedido_web_actualizado', {
+            remito_id: remitoId,
+            numero: remitoExistente.numero
+        });
 
         // Obtener remito actualizado con cliente e ítems
+        res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
         const actualizado = await db.one(`
             SELECT r.*, c.razon_social as cliente_nombre, c.cuit as cliente_cuit,
                    c.condicion_iva as cliente_condicion_iva, c.direccion as cliente_direccion,
                    c.localidad as cliente_localidad, c.telefono as cliente_telefono, c.email as cliente_email,
-                   EXISTS (
+                   COALESCE(r.estado_pago, 'pendiente') as estado_pago,
+                   (r.estado_pago = 'pagado' OR EXISTS (
                        SELECT 1 FROM conciliaciones_bancarias cb 
                        WHERE cb.remito_id = r.id AND cb.estado = 'conciliado'
-                   ) as pago_validado
+                   )) as pago_validado
             FROM remitos r
             JOIN clientes c ON c.id = r.cliente_id
             WHERE r.id = $1

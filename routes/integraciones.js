@@ -26,6 +26,65 @@ function normalizarTexto(str) {
     return String(str).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
 }
 
+function normalizarTokensOrdenados(str) {
+    return normalizarTexto(str)
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .split(/\s+/)
+        .filter(Boolean)
+        .sort()
+        .join(' ');
+}
+
+function resolverProductoEnCatalogo(it = {}, prodsDB = []) {
+    if (!Array.isArray(prodsDB) || prodsDB.length === 0) return null;
+
+    const nombreRaw = it.nombre || it.nombreOriginal || it.raw || '';
+    const normNombre = normalizarTexto(nombreRaw);
+    const tieneNombreReal = Boolean(normNombre && normNombre !== 'producto sin nombre');
+    const normCodigo = normalizarTexto(it.codigo || '');
+    const rawId = it.producto_id ? parseInt(it.producto_id, 10) : null;
+
+    // 1. Prioridad absoluta: coincidencia exacta por nombre normalizado
+    if (tieneNombreReal) {
+        const porNombreExacto = prodsDB.find(p => normalizarTexto(p.nombre) === normNombre);
+        if (porNombreExacto) return porNombreExacto;
+    }
+
+    // 2. Coincidencia exacta por código siempre que no contradiga el nombre recibido
+    if (normCodigo) {
+        const porCodigo = prodsDB.find(p => normalizarTexto(p.codigo) === normCodigo);
+        if (porCodigo && (!tieneNombreReal || normalizarTexto(porCodigo.nombre) === normNombre)) {
+            return porCodigo;
+        }
+    }
+
+    // 3. Coincidencia por ID únicamente si el nombre coincide o no se envió nombre
+    if (rawId && !isNaN(rawId)) {
+        const porId = prodsDB.find(p => Number(p.id) === rawId);
+        if (porId && (!tieneNombreReal || normalizarTexto(porId.nombre) === normNombre)) {
+            return porId;
+        }
+
+        // 4. Coincidencia por código correlativo 'MP-XXX' derivado del ID únicamente si el nombre coincide
+        const codCorrelativo = normalizarTexto('MP-' + String(rawId).padStart(3, '0'));
+        const porCodCorr = prodsDB.find(p => normalizarTexto(p.codigo) === codCorrelativo);
+        if (porCodCorr && (!tieneNombreReal || normalizarTexto(porCodCorr.nombre) === normNombre)) {
+            return porCodCorr;
+        }
+    }
+
+    // 5. Fallback estricto por conjunto exacto de palabras (sin includes/startsWith parciales)
+    if (tieneNombreReal && normNombre.length >= 4) {
+        const tokensBuscados = normalizarTokensOrdenados(nombreRaw);
+        if (tokensBuscados) {
+            const porTokens = prodsDB.find(p => normalizarTokensOrdenados(p.nombre) === tokensBuscados);
+            if (porTokens) return porTokens;
+        }
+    }
+
+    return null;
+}
+
 function parsearItemsProductosLocal(productosStr, prodsDB = []) {
     if (!productosStr) return [];
     const lineas = productosStr.split(/[|\r\n;]+/).map(s => s.trim()).filter(Boolean);
@@ -103,14 +162,7 @@ function parsearItemsProductosLocal(productosStr, prodsDB = []) {
             precioUnitarioDeclarado = Math.round(subtotalDeclarado / cantidad);
         }
 
-        const normNombre = normalizarTexto(nombre);
-        let match = prodsDB.find(p => normalizarTexto(p.nombre) === normNombre);
-        if (!match) {
-            match = prodsDB.find(p => {
-                const pNorm = normalizarTexto(p.nombre);
-                return pNorm.includes(normNombre) || normNombre.includes(pNorm);
-            });
-        }
+        const match = resolverProductoEnCatalogo({ nombre }, prodsDB);
 
         const precioFinal = (match && Number(match.precio_venta) > 0) ? Number(match.precio_venta) : (precioUnitarioDeclarado || 0);
         const subtotalFinal = (precioFinal > 0) ? (precioFinal * cantidad) : (subtotalDeclarado || 0);
@@ -606,10 +658,12 @@ router.post('/sync-catalogo', async (req, res, next) => {
  */
 router.get('/pedidos-web', async (req, res, next) => {
     try {
+        res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+
         const productosDB = await db.all('SELECT id, codigo, nombre, unidad_medida, precio_venta, stock_actual FROM productos WHERE activo = true');
 
         const pedidosDBRows = await db.all(`
-            SELECT pw.*, r.id AS remito_id_rel, r.numero AS remito_numero
+            SELECT pw.*, r.id AS remito_id_rel, r.numero AS remito_numero, r.total AS remito_total
             FROM pedidos_web pw
             LEFT JOIN remitos r ON pw.remito_id = r.id OR r.observaciones ILIKE '%' || pw.numero || '%'
             ORDER BY pw.id DESC
@@ -617,21 +671,75 @@ router.get('/pedidos-web', async (req, res, next) => {
 
         // Si existen pedidos en la base de datos y no se pidió forzar Sheets
         if (pedidosDBRows.length > 0 && req.query.origen !== 'sheets') {
+            const remitoIds = Array.from(new Set(
+                pedidosDBRows
+                    .map(r => r.remito_id || r.remito_id_rel)
+                    .filter(Boolean)
+                    .map(id => Number(id))
+            ));
+
+            const remitoItemsMap = {};
+            if (remitoIds.length > 0) {
+                const remitoItemsRows = await db.all(`
+                    SELECT ri.remito_id, ri.producto_id, p.codigo, p.nombre, p.unidad_medida,
+                           ri.cantidad, ri.precio_unitario, ri.subtotal, ri.descripcion
+                    FROM remito_items ri
+                    JOIN productos p ON p.id = ri.producto_id
+                    WHERE ri.remito_id = ANY($1::int[])
+                    ORDER BY ri.id ASC
+                `, [remitoIds]);
+
+                for (const ri of remitoItemsRows) {
+                    if (!remitoItemsMap[ri.remito_id]) remitoItemsMap[ri.remito_id] = [];
+                    remitoItemsMap[ri.remito_id].push(ri);
+                }
+            }
+
             const pedidosProcesados = pedidosDBRows.map(r => {
+                const remitoIdAsoc = r.remito_id || r.remito_id_rel;
+                const remitoItemsAsoc = remitoIdAsoc ? remitoItemsMap[remitoIdAsoc] : null;
+
                 let itemsParsed = [];
-                try {
-                    itemsParsed = Array.isArray(r.items) ? r.items : (typeof r.items === 'string' ? JSON.parse(r.items) : []);
-                } catch {
-                    itemsParsed = [];
+                if (Array.isArray(remitoItemsAsoc) && remitoItemsAsoc.length > 0) {
+                    // Fuente única de verdad: si ya tiene remito emitido, reflejar exactamente remito_items
+                    itemsParsed = remitoItemsAsoc.map(ri => ({
+                        producto_id: ri.producto_id,
+                        codigo: ri.codigo || '',
+                        nombre: ri.nombre,
+                        cantidad: Number(ri.cantidad) || 0,
+                        unidad_medida: ri.unidad_medida || 'kg',
+                        precio_unitario: Number(ri.precio_unitario) || 0,
+                        subtotal: Number(ri.subtotal) || 0,
+                        escala: '',
+                        descripcion: ri.descripcion || '',
+                        es_de_remito: true
+                    }));
+                } else {
+                    try {
+                        itemsParsed = Array.isArray(r.items) ? r.items : (typeof r.items === 'string' ? JSON.parse(r.items) : []);
+                    } catch {
+                        itemsParsed = [];
+                    }
+
+                    // Autocompletar items estructurados parseando productos_str si items vino vacío
+                    if ((!itemsParsed || itemsParsed.length === 0) && r.productos_str) {
+                        itemsParsed = parsearItemsProductosLocal(r.productos_str, productosDB);
+                    } else if (Array.isArray(itemsParsed) && itemsParsed.length > 0) {
+                        // Reconciliar producto_id/codigo contra el catálogo activo para evitar IDs desfasados de la web
+                        itemsParsed = itemsParsed.map(it => {
+                            const match = resolverProductoEnCatalogo(it, productosDB);
+                            if (!match) return it;
+                            return {
+                                ...it,
+                                producto_id: match.id,
+                                codigo: match.codigo || it.codigo || ''
+                            };
+                        });
+                    }
                 }
 
-                // Autocompletar items estructurados parseando productos_str si items vino vacío
-                if ((!itemsParsed || itemsParsed.length === 0) && r.productos_str) {
-                    itemsParsed = parsearItemsProductosLocal(r.productos_str, productosDB);
-                }
-
-                const remitoAsociado = (r.remito_id || r.remito_id_rel)
-                    ? { id: r.remito_id || r.remito_id_rel, numero: r.remito_numero }
+                const remitoAsociado = remitoIdAsoc
+                    ? { id: remitoIdAsoc, numero: r.remito_numero }
                     : null;
 
                 let horaLlegada = '';
@@ -673,7 +781,7 @@ router.get('/pedidos-web', async (req, res, next) => {
                     notas: r.notas,
                     productos_str: r.productos_str || '',
                     items: itemsParsed,
-                    total: Number(r.total) || 0,
+                    total: (remitoIdAsoc && r.remito_total !== null && r.remito_total !== undefined) ? (Number(r.remito_total) || 0) : (Number(r.total) || 0),
                     estado: r.estado,
                     origen: r.origen || 'web',
                     remito_asociado: remitoAsociado
@@ -835,7 +943,7 @@ router.post('/crear-remito-desde-pedido', async (req, res, next) => {
         const adminUser = await db.one("SELECT id FROM usuarios WHERE rol = 'admin' LIMIT 1");
         const usuarioId = req.usuario ? req.usuario.id : (adminUser ? adminUser.id : 1);
 
-        const remitoId = await db.transaction(async (tx) => {
+        const { remitoId, resolvedProductIds } = await db.transaction(async (tx) => {
             // 1. Buscar o crear cliente
             let cliente = await tx.one('SELECT id, direccion, telefono FROM clientes WHERE LOWER(razon_social) = LOWER($1)', [nombre.trim()]);
             if (!cliente) {
@@ -875,6 +983,10 @@ router.post('/crear-remito-desde-pedido', async (req, res, next) => {
             let totalCalculado = 0;
             let totalBultos = 0;
             let totalPesoKg = 0;
+            const prodIdsResueltos = [];
+
+            // Cargar catálogo activo una sola vez para resolución determinística sin ambigüedades
+            const todosProds = await tx.all('SELECT id, nombre, codigo, precio_venta, unidad_medida FROM productos WHERE activo = true');
 
             // 3. Crear ítems y descontar stock por FEFO garantizando que NINGÚN ÍTEM se pierda
             for (const it of itemsFinal) {
@@ -882,7 +994,6 @@ router.post('/crear-remito-desde-pedido', async (req, res, next) => {
                 let precio = Number(it.precio_unitario) || 0;
                 let productoId = it.producto_id ? parseInt(it.producto_id, 10) : null;
                 const nombreBuscado = it.nombre || it.nombreOriginal || it.raw || 'Producto Sin Nombre';
-                const normNom = normalizarTexto(nombreBuscado);
 
                 // Detección de escala mayorista (bultos cerrados / packs: 5kg, 10kg, 25kg, 30kg, etc.)
                 let multiplicador = Number(it.multiplicador) || 1;
@@ -901,42 +1012,13 @@ router.post('/crear-remito-desde-pedido', async (req, res, next) => {
                     }
                 }
 
-                let prodExistente = null;
+                // Resolución determinística priorizando coincidencia exacta por nombre (nunca IDs cruzados ni subcadenas)
+                const prodExistente = resolverProductoEnCatalogo(
+                    { nombre: nombreBuscado, codigo: it.codigo, producto_id: productoId },
+                    todosProds
+                );
 
-                // 1. PRIORIDAD ABSOLUTA: Buscar por NOMBRE en el catálogo de PostgreSQL
-                // El nombre elegido por el cliente es la verdad de lo que compró
-                if (nombreBuscado && nombreBuscado !== 'Producto Sin Nombre') {
-                    prodExistente = await tx.one('SELECT id, nombre, codigo, precio_venta, unidad_medida FROM productos WHERE LOWER(TRIM(nombre)) = LOWER(TRIM($1))', [nombreBuscado]);
-                    if (!prodExistente) {
-                        const todosProds = await tx.all('SELECT id, nombre, codigo, precio_venta, unidad_medida FROM productos WHERE activo = true');
-                        prodExistente = todosProds.find(p => normalizarTexto(p.nombre) === normNom);
-                        if (!prodExistente) {
-                            prodExistente = todosProds.find(p => {
-                                const pNorm = normalizarTexto(p.nombre);
-                                return pNorm.startsWith(normNom) || normNom.startsWith(pNorm);
-                            });
-                        }
-                    }
-                }
-
-                // 2. Si no se encontró por nombre pero vino ID, SOLO aceptarlo si el nombre en DB es compatible
-                if (!prodExistente && productoId && !isNaN(productoId)) {
-                    const prodPorId = await tx.one('SELECT id, nombre, codigo, precio_venta, unidad_medida FROM productos WHERE id = $1', [productoId]);
-                    if (prodPorId && (normalizarTexto(prodPorId.nombre) === normNom || !nombreBuscado || nombreBuscado === 'Producto Sin Nombre')) {
-                        prodExistente = prodPorId;
-                    }
-                }
-
-                // 3. Si no existe por nombre, intentar por código correlativo (ej: MP-351) si el nombre es compatible
-                if (!prodExistente && productoId && !isNaN(productoId)) {
-                    const codBuscado = 'MP-' + String(productoId).padStart(3, '0');
-                    const prodPorCod = await tx.one('SELECT id, nombre, codigo, precio_venta, unidad_medida FROM productos WHERE codigo = $1', [codBuscado]);
-                    if (prodPorCod && (normalizarTexto(prodPorCod.nombre) === normNom || !nombreBuscado || nombreBuscado === 'Producto Sin Nombre')) {
-                        prodExistente = prodPorCod;
-                    }
-                }
-
-                // 4. Asignar el producto existente o crearlo si de verdad es nuevo en el catálogo
+                // Asignar el producto existente o crearlo si de verdad es nuevo en el catálogo
                 if (prodExistente) {
                     productoId = prodExistente.id;
                     if (!precio && Number(prodExistente.precio_venta) > 0) {
@@ -949,7 +1031,16 @@ router.post('/crear-remito-desde-pedido', async (req, res, next) => {
                         VALUES ($1, $2, $3, $4, 100, true) RETURNING id
                     `, [nuevoCodigo, nombreBuscado.trim(), it.unidad_medida || 'kg', precio]);
                     productoId = nuevoProd.id;
+                    todosProds.push({
+                        id: productoId,
+                        nombre: nombreBuscado.trim(),
+                        codigo: nuevoCodigo,
+                        precio_venta: precio,
+                        unidad_medida: it.unidad_medida || 'kg'
+                    });
                 }
+
+                prodIdsResueltos.push(productoId);
 
                 // Asegurar que exista un lote disponible en lotes para trazabilidad FEFO
                 let lotes = await tx.all(`
@@ -992,6 +1083,8 @@ router.post('/crear-remito-desde-pedido', async (req, res, next) => {
                         : `${tipoBulto} x${multiplicador}${esPack ? 'u' : 'kg'}`;
                 } else if (it.escala && it.escala !== '1kg' && it.escala !== 'Unidad') {
                     itemDescripcion = String(it.escala);
+                } else if (it.descripcion) {
+                    itemDescripcion = String(it.descripcion);
                 }
 
                 let cantidadRestante = cantidadTotal;
@@ -1050,7 +1143,7 @@ router.post('/crear-remito-desde-pedido', async (req, res, next) => {
                 [rId, pedido_numero, req.body.pedido_id || null]
             );
 
-            return rId;
+            return { remitoId: rId, resolvedProductIds: prodIdsResueltos };
         });
 
         try {
@@ -1060,9 +1153,9 @@ router.post('/crear-remito-desde-pedido', async (req, res, next) => {
             // Socket opcional
         }
 
-        // Alerta de stock para productos vendidos
-        if (items && items.length > 0) {
-            AlertasService.verificarMultiplesProductos(items.map(i => i.producto_id)).catch(() => {});
+        // Alerta de stock para productos vendidos (usando IDs reales resueltos)
+        if (resolvedProductIds && resolvedProductIds.length > 0) {
+            AlertasService.verificarMultiplesProductos(resolvedProductIds).catch(() => {});
         }
 
         res.status(201).json(await db.one('SELECT * FROM remitos WHERE id = $1', [remitoId]));
