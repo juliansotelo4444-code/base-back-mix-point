@@ -56,6 +56,7 @@ app.use('/api/reportes', require('./routes/reportes'));
 app.use('/api/jarvis', require('./routes/jarvis'));
 app.use('/api/audit-logs', require('./routes/auditLogs'));
 app.use('/api/deposito', require('./routes/deposito'));
+app.use('/api/retencion', require('./routes/retencion'));
 
 // Servir frontend compilado y resolver 404 en recargas de rutas SPA
 const path = require('path');
@@ -164,7 +165,23 @@ function iniciarTareasEnSegundoPlano() {
     setTimeout(mantenimientoBD, 60 * 1000);
     setInterval(mantenimientoBD, 24 * 60 * 60 * 1000);
 
-    console.log('⏰ Schedulers de Reporte Matutino (8:00 AM), Sync Sheets y J.A.R.V.I.S. Sentry Daemon (24/7) inicializados.');
+    // 6. Retención y Recuperación de Ventas (Carritos abandonados > 90 min + Reposición 25-30 días)
+    const RetencionService = require('./services/retencionService');
+    setTimeout(() => {
+        RetencionService.detectarCarritosAbandonados().catch(err => console.error('[Retención Carritos]', err.message));
+    }, 20 * 1000);
+    setInterval(() => {
+        RetencionService.detectarCarritosAbandonados().catch(err => console.error('[Retención Carritos]', err.message));
+    }, 15 * 60 * 1000);
+
+    setTimeout(() => {
+        RetencionService.detectarClientesReposicion().catch(err => console.error('[Retención Reposición]', err.message));
+    }, 30 * 1000);
+    setInterval(() => {
+        RetencionService.detectarClientesReposicion().catch(err => console.error('[Retención Reposición]', err.message));
+    }, 6 * 60 * 60 * 1000);
+
+    console.log('⏰ Schedulers de Reporte Matutino (8:00 AM), Sync Sheets, Retención de Ventas y J.A.R.V.I.S. Sentry Daemon (24/7) inicializados.');
 }
 
 async function start() {

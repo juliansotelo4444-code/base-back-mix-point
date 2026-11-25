@@ -530,3 +530,74 @@ FROM clientes c
 LEFT JOIN movimientos_cuenta mc ON mc.entidad_tipo = 'cliente' AND mc.entidad_id = c.id
 GROUP BY c.id, c.razon_social, c.saldo_cuenta;
 
+-- ---------------------------------------------------------
+-- RETENCIÓN Y RECUPERACIÓN DE VENTAS (CARRITOS ABANDONADOS, CUPONES, REPOSICIÓN)
+-- ---------------------------------------------------------
+CREATE TABLE IF NOT EXISTS carritos_abandonados (
+    id                  SERIAL PRIMARY KEY,
+    session_id          TEXT NOT NULL UNIQUE,
+    cliente_nombre      TEXT,
+    telefono            TEXT,
+    email               TEXT,
+    direccion           TEXT,
+    zona                TEXT,
+    items               JSONB NOT NULL DEFAULT '[]'::jsonb,
+    total               NUMERIC NOT NULL DEFAULT 0,
+    estado              TEXT NOT NULL DEFAULT 'activo'
+                        CHECK (estado IN ('activo', 'abandonado', 'notificado', 'recuperado', 'expirado')),
+    pedido_web_id       INTEGER REFERENCES pedidos_web(id) ON DELETE SET NULL,
+    ultima_actividad_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    notificado_at       TIMESTAMP,
+    recuperado_at       TIMESTAMP,
+    created_at          TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at          TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_carritos_estado_actividad
+    ON carritos_abandonados(estado, ultima_actividad_at);
+CREATE INDEX IF NOT EXISTS idx_carritos_telefono
+    ON carritos_abandonados(telefono);
+
+CREATE TABLE IF NOT EXISTS cupones (
+    id                  SERIAL PRIMARY KEY,
+    codigo              TEXT NOT NULL UNIQUE,
+    tipo_descuento      TEXT NOT NULL DEFAULT 'porcentaje'
+                        CHECK (tipo_descuento IN ('porcentaje', 'monto_fijo')),
+    valor_descuento     NUMERIC NOT NULL CHECK (valor_descuento > 0),
+    cliente_id          INTEGER REFERENCES clientes(id) ON DELETE SET NULL,
+    telefono_cliente    TEXT,
+    remito_origen_id    INTEGER REFERENCES remitos(id) ON DELETE SET NULL,
+    usos_maximos        INTEGER NOT NULL DEFAULT 1,
+    usos_actuales       INTEGER NOT NULL DEFAULT 0,
+    valido_hasta        TIMESTAMP NOT NULL,
+    activo              BOOLEAN NOT NULL DEFAULT TRUE,
+    usado_en_pedido_id  INTEGER REFERENCES pedidos_web(id) ON DELETE SET NULL,
+    created_at          TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_cupones_codigo ON cupones(UPPER(codigo));
+CREATE INDEX IF NOT EXISTS idx_cupones_cliente ON cupones(cliente_id, valido_hasta DESC);
+
+CREATE TABLE IF NOT EXISTS recordatorios_reposicion (
+    id                  SERIAL PRIMARY KEY,
+    cliente_id          INTEGER NOT NULL REFERENCES clientes(id) ON DELETE CASCADE,
+    remito_id           INTEGER NOT NULL UNIQUE REFERENCES remitos(id) ON DELETE CASCADE,
+    cupon_id            INTEGER REFERENCES cupones(id) ON DELETE SET NULL,
+    telefono            TEXT,
+    enlace_recompra     TEXT NOT NULL,
+    estado              TEXT NOT NULL DEFAULT 'pendiente'
+                        CHECK (estado IN ('pendiente', 'enviado', 'convertido', 'descartado')),
+    enviado_con_cupon   BOOLEAN NOT NULL DEFAULT FALSE,
+    notificado_at       TIMESTAMP,
+    convertido_at       TIMESTAMP,
+    created_at          TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_reposicion_estado_fecha
+    ON recordatorios_reposicion(estado, created_at DESC);
+
+ALTER TABLE pedidos_web ADD COLUMN IF NOT EXISTS cupon_codigo TEXT;
+ALTER TABLE pedidos_web ADD COLUMN IF NOT EXISTS descuento_monto NUMERIC NOT NULL DEFAULT 0;
+ALTER TABLE pedidos_web ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+
+
