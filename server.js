@@ -7,6 +7,7 @@ const morgan = require('morgan');
 const db = require('./db/pool');
 const { initSocket } = require('./socket');
 const ReporteDiarioService = require('./services/reporteDiario');
+const MercadoPagoService = require('./services/mercadopagoService');
 
 const app = express();
 const server = http.createServer(app);
@@ -52,6 +53,7 @@ app.use('/api/produccion', require('./routes/produccion'));
 // Módulos Nuevos
 app.use('/api/notificaciones', require('./routes/notificaciones'));
 app.use('/api/conciliacion', require('./routes/conciliacion'));
+app.use('/api/mercadopago', require('./routes/mercadopago'));
 app.use('/api/reportes', require('./routes/reportes'));
 app.use('/api/jarvis', require('./routes/jarvis'));
 app.use('/api/audit-logs', require('./routes/auditLogs'));
@@ -181,7 +183,24 @@ function iniciarTareasEnSegundoPlano() {
         RetencionService.detectarClientesReposicion().catch(err => console.error('[Retención Reposición]', err.message));
     }, 6 * 60 * 60 * 1000);
 
-    console.log('⏰ Schedulers de Reporte Matutino (8:00 AM), Sync Sheets, Retención de Ventas y J.A.R.V.I.S. Sentry Daemon (24/7) inicializados.');
+    // 7. Sincronización automática de cobros de Mercado Pago cada 3 minutos
+    async function ejecutarSyncMercadoPago() {
+        try {
+            const cfg = await MercadoPagoService.obtenerConfig({ incluirToken: false });
+            if (cfg.configurado && cfg.auto_sync) {
+                const res = await MercadoPagoService.sincronizarMovimientos({ dias: 1, silencioso: true });
+                if (res.importados > 0) {
+                    console.log(`💳 [MercadoPago Sync] ${res.importados} cobros nuevos importados automáticamente.`);
+                }
+            }
+        } catch (err) {
+            console.warn('[MercadoPago Sync]', err.message);
+        }
+    }
+    setTimeout(ejecutarSyncMercadoPago, 25 * 1000);
+    setInterval(ejecutarSyncMercadoPago, 3 * 60 * 1000);
+
+    console.log('⏰ Schedulers de Reporte Matutino (8:00 AM), Sync Sheets, Mercado Pago, Retención y J.A.R.V.I.S. inicializados.');
 }
 
 async function start() {
