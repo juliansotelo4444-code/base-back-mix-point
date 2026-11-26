@@ -162,9 +162,9 @@ class ReporteDiarioService {
     }
 
     /**
-     * Envía el reporte a todos los canales configurados (Telegram, Webhook, Notificación interna)
+     * Envía el reporte a todos los canales configurados (Telegram, Webhook, WhatsApp CallMeBot, Notificación interna)
      */
-    static async enviarReporte(fechaRef = null) {
+    static async enviarReporte(fechaRef = null, esAutomatico = false) {
         const datos = await this.generarDatosReporte(fechaRef);
         const mensajeTexto = this.formatearMensaje(datos);
 
@@ -225,13 +225,52 @@ class ReporteDiarioService {
             console.error('Error enviando a Webhook:', e.message);
         }
 
-        // Guardar fecha de último envío
-        const hoy = new Date().toISOString().slice(0, 10);
-        await db.run(`
-            INSERT INTO configuracion_sistema (clave, valor, updated_at)
-            VALUES ('ultimo_reporte_enviado', $1, NOW())
-            ON CONFLICT (clave) DO UPDATE SET valor = EXCLUDED.valor, updated_at = NOW()
-        `, [hoy]);
+        // 4. WhatsApp Directo vía CallMeBot a cada destinatario configurado
+        try {
+            const destRow = await db.one("SELECT valor FROM configuracion_sistema WHERE clave = 'callmebot_destinatarios'");
+            let destinatarios = [];
+            if (destRow && destRow.valor) {
+                try {
+                    destinatarios = JSON.parse(destRow.valor);
+                } catch {}
+            }
+
+            if (Array.isArray(destinatarios) && destinatarios.length > 0) {
+                for (const d of destinatarios) {
+                    const telefono = String(d.telefono || '').replace(/[^0-9]/g, '');
+                    const apikey = String(d.apikey || '').trim();
+                    const nombre = d.nombre ? String(d.nombre).trim() : telefono;
+                    if (!telefono || !apikey) continue;
+
+                    try {
+                        const url = `https://api.callmebot.com/whatsapp.php?phone=${telefono}&text=${encodeURIComponent(mensajeTexto)}&apikey=${apikey}`;
+                        const res = await fetch(url);
+                        if (res.ok) {
+                            envios.push(`WhatsApp enviado a ${nombre} (${telefono}).`);
+                        } else {
+                            const errTxt = await res.text().catch(() => '');
+                            console.error(`Error CallMeBot para ${telefono}:`, res.status, errTxt);
+                            envios.push(`WhatsApp ${nombre}: Error HTTP ${res.status}`);
+                        }
+                    } catch (errBot) {
+                        console.error(`Error enviando WhatsApp a ${telefono}:`, errBot.message);
+                        envios.push(`WhatsApp ${nombre}: ${errBot.message}`);
+                    }
+                }
+            }
+        } catch (e) {
+            console.error('Error enviando por CallMeBot:', e.message);
+        }
+
+        // Guardar fecha de último envío solo si fue disparo automático diario
+        if (esAutomatico) {
+            const hoy = new Date().toISOString().slice(0, 10);
+            await db.run(`
+                INSERT INTO configuracion_sistema (clave, valor, updated_at)
+                VALUES ('ultimo_reporte_enviado', $1, NOW())
+                ON CONFLICT (clave) DO UPDATE SET valor = EXCLUDED.valor, updated_at = NOW()
+            `, [hoy]);
+        }
 
         return {
             ok: true,
@@ -269,7 +308,7 @@ class ReporteDiarioService {
                 const ultimoEnvio = await db.one("SELECT valor FROM configuracion_sistema WHERE clave = 'ultimo_reporte_enviado'");
                 if (!ultimoEnvio || ultimoEnvio.valor !== hoyStr) {
                     console.log(`[Reporte Diario] ⏰ Disparando reporte matutino programado para ${hoyStr}...`);
-                    await this.enviarReporte();
+                    await this.enviarReporte(null, true);
                 }
             }
         } catch (err) {

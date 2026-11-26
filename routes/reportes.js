@@ -41,16 +41,26 @@ router.get('/config', async (req, res, next) => {
         const rows = await db.all(`
             SELECT clave, valor 
             FROM configuracion_sistema 
-            WHERE clave IN ('telegram_bot_token', 'telegram_chat_id', 'reporte_webhook_url', 'alertas_webhook_url', 'ultimo_reporte_enviado')
+            WHERE clave IN ('telegram_bot_token', 'telegram_chat_id', 'reporte_webhook_url', 'alertas_webhook_url', 'callmebot_destinatarios', 'ultimo_reporte_enviado')
         `);
         const cfg = {};
         rows.forEach(r => { cfg[r.clave] = r.valor; });
+
+        let callmebotDestinatarios = [];
+        if (cfg.callmebot_destinatarios) {
+            try {
+                callmebotDestinatarios = JSON.parse(cfg.callmebot_destinatarios);
+            } catch (e) {
+                callmebotDestinatarios = [];
+            }
+        }
 
         res.json({
             telegram_bot_token: cfg.telegram_bot_token || '',
             telegram_chat_id: cfg.telegram_chat_id || '',
             reporte_webhook_url: cfg.reporte_webhook_url || '',
             alertas_webhook_url: cfg.alertas_webhook_url || '',
+            callmebot_destinatarios: Array.isArray(callmebotDestinatarios) ? callmebotDestinatarios : [],
             ultimo_reporte_enviado: cfg.ultimo_reporte_enviado || null
         });
     } catch (err) {
@@ -63,13 +73,14 @@ router.get('/config', async (req, res, next) => {
  */
 router.post('/config', async (req, res, next) => {
     try {
-        const { telegram_bot_token, telegram_chat_id, reporte_webhook_url, alertas_webhook_url } = req.body;
+        const { telegram_bot_token, telegram_chat_id, reporte_webhook_url, alertas_webhook_url, callmebot_destinatarios } = req.body;
 
         const entries = [
             ['telegram_bot_token', telegram_bot_token],
             ['telegram_chat_id', telegram_chat_id],
             ['reporte_webhook_url', reporte_webhook_url],
-            ['alertas_webhook_url', alertas_webhook_url]
+            ['alertas_webhook_url', alertas_webhook_url],
+            ['callmebot_destinatarios', callmebot_destinatarios !== undefined ? JSON.stringify(callmebot_destinatarios) : undefined]
         ];
 
         for (const [clave, valor] of entries) {
