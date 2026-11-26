@@ -26,6 +26,11 @@ function normalizarTexto(str) {
     return String(str).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
 }
 
+function ultimos8DigitosTel(tel) {
+    const digits = String(tel || '').replace(/\D/g, '');
+    return digits.length >= 8 ? digits.slice(-8) : '';
+}
+
 function normalizarTokensOrdenados(str) {
     return normalizarTexto(str)
         .replace(/[^a-z0-9\s]/g, ' ')
@@ -665,7 +670,7 @@ router.get('/pedidos-web', async (req, res, next) => {
         const pedidosDBRows = await db.all(`
             SELECT pw.*, r.id AS remito_id_rel, r.numero AS remito_numero, r.total AS remito_total
             FROM pedidos_web pw
-            LEFT JOIN remitos r ON pw.remito_id = r.id OR r.observaciones ILIKE '%' || pw.numero || '%'
+            LEFT JOIN remitos r ON pw.remito_id = r.id
             ORDER BY pw.id DESC
         `);
 
@@ -944,22 +949,52 @@ router.post('/crear-remito-desde-pedido', async (req, res, next) => {
         const usuarioId = req.usuario ? req.usuario.id : (adminUser ? adminUser.id : 1);
 
         const { remitoId, resolvedProductIds } = await db.transaction(async (tx) => {
-            // 1. Buscar o crear cliente
-            let cliente = await tx.one('SELECT id, direccion, telefono FROM clientes WHERE LOWER(razon_social) = LOWER($1)', [nombre.trim()]);
+            // 1. Buscar o crear cliente evitando cruzar homónimos de distinto teléfono
+            const telPedido8 = ultimos8DigitosTel(telefono);
+            const nombreLimpio = nombre.trim();
+            let cliente = null;
+
+            if (telPedido8) {
+                const candidatosTel = await tx.all(
+                    `SELECT id, razon_social, direccion, telefono
+                     FROM clientes
+                     WHERE activo = true AND RIGHT(regexp_replace(COALESCE(telefono, ''), '[^0-9]', '', 'g'), 8) = $1
+                     ORDER BY (LOWER(TRIM(razon_social)) = LOWER(TRIM($2))) DESC, id ASC`,
+                    [telPedido8, nombreLimpio]
+                );
+                // Preferir coincidencia exacta de teléfono + nombre compatible, o si el nombre coincide en el primer candidato
+                cliente = candidatosTel.find(c => normalizarTexto(c.razon_social) === normalizarTexto(nombreLimpio)) || candidatosTel[0] || null;
+            }
+
+            if (!cliente) {
+                const candidatosNombre = await tx.all(
+                    `SELECT id, razon_social, direccion, telefono
+                     FROM clientes
+                     WHERE LOWER(TRIM(razon_social)) = LOWER(TRIM($1))
+                     ORDER BY id ASC`,
+                    [nombreLimpio]
+                );
+
+                cliente = candidatosNombre.find(c => {
+                    const telCli8 = ultimos8DigitosTel(c.telefono);
+                    return !telPedido8 || !telCli8 || telPedido8 === telCli8;
+                }) || null;
+            }
+
             if (!cliente) {
                 const { row } = await tx.run(
                     `INSERT INTO clientes (razon_social, direccion, telefono, condicion_iva, lista_precio, saldo_cuenta)
                      VALUES ($1, $2, $3, 'Consumidor Final', 'kg', 0) RETURNING id`,
-                    [nombre.trim(), direccion_completa || null, telefono || null]
+                    [nombreLimpio, direccion_completa || null, telefono || null]
                 );
                 cliente = row;
             } else if (direccion_completa || telefono) {
                 await tx.run(
                     `UPDATE clientes SET
-                        direccion = COALESCE(direccion, $1),
-                        telefono = COALESCE(telefono, $2)
+                        direccion = COALESCE(NULLIF(TRIM(direccion), ''), $1),
+                        telefono = COALESCE(NULLIF(TRIM(telefono), ''), $2)
                      WHERE id = $3`,
-                    [direccion_completa, telefono, cliente.id]
+                    [direccion_completa || null, telefono || null, cliente.id]
                 );
             }
 
@@ -1137,11 +1172,19 @@ router.post('/crear-remito-desde-pedido', async (req, res, next) => {
                 `, [cliente.id, total, rId, `Remito Web ${pedido_numero} (${numero})`, usuarioId]);
             }
 
-            // 4. Actualizar estado del pedido web a 'emitido' en la base de datos
-            await tx.run(
-                `UPDATE pedidos_web SET estado = 'emitido', remito_id = $1 WHERE numero = $2 OR id = $3`,
-                [rId, pedido_numero, req.body.pedido_id || null]
-            );
+            // 4. Actualizar estado del pedido web a 'emitido' en la base de datos por ID exacto (o numero como fallback)
+            const pedidoIdNum = req.body.pedido_id ? parseInt(req.body.pedido_id, 10) : NaN;
+            if (!isNaN(pedidoIdNum) && pedidoIdNum > 0) {
+                await tx.run(
+                    `UPDATE pedidos_web SET estado = 'emitido', remito_id = $1 WHERE id = $2`,
+                    [rId, pedidoIdNum]
+                );
+            } else if (pedido_numero) {
+                await tx.run(
+                    `UPDATE pedidos_web SET estado = 'emitido', remito_id = $1 WHERE numero = $2`,
+                    [rId, pedido_numero]
+                );
+            }
 
             return { remitoId: rId, resolvedProductIds: prodIdsResueltos };
         });
