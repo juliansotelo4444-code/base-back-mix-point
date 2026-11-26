@@ -42,8 +42,9 @@ router.get('/pagos-recientes', async (req, res, next) => {
 
 /**
  * Confirma e imputa un pago verificado de Mercado Pago a un remito específico
+ * (Restringido a admin, administracion y ventas; repartidor es solo lectura)
  */
-router.post('/confirmar-pago-remito', requireRole('admin', 'administracion', 'ventas', 'repartidor'), async (req, res, next) => {
+router.post('/confirmar-pago-remito', requireRole('admin', 'administracion', 'ventas'), async (req, res, next) => {
     try {
         const { remito_id, payment } = req.body;
         if (!remito_id || !payment) {
