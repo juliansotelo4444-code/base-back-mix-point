@@ -320,6 +320,12 @@ router.post('/pedidos-web', async (req, res, next) => {
             // Ignorar si socket no inicializado
         }
 
+        try {
+            AlertasService.notificarNuevoPedido(pedidoGuardado).catch(err => {
+                console.warn('Aviso notificando nuevo pedido por canales externos:', err.message);
+            });
+        } catch {}
+
         res.status(201).json({
             success: true,
             numeroPedido: nuevoNumero,
