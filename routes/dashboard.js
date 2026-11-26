@@ -5,26 +5,61 @@ const { requireAuth } = require('../middleware/auth');
 const router = express.Router();
 router.use(requireAuth);
 
+/**
+ * Calcula las fechas límite de hoy, mes calendario actual y 6 meses calendario atrás
+ * en la zona horaria oficial de Argentina (evita desfases UTC después de las 21:00 ART).
+ */
+function getRangoMesArgentina() {
+    const hoyStr = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'America/Argentina/Buenos_Aires',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    }).format(new Date());
+
+    const [anioStr, mesStr] = hoyStr.split('-');
+    const anio = Number(anioStr);
+    const mes = Number(mesStr);
+
+    const inicioMesStr = `${anioStr}-${mesStr}-01`;
+    const nextAnio = mes === 12 ? anio + 1 : anio;
+    const nextMes = mes === 12 ? 1 : mes + 1;
+    const inicioMesSiguienteStr = `${nextAnio}-${String(nextMes).padStart(2, '0')}-01`;
+
+    const totalMesesAtras = anio * 12 + (mes - 1) - 5;
+    const anio6 = Math.floor(totalMesesAtras / 12);
+    const mes6 = (totalMesesAtras % 12) + 1;
+    const inicio6MesesStr = `${anio6}-${String(mes6).padStart(2, '0')}-01`;
+
+    return {
+        hoyStr,
+        inicioMesStr,
+        inicioMesSiguienteStr,
+        inicio6MesesStr
+    };
+}
+
 router.get('/resumen', async (req, res, next) => {
     try {
-        const inicioMes = new Date();
-        inicioMes.setDate(1);
-        const inicioMesStr = inicioMes.toISOString().slice(0, 10);
+        const { hoyStr, inicioMesStr, inicioMesSiguienteStr } = getRangoMesArgentina();
 
         const ventasMes = await db.one(`
-            SELECT COALESCE(SUM(total), 0) as total, COUNT(*)::int as cantidad
-            FROM remitos WHERE fecha >= $1 AND estado NOT IN ('anulado', 'cancelado')
-        `, [inicioMesStr]);
+            SELECT COALESCE(SUM(total), 0)::float as total, COUNT(*)::int as cantidad
+            FROM remitos
+            WHERE fecha >= $1 AND fecha < $2 AND estado NOT IN ('anulado', 'cancelado')
+        `, [inicioMesStr, inicioMesSiguienteStr]);
 
         const gastosMes = await db.one(`
-            SELECT COALESCE(SUM(monto), 0) as total, COUNT(*)::int as cantidad
-            FROM gastos WHERE fecha >= $1
-        `, [inicioMesStr]);
+            SELECT COALESCE(SUM(monto), 0)::float as total, COUNT(*)::int as cantidad
+            FROM gastos
+            WHERE fecha >= $1 AND fecha < $2
+        `, [inicioMesStr, inicioMesSiguienteStr]);
 
         const comprasMes = await db.one(`
-            SELECT COALESCE(SUM(total), 0) as total, COUNT(*)::int as cantidad
-            FROM recepciones WHERE fecha >= $1 AND estado != 'anulada'
-        `, [inicioMesStr]);
+            SELECT COALESCE(SUM(total), 0)::float as total, COUNT(*)::int as cantidad
+            FROM recepciones
+            WHERE fecha >= $1 AND fecha < $2 AND estado != 'anulada'
+        `, [inicioMesStr, inicioMesSiguienteStr]);
 
         const remitosPendientes = await db.one(`
             SELECT COUNT(*)::int as cantidad FROM remitos WHERE estado = 'pendiente'
@@ -45,39 +80,47 @@ router.get('/resumen', async (req, res, next) => {
         `);
 
         const valorStock = await db.one(`
-            SELECT COALESCE(SUM(stock_actual * precio_compra), 0) as total FROM productos WHERE activo = true
+            SELECT COALESCE(SUM(stock_actual * precio_compra), 0)::float as total FROM productos WHERE activo = true
         `);
 
         const estadosPedidos = await db.all(`
-            SELECT estado, COUNT(*)::int as cantidad, COALESCE(SUM(total), 0) as total
+            SELECT estado, COUNT(*)::int as cantidad, COALESCE(SUM(total), 0)::float as total
             FROM remitos
-            WHERE fecha >= CURRENT_DATE - INTERVAL '30 days'
+            WHERE fecha >= $1 AND fecha < $2
             GROUP BY estado
-        `);
+        `, [inicioMesStr, inicioMesSiguienteStr]);
 
         const estadosPedidosHoy = await db.all(`
-            SELECT estado, COUNT(*)::int as cantidad, COALESCE(SUM(total), 0) as total
+            SELECT estado, COUNT(*)::int as cantidad, COALESCE(SUM(total), 0)::float as total
             FROM remitos
-            WHERE fecha::date = CURRENT_DATE
+            WHERE fecha::date = $1::date
             GROUP BY estado
-        `);
+        `, [hoyStr]);
 
         const pedidosHoyInfo = await db.one(`
-            SELECT COUNT(*)::int as cantidad, COALESCE(SUM(total), 0) as total
+            SELECT COUNT(*)::int as cantidad, COALESCE(SUM(total), 0)::float as total
             FROM remitos
-            WHERE fecha::date = CURRENT_DATE
-        `);
+            WHERE fecha::date = $1::date AND estado NOT IN ('anulado', 'cancelado')
+        `, [hoyStr]);
+
+        const balanceMes = Number((
+            (Number(ventasMes?.total) || 0) -
+            (Number(comprasMes?.total) || 0) -
+            (Number(gastosMes?.total) || 0)
+        ).toFixed(2));
 
         res.json({
             ventas_mes: ventasMes,
             compras_mes: comprasMes,
             gastos_mes: gastosMes,
+            balance_mes: balanceMes,
             remitos_pendientes: remitosPendientes.cantidad,
             productos_bajo_stock: productosBajoStock,
             lotes_por_vencer: lotesPorVencer,
             valor_stock_actual: valorStock.total,
             estados_pedidos: estadosPedidos,
             estados_pedidos_hoy: estadosPedidosHoy,
+            pedidos_hoy: pedidosHoyInfo.cantidad,
             pedidos_hoy_info: pedidosHoyInfo
         });
     } catch (err) { next(err); }
@@ -85,23 +128,25 @@ router.get('/resumen', async (req, res, next) => {
 
 router.get('/evolucion-mensual', async (req, res, next) => {
     try {
+        const { inicio6MesesStr } = getRangoMesArgentina();
+
         const ventas = await db.all(`
-            SELECT TO_CHAR(fecha, 'YYYY-MM') as mes, COALESCE(SUM(total),0) as total
-            FROM remitos WHERE estado NOT IN ('anulado', 'cancelado') AND fecha >= CURRENT_DATE - INTERVAL '6 months'
+            SELECT TO_CHAR(fecha, 'YYYY-MM') as mes, COALESCE(SUM(total), 0)::float as total
+            FROM remitos WHERE estado NOT IN ('anulado', 'cancelado') AND fecha >= $1
             GROUP BY mes ORDER BY mes ASC
-        `);
+        `, [inicio6MesesStr]);
 
         const gastos = await db.all(`
-            SELECT TO_CHAR(fecha, 'YYYY-MM') as mes, COALESCE(SUM(monto),0) as total
-            FROM gastos WHERE fecha >= CURRENT_DATE - INTERVAL '6 months'
+            SELECT TO_CHAR(fecha, 'YYYY-MM') as mes, COALESCE(SUM(monto), 0)::float as total
+            FROM gastos WHERE fecha >= $1
             GROUP BY mes ORDER BY mes ASC
-        `);
+        `, [inicio6MesesStr]);
 
         const compras = await db.all(`
-            SELECT TO_CHAR(fecha, 'YYYY-MM') as mes, COALESCE(SUM(total),0) as total
-            FROM recepciones WHERE estado != 'anulada' AND fecha >= CURRENT_DATE - INTERVAL '6 months'
+            SELECT TO_CHAR(fecha, 'YYYY-MM') as mes, COALESCE(SUM(total), 0)::float as total
+            FROM recepciones WHERE estado != 'anulada' AND fecha >= $1
             GROUP BY mes ORDER BY mes ASC
-        `);
+        `, [inicio6MesesStr]);
 
         res.json({ ventas, gastos, compras });
     } catch (err) { next(err); }
