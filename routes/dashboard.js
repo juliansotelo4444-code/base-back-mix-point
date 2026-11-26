@@ -1,6 +1,6 @@
 const express = require('express');
 const db = require('../db/pool');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, requireRole } = require('../middleware/auth');
 
 const router = express.Router();
 router.use(requireAuth);
@@ -186,6 +186,115 @@ router.get('/productos-mas-vendidos', async (req, res, next) => {
         params.push(Number(limite) || 10);
 
         res.json(await db.all(sql, params));
+    } catch (err) { next(err); }
+});
+
+/**
+ * Análisis de Rentabilidad Real del mes en curso (margen real sobre costo, top productos/clientes y alertas < 15%)
+ */
+router.get('/rentabilidad', requireRole('admin', 'administracion', 'ventas'), async (req, res, next) => {
+    try {
+        const { inicioMesStr, inicioMesSiguienteStr } = getRangoMesArgentina();
+
+        const [ventasRow, costoRow, gastosRow, topProductos, topClientes, alertasMargen] = await Promise.all([
+            db.one(`
+                SELECT COALESCE(SUM(total), 0)::float as total
+                FROM remitos
+                WHERE fecha >= $1 AND fecha < $2 AND estado NOT IN ('anulado', 'cancelado')
+            `, [inicioMesStr, inicioMesSiguienteStr]),
+            db.one(`
+                SELECT COALESCE(SUM(ri.cantidad * COALESCE(NULLIF(l.costo_unitario, 0), p.precio_compra, 0)), 0)::float as costo_total
+                FROM remito_items ri
+                JOIN remitos r ON r.id = ri.remito_id
+                JOIN productos p ON p.id = ri.producto_id
+                LEFT JOIN lotes l ON l.id = ri.lote_id
+                WHERE r.fecha >= $1 AND r.fecha < $2 AND r.estado NOT IN ('anulado', 'cancelado')
+            `, [inicioMesStr, inicioMesSiguienteStr]),
+            db.one(`
+                SELECT COALESCE(SUM(monto), 0)::float as total
+                FROM gastos
+                WHERE fecha >= $1 AND fecha < $2
+            `, [inicioMesStr, inicioMesSiguienteStr]),
+            db.all(`
+                SELECT
+                    p.id,
+                    p.nombre,
+                    p.unidad_medida,
+                    COALESCE(SUM(ri.cantidad), 0)::float as cantidad,
+                    COALESCE(SUM(ri.subtotal), 0)::float as facturado,
+                    COALESCE(SUM(ri.cantidad * COALESCE(NULLIF(l.costo_unitario, 0), p.precio_compra, 0)), 0)::float as costo,
+                    (COALESCE(SUM(ri.subtotal), 0) - COALESCE(SUM(ri.cantidad * COALESCE(NULLIF(l.costo_unitario, 0), p.precio_compra, 0)), 0))::float as ganancia,
+                    CASE WHEN COALESCE(SUM(ri.subtotal), 0) > 0
+                        THEN ROUND(((SUM(ri.subtotal) - SUM(ri.cantidad * COALESCE(NULLIF(l.costo_unitario, 0), p.precio_compra, 0))) / SUM(ri.subtotal)) * 100, 1)::float
+                        ELSE 0
+                    END as margen_pct
+                FROM remito_items ri
+                JOIN remitos r ON r.id = ri.remito_id
+                JOIN productos p ON p.id = ri.producto_id
+                LEFT JOIN lotes l ON l.id = ri.lote_id
+                WHERE r.fecha >= $1 AND r.fecha < $2 AND r.estado NOT IN ('anulado', 'cancelado')
+                GROUP BY p.id, p.nombre, p.unidad_medida
+                ORDER BY ganancia DESC
+                LIMIT 5
+            `, [inicioMesStr, inicioMesSiguienteStr]),
+            db.all(`
+                SELECT
+                    c.id,
+                    c.razon_social,
+                    COUNT(DISTINCT r.id)::int as pedidos,
+                    COALESCE(SUM(ri.subtotal), 0)::float as facturado,
+                    COALESCE(SUM(ri.cantidad * COALESCE(NULLIF(l.costo_unitario, 0), p.precio_compra, 0)), 0)::float as costo,
+                    (COALESCE(SUM(ri.subtotal), 0) - COALESCE(SUM(ri.cantidad * COALESCE(NULLIF(l.costo_unitario, 0), p.precio_compra, 0)), 0))::float as ganancia,
+                    CASE WHEN COALESCE(SUM(ri.subtotal), 0) > 0
+                        THEN ROUND(((SUM(ri.subtotal) - SUM(ri.cantidad * COALESCE(NULLIF(l.costo_unitario, 0), p.precio_compra, 0))) / SUM(ri.subtotal)) * 100, 1)::float
+                        ELSE 0
+                    END as margen_pct
+                FROM remito_items ri
+                JOIN remitos r ON r.id = ri.remito_id
+                JOIN clientes c ON c.id = r.cliente_id
+                JOIN productos p ON p.id = ri.producto_id
+                LEFT JOIN lotes l ON l.id = ri.lote_id
+                WHERE r.fecha >= $1 AND r.fecha < $2 AND r.estado NOT IN ('anulado', 'cancelado')
+                GROUP BY c.id, c.razon_social
+                ORDER BY ganancia DESC
+                LIMIT 5
+            `, [inicioMesStr, inicioMesSiguienteStr]),
+            db.all(`
+                SELECT
+                    id,
+                    codigo,
+                    nombre,
+                    precio_compra::float,
+                    precio_venta::float,
+                    ROUND(((precio_venta - precio_compra) / NULLIF(precio_compra, 0)) * 100, 1)::float as margen_pct
+                FROM productos
+                WHERE activo = true
+                  AND precio_compra > 0
+                  AND precio_venta > 0
+                  AND ((precio_venta - precio_compra) / precio_compra) * 100 < 15
+                ORDER BY margen_pct ASC
+                LIMIT 10
+            `)
+        ]);
+
+        const ventas = Number(ventasRow?.total || 0);
+        const costoMercaderia = Number(costoRow?.costo_total || 0);
+        const gastos = Number(gastosRow?.total || 0);
+        const gananciaBruta = Number((ventas - costoMercaderia).toFixed(2));
+        const gananciaNetaEstimada = Number((gananciaBruta - gastos).toFixed(2));
+        const margenBrutoPct = ventas > 0 ? Number(((gananciaBruta / ventas) * 100).toFixed(1)) : 0;
+
+        res.json({
+            ventas_mes: ventas,
+            costo_mercaderia_vendida: costoMercaderia,
+            gastos_mes: gastos,
+            ganancia_bruta: gananciaBruta,
+            ganancia_neta_estimada: gananciaNetaEstimada,
+            margen_bruto_pct: margenBrutoPct,
+            top_productos_rentables: topProductos,
+            top_clientes_rentables: topClientes,
+            alertas_margen_bajo: alertasMargen
+        });
     } catch (err) { next(err); }
 });
 

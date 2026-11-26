@@ -123,4 +123,25 @@ router.post('/sincronizar', requireRole('admin', 'administracion', 'ventas'), as
     }
 });
 
+/**
+ * Genera un Link de Pago / QR dinámico en Mercado Pago vinculado al remito
+ */
+router.post('/link-pago-remito', requireRole('admin', 'administracion', 'ventas'), async (req, res, next) => {
+    try {
+        const { remito_id } = req.body;
+        if (!remito_id) {
+            return res.status(400).json({ error: 'remito_id es requerido.' });
+        }
+        const hostUrl = req.get('host') ? `${req.protocol}://${req.get('host')}` : '';
+        const backendUrl = process.env.BACKEND_PUBLIC_URL || hostUrl;
+        const resultado = await MercadoPagoService.crearLinkPagoRemito({
+            remito_id,
+            backend_url: backendUrl
+        });
+        res.json(resultado);
+    } catch (err) {
+        next(err);
+    }
+});
+
 module.exports = router;

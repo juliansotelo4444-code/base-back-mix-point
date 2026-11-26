@@ -26,6 +26,7 @@ router.get('/', async (req, res, next) => {
         const { cliente_id, desde, hasta, estado, estado_pago } = req.query;
         let sql = `
             SELECT r.*, c.razon_social as cliente_nombre, c.telefono as cliente_telefono,
+                   c.direccion as cliente_direccion, c.localidad as cliente_localidad,
                    COALESCE(r.estado_pago, 'pendiente') as estado_pago,
                    (r.estado_pago = 'pagado' OR EXISTS (
                        SELECT 1 FROM conciliaciones_bancarias cb 
@@ -846,6 +847,49 @@ router.post('/hoja-de-ruta', async (req, res, next) => {
                 total_importe: Math.round(totalImporte * 100) / 100
             }
         });
+    } catch (err) { next(err); }
+});
+
+/**
+ * Registra comprobante / foto de entrega (y recibido por) en datos_despacho del remito
+ */
+router.post('/:id/comprobante-entrega', async (req, res, next) => {
+    try {
+        const remitoId = Number(req.params.id);
+        if (!remitoId) return res.status(400).json({ error: 'ID de remito inválido.' });
+
+        const { recibido_por = '', notas_entrega = '', foto_entrega_base64 = null } = req.body || {};
+
+        if (foto_entrega_base64 && String(foto_entrega_base64).length > 600000) {
+            return res.status(400).json({ error: 'La imagen es demasiado pesada. Máximo ~450 KB.' });
+        }
+
+        const remito = await db.one('SELECT id, numero FROM remitos WHERE id = $1', [remitoId]);
+        if (!remito) return res.status(404).json({ error: 'Remito no encontrado.' });
+
+        const payloadEntrega = {
+            entrega: {
+                fecha_hora: new Date().toISOString(),
+                recibido_por: String(recibido_por || '').trim(),
+                notas_entrega: String(notas_entrega || '').trim(),
+                foto_entrega: foto_entrega_base64 || null,
+                repartidor: req.usuario?.nombre || ''
+            }
+        };
+
+        const { row: actualizado } = await db.run(`
+            UPDATE remitos
+            SET datos_despacho = COALESCE(datos_despacho, '{}'::jsonb) || $1::jsonb
+            WHERE id = $2
+            RETURNING *
+        `, [JSON.stringify(payloadEntrega), remito.id]);
+
+        emitirEventoDeposito('remito:editado', {
+            id: remito.id,
+            numero: remito.numero
+        });
+
+        res.json({ ok: true, remito: actualizado });
     } catch (err) { next(err); }
 });
 

@@ -386,12 +386,135 @@ class MercadoPagoService {
         const ahoraIso = new Date().toISOString();
         await setConfigValue('mercadopago_ultimo_sync', ahoraIso);
 
+        // Si el cobro proviene de un Link de Pago / QR generado para un remito específico, auto-conciliar al instante
+        let remitoIdMatch = p.metadata?.remito_id ? Number(p.metadata.remito_id) : null;
+        if (!remitoIdMatch && mapped.external_reference) {
+            const matchRef = String(mapped.external_reference).match(/^REMITO-(\d+)\|/i);
+            if (matchRef) remitoIdMatch = Number(matchRef[1]);
+        }
+
+        let autoConciliado = false;
+        if (remitoIdMatch) {
+            try {
+                await this.confirmarPagoEnRemito({
+                    remito_id: remitoIdMatch,
+                    payment: mapped,
+                    usuario_id: null
+                });
+                autoConciliado = true;
+            } catch (errAuto) {
+                console.warn('[MercadoPago Webhook] No se pudo auto-conciliar remito:', errAuto.message);
+            }
+        }
+
         emitirEventoDeposito('pago_mercadopago_recibido', {
             importados: resultado.importados,
+            auto_conciliado: autoConciliado,
+            remito_id: remitoIdMatch,
             payment: mapped
         });
 
-        return { ok: true, importados: resultado.importados, payment: mapped };
+        return { ok: true, importados: resultado.importados, auto_conciliado: autoConciliado, payment: mapped };
+    }
+
+    static async crearLinkPagoRemito({ remito_id, backend_url = '' } = {}) {
+        const remitoIdNum = Number(remito_id);
+        if (!remitoIdNum) {
+            throw new Error('ID de remito inválido.');
+        }
+
+        const cfg = await this.obtenerConfig({ incluirToken: true });
+        if (!cfg.access_token) {
+            throw new Error('Mercado Pago no está configurado. Cargá tu Access Token en Conciliación Bancaria primero.');
+        }
+
+        const remito = await db.one(`
+            SELECT r.*, c.razon_social, c.email
+            FROM remitos r
+            JOIN clientes c ON c.id = r.cliente_id
+            WHERE r.id = $1
+        `, [remitoIdNum]);
+
+        if (!remito) {
+            throw new Error('Remito no encontrado.');
+        }
+
+        const total = Number(remito.total) || 0;
+        if (total <= 0) {
+            throw new Error('El remito debe tener un total mayor a $0 para generar un link de pago.');
+        }
+
+        const cleanBackend = String(backend_url || '').replace(/\/+$/, '');
+        const preferenceBody = {
+            items: [
+                {
+                    title: `Pedido Mix Point ${remito.numero} (${remito.razon_social})`,
+                    quantity: 1,
+                    currency_id: 'ARS',
+                    unit_price: Number(total.toFixed(2))
+                }
+            ],
+            external_reference: `REMITO-${remito.id}|${remito.numero}`,
+            statement_descriptor: 'MIX POINT',
+            metadata: {
+                remito_id: remito.id,
+                remito_numero: remito.numero,
+                cliente_id: remito.cliente_id
+            }
+        };
+
+        if (remito.email && String(remito.email).includes('@')) {
+            preferenceBody.payer = {
+                name: remito.razon_social,
+                email: String(remito.email).trim()
+            };
+        }
+
+        if (cleanBackend.startsWith('https://')) {
+            preferenceBody.notification_url = `${cleanBackend}/api/mercadopago/webhook`;
+        }
+
+        const res = await fetch(`${MP_API_BASE}/checkout/preferences`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${cfg.access_token}`,
+                'Content-Type': 'application/json',
+                Accept: 'application/json'
+            },
+            body: JSON.stringify(preferenceBody)
+        });
+
+        if (!res.ok) {
+            const errBody = await res.json().catch(() => ({}));
+            throw new Error(errBody.message || `Mercado Pago respondió HTTP ${res.status} al crear el link.`);
+        }
+
+        const pref = await res.json();
+        const linkMeta = {
+            mp_link_pago: pref.init_point,
+            mp_preference_id: pref.id,
+            mp_link_generado_at: new Date().toISOString()
+        };
+
+        await db.run(`
+            UPDATE remitos
+            SET datos_despacho = COALESCE(datos_despacho, '{}'::jsonb) || $1::jsonb
+            WHERE id = $2
+        `, [JSON.stringify(linkMeta), remito.id]);
+
+        emitirEventoDeposito('remito:editado', {
+            id: remito.id,
+            numero: remito.numero
+        });
+
+        return {
+            ok: true,
+            init_point: pref.init_point,
+            preference_id: pref.id,
+            remito_id: remito.id,
+            remito_numero: remito.numero,
+            total
+        };
     }
 
     static async confirmarPagoEnRemito({ remito_id, payment, usuario_id = null }) {

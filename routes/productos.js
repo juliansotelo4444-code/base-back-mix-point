@@ -1,6 +1,6 @@
 const express = require('express');
 const db = require('../db/pool');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, requireRole } = require('../middleware/auth');
 const AlertasService = require('../services/alertasService');
 const AuditService = require('../services/auditService');
 const { emitirEventoDeposito } = require('../socket');
@@ -318,6 +318,143 @@ router.get('/:id/movimientos', async (req, res, next) => {
             SELECT * FROM movimientos_stock WHERE producto_id = $1 ORDER BY fecha DESC LIMIT 200
         `, [req.params.id]);
         res.json(movimientos);
+    } catch (err) { next(err); }
+});
+
+/**
+ * Ajuste masivo de precios por porcentaje (opcionalmente filtrado por categoría o proveedor)
+ */
+router.post('/ajuste-masivo-precios', requireRole('admin', 'administracion'), async (req, res, next) => {
+    try {
+        const {
+            porcentaje,
+            categoria_id = null,
+            proveedor_id = null,
+            redondeo = 100,
+            incluir_escalas = true,
+            incluir_costo = false,
+            preview = false
+        } = req.body || {};
+
+        const pct = Number(porcentaje);
+        if (!Number.isFinite(pct) || pct === 0 || pct < -80 || pct > 500) {
+            return res.status(400).json({ error: 'Porcentaje inválido. Debe ser distinto de 0 y estar entre -80 y 500.' });
+        }
+
+        const step = Math.max(0, Number(redondeo) || 0);
+        const factor = 1 + (pct / 100);
+        const calcularNuevo = (actual) => {
+            const num = Number(actual) || 0;
+            if (num <= 0) return 0;
+            const bruto = num * factor;
+            if (step > 0) {
+                return Math.max(0, Math.round(bruto / step) * step);
+            }
+            return Math.max(0, Math.round(bruto * 100) / 100);
+        };
+
+        let sql = `
+            SELECT p.id, p.codigo, p.nombre, p.precio_compra, p.precio_venta,
+                   p.precio_5kg, p.precio_10kg, p.precio_25kg, p.precio_30kg
+            FROM productos p
+            WHERE p.activo = true
+        `;
+        const params = [];
+
+        if (categoria_id) {
+            params.push(Number(categoria_id));
+            sql += ` AND p.categoria_id = $${params.length}`;
+        }
+        if (proveedor_id) {
+            params.push(Number(proveedor_id));
+            sql += ` AND EXISTS (
+                SELECT 1 FROM recepcion_items ri
+                JOIN recepciones rec ON rec.id = ri.recepcion_id
+                WHERE ri.producto_id = p.id
+                  AND rec.proveedor_id = $${params.length}
+                  AND rec.estado != 'anulada'
+            )`;
+        }
+        sql += ' ORDER BY p.nombre ASC';
+
+        const candidatos = await db.all(sql, params);
+        const cambios = candidatos.map(p => ({
+            id: p.id,
+            codigo: p.codigo,
+            nombre: p.nombre,
+            precio_compra_antes: Number(p.precio_compra) || 0,
+            precio_compra_despues: incluir_costo ? calcularNuevo(p.precio_compra) : (Number(p.precio_compra) || 0),
+            precio_venta_antes: Number(p.precio_venta) || 0,
+            precio_venta_despues: calcularNuevo(p.precio_venta),
+            precio_5kg_antes: Number(p.precio_5kg) || 0,
+            precio_5kg_despues: incluir_escalas ? calcularNuevo(p.precio_5kg) : (Number(p.precio_5kg) || 0),
+            precio_10kg_antes: Number(p.precio_10kg) || 0,
+            precio_10kg_despues: incluir_escalas ? calcularNuevo(p.precio_10kg) : (Number(p.precio_10kg) || 0),
+            precio_25kg_antes: Number(p.precio_25kg) || 0,
+            precio_25kg_despues: incluir_escalas ? calcularNuevo(p.precio_25kg) : (Number(p.precio_25kg) || 0),
+            precio_30kg_antes: Number(p.precio_30kg) || 0,
+            precio_30kg_despues: incluir_escalas ? calcularNuevo(p.precio_30kg) : (Number(p.precio_30kg) || 0)
+        }));
+
+        if (preview) {
+            return res.json({
+                ok: true,
+                preview: true,
+                total_afectados: cambios.length,
+                productos: cambios
+            });
+        }
+
+        if (cambios.length === 0) {
+            return res.json({ ok: true, actualizados: 0 });
+        }
+
+        await db.transaction(async (tx) => {
+            for (const c of cambios) {
+                await tx.run(`
+                    UPDATE productos SET
+                        precio_compra = $1,
+                        precio_venta = $2,
+                        precio_5kg = $3,
+                        precio_10kg = $4,
+                        precio_25kg = $5,
+                        precio_30kg = $6
+                    WHERE id = $7
+                `, [
+                    c.precio_compra_despues,
+                    c.precio_venta_despues,
+                    c.precio_5kg_despues,
+                    c.precio_10kg_despues,
+                    c.precio_25kg_despues,
+                    c.precio_30kg_despues,
+                    c.id
+                ]);
+            }
+
+            await AuditService.registrar({
+                usuario_id: req.usuario?.id || null,
+                accion: 'AJUSTE_MASIVO_PRECIOS',
+                entidad: 'productos',
+                entidad_id: null,
+                detalles: {
+                    porcentaje: pct,
+                    categoria_id: categoria_id ? Number(categoria_id) : null,
+                    proveedor_id: proveedor_id ? Number(proveedor_id) : null,
+                    redondeo: step,
+                    incluir_escalas: Boolean(incluir_escalas),
+                    incluir_costo: Boolean(incluir_costo),
+                    total_afectados: cambios.length
+                },
+                ip_origen: AuditService.extraerIp(req)
+            }, tx);
+        });
+
+        emitirEventoDeposito('productos_actualizados', {
+            cantidad: cambios.length,
+            porcentaje: pct
+        });
+
+        res.json({ ok: true, actualizados: cambios.length });
     } catch (err) { next(err); }
 });
 
